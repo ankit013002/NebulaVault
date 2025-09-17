@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { Sidebar } from "lucide-react";
+import MainSidebar from "@/components/MainSidebar";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +29,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div className="flex">
+          <div className="w-[20%] h-screen max-w-[300px]">
+            <MainSidebar />
+          </div>
+          <div className="w-full h-screen">{children}</div>
+        </div>
       </body>
     </html>
   );
