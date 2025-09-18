@@ -1,6 +1,7 @@
 "use client";
 
 import { SideBarOptionType } from "@/utils/SideBarOptions";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface SidebarMenuOptionProps {
@@ -15,11 +16,16 @@ const SideBarMenuOption = ({
   setPageSelected,
 }: SidebarMenuOptionProps) => {
   const [isOptionSelected, setIsOptionSelected] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsOptionSelected(pageSelected === option.name);
-  }, [pageSelected]);
+  }, [pageSelected, option.name]);
 
+  const handleSelect = () => {
+    setPageSelected(option.name);
+    router.push(`${option.name}`);
+  };
   return (
     <>
       <label
@@ -35,7 +41,10 @@ const SideBarMenuOption = ({
           value={option.name}
           className="hidden"
           checked={isOptionSelected}
-          onChange={() => setPageSelected(option.name)}
+          onChange={() => {
+            setPageSelected(option.name);
+            handleSelect();
+          }}
         />
         {option.icon && <span className="text-lg">{option.icon}</span>}
         <span>{option.name}</span>

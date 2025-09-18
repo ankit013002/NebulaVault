@@ -4,15 +4,9 @@ import { SideBarOptions } from "@/utils/SideBarOptions";
 import React, { useState } from "react";
 import SideBarMenuOption from "./SideBarMenuOption";
 
-interface SideBarMenuOptionsProps {
-  pageSelected: string;
-  setPageSelected: React.Dispatch<React.SetStateAction<string>>;
-}
+const SideBarMenuOptions = () => {
+  const [pageSelected, setPageSelected] = useState("");
 
-const SideBarMenuOptions = ({
-  pageSelected,
-  setPageSelected,
-}: SideBarMenuOptionsProps) => {
   return (
     <div className="flex flex-col w-full">
       {SideBarOptions.map((option, index) => (
