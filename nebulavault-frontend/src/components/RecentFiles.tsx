@@ -1,7 +1,25 @@
+"use client";
+
 import { MockFiles } from "@/utils/MockFiles";
-import React from "react";
+import React, { useState } from "react";
 
 const RecentFiles = () => {
+  const [file, setFile] = useState<File>();
+
+  const downloadFile = () => {
+    if (!file) {
+      return;
+    }
+
+    console.log("HERE");
+    const url = URL.createObjectURL(file);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = file.name;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="flex flex-col gap-2">
       <div className="text-2xl font-medium">Recent Files</div>
@@ -13,7 +31,10 @@ const RecentFiles = () => {
           <div>File Size</div>
         </div>
         {MockFiles.map((file, index) => (
-          <div className="grid grid-cols-4 border-1 border-[#1d1d25] p-2">
+          <div
+            key={file.name}
+            className="grid grid-cols-4 border-1 border-[#1d1d25] p-2"
+          >
             <div>{file.name}</div>
             <div>{file.owner}</div>
             <div>{file.lastModified}</div>
@@ -24,12 +45,24 @@ const RecentFiles = () => {
           </div>
         ))}
         <div className="border-2 border-[#1d1d25] rounded-b-2xl p-2">
-          <div>
+          <div className="text-sm">
             <span>{MockFiles.length}</span>
             <span>{" files"}</span>
           </div>
         </div>
       </div>
+      <label>
+        <div>Upload a File</div>
+        <input
+          type="file"
+          onChange={(e) => e.target.files && setFile(e.target.files[0])}
+        />
+        {file && (
+          <button className="btn" onClick={() => downloadFile()}>
+            Download
+          </button>
+        )}
+      </label>
     </div>
   );
 };
