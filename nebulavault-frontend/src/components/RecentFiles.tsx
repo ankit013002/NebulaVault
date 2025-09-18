@@ -1,31 +1,32 @@
 "use client";
 
-import { MockFiles } from "@/utils/MockFiles";
+import { FileType } from "@/utils/MockFiles";
 import { stat } from "fs";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
+import LoadingSpinner from "./LoadingSpinner";
 
 const RecentFiles = () => {
-  const [status, setStatus] = useState("");
   const [isDragging, setIsDragging] = useState(false);
-  const [file, setFile] = useState<string>();
+  const [files, setFiles] = useState<FileType[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const uploadFile = async (file: File) => {
-    const formData = new FormData();
-    formData.append("file", file);
-
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
+  useEffect(() => {
+    const updateFiles = async () => {
+      const res = await fetch("/api/files", {
+        method: "GET",
       });
-
-      const data = await res.json();
+      const resjson = await res.json();
+      const data = resjson.files;
       console.log(data);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+      setFiles((prevData) => {
+        setIsLoading(false);
+        return data;
+      });
+    };
+    setIsLoading(true);
+    updateFiles();
+  }, []);
 
   // const downloadFile = async () => {
   //   if (!file) {
@@ -77,7 +78,10 @@ const RecentFiles = () => {
         body: formData,
       });
       const data = await res.json();
+      const files = data.files;
+      setFiles(files);
       console.log("Successfully Uploaded Files");
+      console.log(data.message);
     } catch (e) {
       if (e instanceof Error) {
         console.error(e);
@@ -104,6 +108,8 @@ const RecentFiles = () => {
     uploadFiles(buffer);
   };
 
+  const showDbStatus = async () => {};
+
   return (
     <div
       onDragOver={(e) => {
@@ -122,7 +128,9 @@ const RecentFiles = () => {
       }}
       className="h-full"
     >
-      {isDragging ? (
+      {isLoading ? (
+        <LoadingSpinner />
+      ) : isDragging ? (
         <div className="w-full h-full border-dashed border-2 flex justify-center items-center">
           <FaPlus className="text-5xl" />
         </div>
@@ -136,40 +144,27 @@ const RecentFiles = () => {
               <div>Last Modified</div>
               <div>File Size</div>
             </div>
-            {MockFiles.map((file, index) => (
+            {files.map((file, index) => (
               <div
                 key={file.name}
-                className="grid grid-cols-4 border-1 border-[#1d1d25] p-2"
+                className="grid grid-cols-4 border-1 border-[#1d1d25] p-2 items-center"
               >
                 <div>{file.name}</div>
                 <div>{file.owner}</div>
                 <div>{file.lastModified}</div>
-                <div>
-                  <span>{file.fileSize}</span>
-                  <span>{file.fileUnits}</span>
-                </div>
+                <div>{file.size}</div>
               </div>
             ))}
             <div className="border-2 border-[#1d1d25] rounded-b-2xl p-2">
               <div className="text-sm">
-                <span>{MockFiles.length}</span>
+                <span>{files.length}</span>
                 <span>{" files"}</span>
               </div>
             </div>
           </div>
-          <label>
-            <div>Upload a File</div>
-            <input
-              type="file"
-              onChange={(e) => e.target.files && uploadFile(e.target.files[0])}
-            />
-            {/* {file && (
-          <button className="btn" onClick={() => downloadFile()}>
-            Download
+          <button className="btn" onClick={() => showDbStatus()}>
+            Status
           </button>
-        )} */}
-            {status && <div>{status}</div>}
-          </label>
         </div>
       )}
     </div>
