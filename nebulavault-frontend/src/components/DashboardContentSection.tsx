@@ -19,13 +19,7 @@ const DashboardContentSection = () => {
       });
       const resjson = await res.json();
       const data = resjson.files as FileType[];
-      console.log("HERE");
-      let accumulatingSum = 0;
-      data.forEach((file) => {
-        accumulatingSum += file.size.raw;
-      });
-      setTotalStorageOccupied(getNormalizedSize(accumulatingSum));
-      console.log(data);
+      updateTotalStorageOccupied(data);
       setFiles((prevData) => {
         setIsLoading(false);
         return data;
@@ -34,6 +28,14 @@ const DashboardContentSection = () => {
     setIsLoading(true);
     updateFiles();
   }, []);
+
+  const updateTotalStorageOccupied = (files: FileType[]) => {
+    let accumulatingSum = 0;
+    files.forEach((file) => {
+      accumulatingSum += file.size.raw;
+    });
+    setTotalStorageOccupied(getNormalizedSize(accumulatingSum));
+  };
 
   const uploadFiles = async (files: File[]) => {
     const formData = new FormData();
@@ -44,8 +46,10 @@ const DashboardContentSection = () => {
         method: "POST",
         body: formData,
       });
-      const data = await res.json();
-      setFiles(data.files);
+      const resjson = await res.json();
+      const data = (await resjson.files) as FileType[];
+      setFiles(data);
+      updateTotalStorageOccupied(data);
       console.log("Successfully Uploaded Files");
     } catch (e) {
       console.error("Upload failed", e);
