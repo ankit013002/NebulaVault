@@ -1,11 +1,3 @@
-export type FileType = {
-  name: string;
-  owner: string;
-  size: string;
-  type: string;
-  lastModified: number;
-};
-
 // export const MockFiles: FileType[] = [
 //   {
 //     name: "Project Proposal.pdf",
@@ -29,3 +21,36 @@ export type FileType = {
 //     fileUnits: "KB",
 //   },
 // ];
+
+// const downloadFile = async () => {
+//   if (!file) {
+//     return;
+//   }
+
+//   const formData = new FormData();
+//   formData.append("file", file);
+
+//   setStatus("Uploading...");
+
+//   try {
+//     const res = await fetch("/api/upload", {
+//       method: "POST",
+//       body: formData,
+//     });
+
+//     const data = await res.json();
+//     console.log(data);
+//     setStatus("Upload Complete");
+//   } catch (e) {
+//     console.error(e);
+//     setStatus("Upload Failed");
+//   }
+
+//   // console.log("HERE");
+//   // const url = URL.createObjectURL(file);
+//   // const link = document.createElement("a");
+//   // link.href = url;
+//   // link.download = file.name;
+//   // link.click();
+//   // URL.revokeObjectURL(url);
+// };

@@ -1,5 +1,6 @@
+import { FileType } from "@/types/File";
 import { readDb } from "@/utils/fileDb";
-import { FileType } from "@/utils/MockFiles";
+
 import { NextResponse } from "next/server";
 
 export async function GET(req: Request) {

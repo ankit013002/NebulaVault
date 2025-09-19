@@ -1,67 +1,21 @@
 "use client";
 
-import { FileType } from "@/utils/MockFiles";
 import { stat } from "fs";
 import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import LoadingSpinner from "./LoadingSpinner";
+import { FileType } from "@/types/File";
 
-const RecentFiles = () => {
+interface RecentFilesProps {
+  isLoading: boolean;
+  files: FileType[];
+  uploadFiles: (f: File[]) => Promise<void>;
+}
+
+const RecentFiles = ({ isLoading, files, uploadFiles }: RecentFilesProps) => {
   const [isDragging, setIsDragging] = useState(false);
-  const [files, setFiles] = useState<FileType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [replaceFiles, setReplaceFiles] = useState<string[]>([]);
   const [pendingFiles, setPendingFiles] = useState<File[]>([]);
-
-  useEffect(() => {
-    const updateFiles = async () => {
-      const res = await fetch("/api/files", {
-        method: "GET",
-      });
-      const resjson = await res.json();
-      const data = resjson.files;
-      console.log(data);
-      setFiles((prevData) => {
-        setIsLoading(false);
-        return data;
-      });
-    };
-    setIsLoading(true);
-    updateFiles();
-  }, []);
-
-  // const downloadFile = async () => {
-  //   if (!file) {
-  //     return;
-  //   }
-
-  //   const formData = new FormData();
-  //   formData.append("file", file);
-
-  //   setStatus("Uploading...");
-
-  //   try {
-  //     const res = await fetch("/api/upload", {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-
-  //     const data = await res.json();
-  //     console.log(data);
-  //     setStatus("Upload Complete");
-  //   } catch (e) {
-  //     console.error(e);
-  //     setStatus("Upload Failed");
-  //   }
-
-  //   // console.log("HERE");
-  //   // const url = URL.createObjectURL(file);
-  //   // const link = document.createElement("a");
-  //   // link.href = url;
-  //   // link.download = file.name;
-  //   // link.click();
-  //   // URL.revokeObjectURL(url);
-  // };
 
   const areFilesBeingReplaced = (newFiles: File[]) => {
     const buffer: string[] = [];
@@ -76,31 +30,14 @@ const RecentFiles = () => {
     return buffer.length > 0;
   };
 
-  const uploadFiles = async (files: File[]) => {
+  const prepareFileUpload = async (files: File[]) => {
     if (files.length == 0) {
       return;
     }
 
     const anyReplacements = areFilesBeingReplaced(files);
     if (!anyReplacements) {
-      await actuallyUpload(files);
-    }
-  };
-
-  const actuallyUpload = async (files: File[]) => {
-    const formData = new FormData();
-    files.forEach((file) => formData.append("files", file));
-
-    try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-      const data = await res.json();
-      setFiles(data.files);
-      console.log("Successfully Uploaded Files");
-    } catch (e) {
-      console.error("Upload failed", e);
+      await uploadFiles(files);
     }
   };
 
@@ -118,17 +55,15 @@ const RecentFiles = () => {
       }
     });
 
-    uploadFiles(buffer);
+    prepareFileUpload(buffer);
   };
-
-  const showDbStatus = async () => {};
 
   const handleCancelReplace = () => {
     setReplaceFiles([]);
   };
 
   const handleConfirmReplace = async () => {
-    actuallyUpload(pendingFiles);
+    uploadFiles(pendingFiles);
     setReplaceFiles([]);
   };
 
@@ -206,7 +141,9 @@ const RecentFiles = () => {
                 <div>{file.name}</div>
                 <div>{file.owner}</div>
                 <div>{new Date(file.lastModified).toLocaleString()}</div>
-                <div>{file.size}</div>
+                <div>
+                  <span>{file.size.value + " " + file.size.unit}</span>
+                </div>
               </div>
             ))}
             <div className="border-2 border-[#1d1d25] rounded-b-2xl p-2">
@@ -216,9 +153,6 @@ const RecentFiles = () => {
               </div>
             </div>
           </div>
-          <button className="btn" onClick={() => showDbStatus()}>
-            Status
-          </button>
         </div>
       )}
     </div>

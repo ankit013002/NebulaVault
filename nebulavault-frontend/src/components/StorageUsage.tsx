@@ -1,6 +1,13 @@
+import { FileSize } from "@/types/File";
 import React from "react";
 
-const StorageUsage = () => {
+interface StorageUsageProps {
+  totalStorageOccupied: FileSize | null;
+}
+
+const StorageUsage = ({ totalStorageOccupied }: StorageUsageProps) => {
+  console.log(totalStorageOccupied);
+
   return (
     <div className="bg-[#13161c] py-5 px-2 rounded-2xl flex flex-col gap-2">
       <div>Storage Usage</div>
@@ -13,7 +20,13 @@ const StorageUsage = () => {
         </div>
       </div>
       <div className="flex justify-between">
-        <div>107.8 GB Used</div>
+        {totalStorageOccupied != null ? (
+          <div>
+            {totalStorageOccupied?.value} {totalStorageOccupied?.unit}
+          </div>
+        ) : (
+          <div>0 B</div>
+        )}
         <div>of 200 GB</div>
       </div>
     </div>

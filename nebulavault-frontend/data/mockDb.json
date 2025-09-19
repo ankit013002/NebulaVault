@@ -1,23 +1,13 @@
 [
   {
-    "name": "ChatGPT Image Sep 17, 2025, 05_49_04 PM.png",
-    "owner": "You",
-    "size": 1831349,
-    "type": "image/png",
-    "lastModified": 1758243293102
-  },
-  {
-    "name": "a39c9ef5-dfa2-4f04-ac26-d42f937cd617.png",
-    "owner": "You",
-    "size": 1136392,
-    "type": "image/png",
-    "lastModified": 1758243293102
-  },
-  {
     "name": "OSR_ADVISING.pdf",
     "owner": "You",
-    "size": 22750,
+    "size": {
+      "raw": 22750,
+      "value": 22.22,
+      "unit": "KB"
+    },
     "type": "application/pdf",
-    "lastModified": 1758243296329
+    "lastModified": 1758322217728
   }
 ]
