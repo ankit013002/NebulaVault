@@ -3,7 +3,7 @@ export type FileType = {
   owner: string;
   size: string;
   type: string;
-  lastModified: string;
+  lastModified: number;
 };
 
 // export const MockFiles: FileType[] = [

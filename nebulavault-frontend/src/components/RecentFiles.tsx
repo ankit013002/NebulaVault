@@ -10,6 +10,8 @@ const RecentFiles = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [files, setFiles] = useState<FileType[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [replaceFiles, setReplaceFiles] = useState<string[]>([]);
+  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
 
   useEffect(() => {
     const updateFiles = async () => {
@@ -61,16 +63,33 @@ const RecentFiles = () => {
   //   // URL.revokeObjectURL(url);
   // };
 
+  const areFilesBeingReplaced = (newFiles: File[]) => {
+    const buffer: string[] = [];
+
+    newFiles
+      .filter((file) => files.find((f) => f.name === file.name))
+      .map((file) => buffer.push(file.name));
+
+    setReplaceFiles(buffer);
+    setPendingFiles(newFiles);
+
+    return buffer.length > 0;
+  };
+
   const uploadFiles = async (files: File[]) => {
     if (files.length == 0) {
       return;
     }
 
-    const formData = new FormData();
+    const anyReplacements = areFilesBeingReplaced(files);
+    if (!anyReplacements) {
+      await actuallyUpload(files);
+    }
+  };
 
-    files.forEach((file, index) => {
-      formData.append("files", file);
-    });
+  const actuallyUpload = async (files: File[]) => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append("files", file));
 
     try {
       const res = await fetch("/api/upload", {
@@ -78,16 +97,10 @@ const RecentFiles = () => {
         body: formData,
       });
       const data = await res.json();
-      const files = data.files;
-      setFiles(files);
+      setFiles(data.files);
       console.log("Successfully Uploaded Files");
-      console.log(data.message);
     } catch (e) {
-      if (e instanceof Error) {
-        console.error(e);
-      } else {
-        console.log(`Error: ${e}`);
-      }
+      console.error("Upload failed", e);
     }
   };
 
@@ -110,6 +123,15 @@ const RecentFiles = () => {
 
   const showDbStatus = async () => {};
 
+  const handleCancelReplace = () => {
+    setReplaceFiles([]);
+  };
+
+  const handleConfirmReplace = async () => {
+    actuallyUpload(pendingFiles);
+    setReplaceFiles([]);
+  };
+
   return (
     <div
       onDragOver={(e) => {
@@ -126,9 +148,41 @@ const RecentFiles = () => {
         e.preventDefault();
         handleDragDrop(e);
       }}
-      className="h-full"
+      className="relative h-full"
     >
-      {isLoading ? (
+      {replaceFiles.length > 0 ? (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+          <div className="bg-[#181922] rounded-2xl shadow-2xl w-[90%] max-w-md p-6 flex flex-col gap-4 animate-fade-in">
+            <div className="text-center text-xl font-semibold text-white">
+              Replace Files?
+            </div>
+            <div className="bg-[#1f2029] rounded-lg p-3 max-h-40 overflow-y-auto text-sm text-gray-300">
+              {replaceFiles.map((file) => (
+                <div
+                  key={file}
+                  className="border-b border-gray-700 py-1 last:border-none"
+                >
+                  {file}
+                </div>
+              ))}
+            </div>
+            <div className="flex w-full justify-end gap-3">
+              <button
+                className="btn btn-secondary px-5"
+                onClick={() => handleCancelReplace()}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn btn-primary px-5"
+                onClick={() => handleConfirmReplace()}
+              >
+                Replace
+              </button>
+            </div>
+          </div>
+        </div>
+      ) : isLoading ? (
         <LoadingSpinner />
       ) : isDragging ? (
         <div className="w-full h-full border-dashed border-2 flex justify-center items-center">
@@ -151,7 +205,7 @@ const RecentFiles = () => {
               >
                 <div>{file.name}</div>
                 <div>{file.owner}</div>
-                <div>{file.lastModified}</div>
+                <div>{new Date(file.lastModified).toLocaleString()}</div>
                 <div>{file.size}</div>
               </div>
             ))}

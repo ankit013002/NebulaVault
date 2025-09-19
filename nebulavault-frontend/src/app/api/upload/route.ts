@@ -6,35 +6,26 @@ export async function POST(req: Request) {
   const files = formData.getAll("files") as File[];
 
   const db = await readDb();
+  let updated = [...db];
 
-  console.log(db.find((f) => f.name === "s"));
-
-  const newEntries = files
-    .filter((file) => !db.find((f) => f.name === file.name))
-    .map((file) => {
-      return {
-        name: file.name,
-        owner: "You",
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-      };
+  files.forEach((file) => {
+    const exists = updated.find((f) => f.name === file.name);
+    if (exists) {
+      updated = updated.filter((f) => f.name !== file.name);
+    }
+    updated.push({
+      name: file.name,
+      owner: "You",
+      size: file.size,
+      type: file.type,
+      lastModified: file.lastModified,
     });
+  });
 
-  let statusMessage = "";
-  const updated = [...db];
-
-  if (newEntries.length > 0) {
-    updated.push(...newEntries);
-    await writeDb(updated);
-    statusMessage = "Files uploaded";
-  } else {
-    statusMessage = "No updates to db";
-  }
+  await writeDb(updated);
 
   return NextResponse.json({
     status: "Success",
     files: updated,
-    message: statusMessage,
   });
 }
