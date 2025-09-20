@@ -64,22 +64,30 @@ async function computeFolderInfo(
   all: FileType[]
 ): Promise<FolderType> {
   const folderFull = parentPath + folderName;
+  const folderAbs = safeResolve(folderFull);
+  const markerAbs = path.join(folderAbs, ".folder");
 
-  const { sizeRaw, lastModified, owner } = aggregateFolderFromFiles(
-    folderFull,
-    all
-  );
-  let finalLastModified = lastModified;
+  const {
+    sizeRaw,
+    lastModified: fromFiles,
+    owner,
+  } = aggregateFolderFromFiles(folderFull, all);
+
+  let finalLastModified = fromFiles;
 
   if (!finalLastModified) {
     try {
-      const st = await stat(safeResolve(folderFull));
-      finalLastModified =
-        Number.isFinite(st.birthtimeMs) && st.birthtimeMs > 0
-          ? st.birthtimeMs
-          : st.mtimeMs;
-    } catch {
-      finalLastModified = Date.now();
+      const mst = await stat(markerAbs);
+      finalLastModified = mst.mtimeMs || mst.birthtimeMs || 0;
+    } catch {}
+
+    if (!finalLastModified) {
+      try {
+        const st = await stat(folderAbs);
+        finalLastModified = st.mtimeMs || st.birthtimeMs || 0;
+      } catch {
+        finalLastModified = Date.now();
+      }
     }
   }
 

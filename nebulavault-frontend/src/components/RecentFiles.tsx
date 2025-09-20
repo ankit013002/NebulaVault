@@ -117,6 +117,7 @@ const RecentFiles = ({
   const handleConfirmReplace = async () => {
     uploadFiles(pendingItems);
     setReplaceFiles([]);
+    setCurrPath((p) => p);
   };
 
   return (
@@ -193,7 +194,7 @@ const RecentFiles = ({
                     key={index}
                     className="grid grid-cols-4 border-1 border-[#1d1d25] p-2 items-center hover:cursor-pointer hover:bg-[#2a2b3a]"
                   >
-                    <div>{dirItem.name}</div>
+                    <div>{dirItem.name.replace("/", "")}</div>
                     <div>Owner</div>
                     <div>{new Date(dirItem.lastModified).toLocaleString()}</div>
                     <div>

@@ -1,7 +1,7 @@
 import { FileType } from "@/types/File";
 import { readDb, writeDb } from "@/utils/FileDb";
 import { getNormalizedSize } from "@/utils/NormalizedSize";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, writeFile, utimes } from "fs/promises";
 import { NextResponse } from "next/server";
 import path, { dirname } from "path";
 
@@ -27,6 +27,22 @@ function mergeByNameAndPath(existing: FileType[], incoming: FileType[]) {
   return Array.from(map.values());
 }
 
+async function touchFolderMarker(relFolder: string) {
+  const absDir = safeJoin(relFolder);
+  await mkdir(absDir, { recursive: true });
+
+  const markerAbs = path.join(absDir, ".folder");
+
+  try {
+    await writeFile(markerAbs, new Uint8Array(), { flag: "wx" });
+  } catch (e: any) {
+    if (e?.code !== "EEXIST") throw e;
+  }
+
+  const now = new Date();
+  await utimes(markerAbs, now, now);
+}
+
 export async function POST(req: Request) {
   try {
     const formData = await req.formData();
@@ -39,9 +55,14 @@ export async function POST(req: Request) {
         emptyFolders.push(...JSON.parse(await part.text()));
       }
     }
+    const norm = (p: string) => {
+      const s = p.replace(/\\/g, "/").replace(/^\/+/, "");
+      return s && !s.endsWith("/") ? s + "/" : s;
+    };
+    const normalized = [...new Set(emptyFolders.map(norm))];
 
-    for (const folder of emptyFolders) {
-      await mkdir(safeJoin(folder), { recursive: true });
+    for (const folder of normalized) {
+      await touchFolderMarker(folder);
     }
 
     const fileParts = formData.getAll("files") as File[];
@@ -75,7 +96,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      createdFolders: emptyFolders,
+      createdFolders: normalized,
       saved: savedFiles.map((f) => `${f.path}${f.name}`),
     });
   } catch (e) {

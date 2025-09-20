@@ -1,7 +1,5 @@
 import DashboardContentSection from "@/components/DashboardContentSection";
 import DashboardTitleSection from "@/components/DashboardTitleSection";
-import RecentFiles from "@/components/RecentFiles";
-import StorageUsage from "@/components/StorageUsage";
 import React from "react";
 
 const page = () => {
