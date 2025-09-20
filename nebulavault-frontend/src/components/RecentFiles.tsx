@@ -6,10 +6,11 @@ import LoadingSpinner from "./LoadingSpinner";
 import { FileType } from "@/types/File";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { walkEntry } from "@/utils/FileSystemUtils";
+import { ExistingDirectoryType } from "@/types/ExistingDirectory";
 
 interface RecentFilesProps {
   isLoading: boolean;
-  existingDirItems: FileFolderBuffer;
+  existingDirItems: ExistingDirectoryType | null;
   uploadFiles: (f: FileFolderBuffer[]) => Promise<void>;
 }
 
@@ -25,20 +26,27 @@ const RecentFiles = ({
   const areFilesBeingReplaced = (dirBuffer: FileFolderBuffer[]) => {
     const buffer: string[] = [];
 
-    if (!existingDirItems.buffer) {
+    console.log(dirBuffer);
+
+    if (!existingDirItems) {
       return;
     }
 
     dirBuffer
       .filter((item) => {
-        if (existingDirItems.buffer == null) return;
-        existingDirItems.buffer.find((existingItem) => {
-          if (existingItem.file && item.file) {
-            return existingItem.file.name === item.file.name;
-          } else if (existingItem.folder && item.folder) {
-            return existingItem.folder === item.folder;
-          }
-        });
+        if (item.file) {
+          return existingDirItems.files.find(
+            (existingFile) => existingFile.name === item.file!.name
+          );
+        } else if (item.folder) {
+          return existingDirItems.folders.find((existingFolder) => {
+            const folderName = existingFolder.replace("/", "");
+            console.log("CHECK");
+            console.log(folderName);
+            console.log(existingFolder);
+            return folderName === item.folder;
+          });
+        }
       })
       .map((item) => {
         if (item.file) {
@@ -47,6 +55,8 @@ const RecentFiles = ({
           buffer.push(item.folder);
         }
       });
+
+    console.log(dirBuffer);
 
     setReplaceFiles(buffer);
     setPendingItems(dirBuffer);
@@ -173,25 +183,38 @@ const RecentFiles = ({
               <div>Last Modified</div>
               <div>File Size</div>
             </div>
-            {existingDirItems.buffer &&
-              existingDirItems.buffer.map((dirItem, index) => {
-                return dirItem.file ? (
+            {existingDirItems &&
+              existingDirItems.folders.map((dirItem, index) => {
+                return (
                   <div
                     key={index}
                     className="grid grid-cols-4 border-1 border-[#1d1d25] p-2 items-center"
                   >
-                    <div>{dirItem.file.name}</div>
+                    <div>{dirItem}</div>
                     <div>Owner</div>
-                    <div>
-                      {new Date(dirItem.file.lastModified).toLocaleString()}
-                    </div>
+                    <div>{new Date().toLocaleString()}</div>
                     <div>
                       <span>0 B</span>
-                      {/* <span>{dirItem.file.size.value + " " + file.size.unit}</span> */}
                     </div>
                   </div>
-                ) : (
-                  <div key={index}>Folder</div>
+                );
+              })}
+            {existingDirItems &&
+              existingDirItems.files.map((dirItem, index) => {
+                return (
+                  <div
+                    key={index}
+                    className="grid grid-cols-4 border-1 border-[#1d1d25] p-2 items-center"
+                  >
+                    <div>{dirItem.name}</div>
+                    <div>Owner</div>
+                    <div>{new Date(dirItem.lastModified).toLocaleString()}</div>
+                    <div>
+                      <span>
+                        {dirItem.size.value + " " + dirItem.size.unit}
+                      </span>
+                    </div>
+                  </div>
                 );
               })}
             <div className="border-2 border-[#1d1d25] rounded-b-2xl p-2">

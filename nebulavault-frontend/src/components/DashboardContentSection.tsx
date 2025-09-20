@@ -7,32 +7,36 @@ import { FileSize, FileType } from "@/types/File";
 import { getNormalizedSize } from "@/utils/NormalizedSize";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { splitBuffers } from "@/utils/FileSystemUtils";
+import { ExistingDirectoryType } from "@/types/ExistingDirectory";
 
 const DashboardContentSection = () => {
-  const [dirItems, setDirItems] = useState<FileFolderBuffer>({
-    file: null,
-    folder: "root",
-    path: "",
-    buffer: [],
-  });
   const [isLoading, setIsLoading] = useState(true);
   const [totalStorageOccupied, setTotalStorageOccupied] =
     useState<FileSize | null>(null);
+  const [currPath, setCurrPath] = useState("");
+  const [existingDirectoryItems, setExistingDirectoryItems] =
+    useState<ExistingDirectoryType | null>(null);
 
   useEffect(() => {
     const updateFiles = async () => {
-      const res = await fetch("/api/files", {
-        method: "GET",
-      });
-      const resjson = await res.json();
-      const data = resjson.files as FileFolderBuffer;
-      // updateTotalStorageOccupied(data);
-      setDirItems((prevData) => {
+      try {
+        setIsLoading(true);
+        const res = await fetch(
+          `/api/files?path=${encodeURIComponent(currPath)}`,
+          {
+            method: "GET",
+          }
+        );
+        const data: ExistingDirectoryType = await res.json();
+        console.log(data);
+        setExistingDirectoryItems(data);
+      } catch (e) {
+        console.log("Error: ", e);
+      } finally {
         setIsLoading(false);
-        return data;
-      });
+      }
     };
-    setIsLoading(true);
+
     updateFiles();
   }, []);
 
@@ -65,21 +69,6 @@ const DashboardContentSection = () => {
       );
     }
 
-    // // Optional: manifest for your own metadata (can also be derived server-side)
-    // const manifest = files.map(({ file, relPath }) => ({
-    //   name: file.name,
-    //   type: file.type,
-    //   lastModified: file.lastModified,
-    //   size: file.size,
-    //   path: relPath,
-    // }));
-    // formData.append(
-    //   "manifest",
-    //   new Blob([JSON.stringify(manifest)], { type: "application/json" }),
-    //   "manifest.json"
-    // );
-
-    // POST to your API
     const res = await fetch("/api/upload", {
       method: "POST",
       body: formData,
@@ -99,7 +88,7 @@ const DashboardContentSection = () => {
       <div className="h-full">
         <RecentFiles
           isLoading={isLoading}
-          existingDirItems={dirItems}
+          existingDirItems={existingDirectoryItems}
           uploadFiles={(f: FileFolderBuffer[]) => uploadFiles(f)}
         />
       </div>

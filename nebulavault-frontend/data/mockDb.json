@@ -8,7 +8,7 @@
       "unit": "KB"
     },
     "type": "image/jpeg",
-    "lastModified": 1758397979571,
+    "lastModified": 1758404512194,
     "path": ""
   },
   {
@@ -20,7 +20,7 @@
       "unit": "MB"
     },
     "type": "image/png",
-    "lastModified": 1758397982557,
+    "lastModified": 1758404131486,
     "path": "SimpleFolder/InsideFolder/"
   },
   {
@@ -32,7 +32,7 @@
       "unit": "KB"
     },
     "type": "application/pdf",
-    "lastModified": 1758397982557,
+    "lastModified": 1758404131486,
     "path": "SimpleFolder/InsideFolder/"
   },
   {
@@ -44,7 +44,19 @@
       "unit": "MB"
     },
     "type": "image/png",
-    "lastModified": 1758397982557,
+    "lastModified": 1758404131487,
     "path": "SimpleFolder/"
+  },
+  {
+    "name": "OSR_ADVISING.pdf",
+    "owner": "You",
+    "size": {
+      "raw": 22750,
+      "value": 22.22,
+      "unit": "KB"
+    },
+    "type": "application/pdf",
+    "lastModified": 1758404124749,
+    "path": ""
   }
 ]
