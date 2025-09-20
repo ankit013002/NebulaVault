@@ -1,7 +1,10 @@
 import { readDb } from "@/utils/FileDb";
 import { NextResponse } from "next/server";
 import path from "path";
-import { readdir } from "fs/promises";
+import { readdir, stat } from "fs/promises";
+import { FolderType } from "@/types/Folder";
+import { FileType } from "@/types/File";
+import { getNormalizedSize } from "@/utils/NormalizedSize";
 
 export const runtime = "nodejs";
 
@@ -35,7 +38,6 @@ async function listImmediateSubdirs(relPath: string): Promise<string[]> {
   }
 }
 
-<<<<<<< HEAD
 function aggregateFolderFromFiles(folderFullPath: string, all: FileType[]) {
   const descendants = all.filter((f) =>
     (f.path ?? "").startsWith(folderFullPath)
@@ -62,30 +64,22 @@ async function computeFolderInfo(
   all: FileType[]
 ): Promise<FolderType> {
   const folderFull = parentPath + folderName;
-  const folderAbs = safeResolve(folderFull);
-  const markerAbs = path.join(folderAbs, ".folder");
 
-  const {
-    sizeRaw,
-    lastModified: fromFiles,
-    owner,
-  } = aggregateFolderFromFiles(folderFull, all);
-
-  let finalLastModified = fromFiles;
+  const { sizeRaw, lastModified, owner } = aggregateFolderFromFiles(
+    folderFull,
+    all
+  );
+  let finalLastModified = lastModified;
 
   if (!finalLastModified) {
     try {
-      const mst = await stat(markerAbs);
-      finalLastModified = mst.mtimeMs || mst.birthtimeMs || 0;
-    } catch {}
-
-    if (!finalLastModified) {
-      try {
-        const st = await stat(folderAbs);
-        finalLastModified = st.mtimeMs || st.birthtimeMs || 0;
-      } catch {
-        finalLastModified = Date.now();
-      }
+      const st = await stat(safeResolve(folderFull));
+      finalLastModified =
+        Number.isFinite(st.birthtimeMs) && st.birthtimeMs > 0
+          ? st.birthtimeMs
+          : st.mtimeMs;
+    } catch {
+      finalLastModified = Date.now();
     }
   }
 
@@ -98,16 +92,16 @@ async function computeFolderInfo(
   };
 }
 
-=======
->>>>>>> parent of e6a9513 (File + Folder retrieval now work. A bug exists however where replacing an existing empty folder doesn't update time. Also started implementing navigating folders.)
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const pathParam = normalizePathParam(url.searchParams.get("path"));
 
   const all = await readDb();
 
-  const folderSet = new Set<string>();
   const files = all.filter((f) => (f.path ?? "") === pathParam);
+
+  const folderSet = new Set<string>();
+
   for (const f of all) {
     const p = f.path ?? "";
     if (!p.startsWith(pathParam)) continue;
@@ -119,10 +113,15 @@ export async function GET(req: Request) {
   const diskSubs = await listImmediateSubdirs(pathParam);
   diskSubs.forEach((d) => folderSet.add(d));
 
+  const folderNames = Array.from(folderSet).sort();
+  const folders = await Promise.all(
+    folderNames.map((name) => computeFolderInfo(name, pathParam, all))
+  );
+
   return NextResponse.json({
     ok: true,
     path: pathParam,
-    folders: Array.from(folderSet).sort(),
+    folders: folders,
     files,
   });
 }

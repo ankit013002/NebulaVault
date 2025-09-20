@@ -1,66 +1,50 @@
-<<<<<<< HEAD
-[]
-=======
 [
   {
-    "name": "Screenshot_20210715-113407_WhatsApp-edited.jpg",
+    "name": "example1.pdf",
     "owner": "You",
     "size": {
-      "raw": 319768,
-      "value": 312.27,
-      "unit": "KB"
-    },
-    "type": "image/jpeg",
-    "lastModified": 1758404512194,
-    "path": ""
-  },
-  {
-    "name": "ChatGPT Image Sep 17, 2025, 05_49_04 PM.png",
-    "owner": "You",
-    "size": {
-      "raw": 1831349,
-      "value": 1.75,
-      "unit": "MB"
-    },
-    "type": "image/png",
-    "lastModified": 1758404131486,
-    "path": "SimpleFolder/InsideFolder/"
-  },
-  {
-    "name": "OSR_ADVISING - Copy.pdf",
-    "owner": "You",
-    "size": {
-      "raw": 22750,
-      "value": 22.22,
+      "raw": 2390,
+      "value": 2.33,
       "unit": "KB"
     },
     "type": "application/pdf",
-    "lastModified": 1758404131486,
-    "path": "SimpleFolder/InsideFolder/"
+    "lastModified": 1758409492396,
+    "path": ""
   },
   {
-    "name": "NebulaVault.png",
+    "name": "exam4.pdf",
     "owner": "You",
     "size": {
-      "raw": 1711935,
-      "value": 1.63,
-      "unit": "MB"
-    },
-    "type": "image/png",
-    "lastModified": 1758404131487,
-    "path": "SimpleFolder/"
-  },
-  {
-    "name": "OSR_ADVISING.pdf",
-    "owner": "You",
-    "size": {
-      "raw": 22750,
-      "value": 22.22,
+      "raw": 2362,
+      "value": 2.31,
       "unit": "KB"
     },
     "type": "application/pdf",
-    "lastModified": 1758404124749,
-    "path": ""
+    "lastModified": 1758409504590,
+    "path": "Folder1/"
+  },
+  {
+    "name": "example3.pdf",
+    "owner": "You",
+    "size": {
+      "raw": 2646,
+      "value": 2.58,
+      "unit": "KB"
+    },
+    "type": "application/pdf",
+    "lastModified": 1758409504590,
+    "path": "Folder1/"
+  },
+  {
+    "name": "example1.pdf",
+    "owner": "You",
+    "size": {
+      "raw": 2390,
+      "value": 2.33,
+      "unit": "KB"
+    },
+    "type": "application/pdf",
+    "lastModified": 1758409504590,
+    "path": "Folder1/SubFolder1/"
   }
 ]
->>>>>>> parent of e6a9513 (File + Folder retrieval now work. A bug exists however where replacing an existing empty folder doesn't update time. Also started implementing navigating folders.)
