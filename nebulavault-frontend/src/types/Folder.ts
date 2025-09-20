@@ -1,4 +1,4 @@
-import { FileSize, FileSizeUnit, FileType } from "./File";
+import { FileSizeUnit, FileType } from "./File";
 
 export type FolderSize = {
   raw: number;
@@ -8,8 +8,8 @@ export type FolderSize = {
 
 export type FolderType = {
   name: string;
+  folders: FolderType[];
+  files: FileType[];
+  size: FolderSize;
   path: string;
-  owner: string;
-  size: FileSize;
-  lastModified: number;
 };

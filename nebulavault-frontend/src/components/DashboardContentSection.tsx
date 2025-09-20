@@ -30,7 +30,6 @@ const DashboardContentSection = () => {
         const data: ExistingDirectoryType = await res.json();
         console.log(data);
         setExistingDirectoryItems(data);
-        updateTotalStorageOccupied(data);
       } catch (e) {
         console.log("Error: ", e);
       } finally {
@@ -39,12 +38,11 @@ const DashboardContentSection = () => {
     };
 
     updateFiles();
-  }, [currPath]);
+  }, []);
 
-  const updateTotalStorageOccupied = (dirNode: ExistingDirectoryType) => {
+  const updateTotalStorageOccupied = (files: FileType[]) => {
     let accumulatingSum = 0;
-    dirNode.folders.forEach((folder) => (accumulatingSum += folder.size.raw));
-    dirNode.files.forEach((file) => {
+    files.forEach((file) => {
       accumulatingSum += file.size.raw;
     });
     setTotalStorageOccupied(getNormalizedSize(accumulatingSum));
@@ -77,6 +75,9 @@ const DashboardContentSection = () => {
     });
 
     if (!res.ok) throw new Error("Upload failed");
+
+    // Optionally refetch directory listing after upload
+    // ...
   };
 
   return (
@@ -89,7 +90,6 @@ const DashboardContentSection = () => {
           isLoading={isLoading}
           existingDirItems={existingDirectoryItems}
           uploadFiles={(f: FileFolderBuffer[]) => uploadFiles(f)}
-          setCurrPath={(path) => setCurrPath(path)}
         />
       </div>
     </>

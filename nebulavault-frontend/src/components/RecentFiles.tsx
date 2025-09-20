@@ -12,14 +12,12 @@ interface RecentFilesProps {
   isLoading: boolean;
   existingDirItems: ExistingDirectoryType | null;
   uploadFiles: (f: FileFolderBuffer[]) => Promise<void>;
-  setCurrPath: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const RecentFiles = ({
   isLoading,
   existingDirItems,
   uploadFiles,
-  setCurrPath,
 }: RecentFilesProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [replaceFiles, setReplaceFiles] = useState<string[]>([]);
@@ -42,7 +40,7 @@ const RecentFiles = ({
           );
         } else if (item.folder) {
           return existingDirItems.folders.find((existingFolder) => {
-            const folderName = existingFolder.name.replace("/", "");
+            const folderName = existingFolder.replace("/", "");
             console.log("CHECK");
             console.log(folderName);
             console.log(existingFolder);
@@ -58,7 +56,7 @@ const RecentFiles = ({
         }
       });
 
-    console.log("replace: ", dirBuffer);
+    console.log(dirBuffer);
 
     setReplaceFiles(buffer);
     setPendingItems(dirBuffer);
@@ -190,17 +188,18 @@ const RecentFiles = ({
               existingDirItems.folders.map((dirItem, index) => {
                 return (
                   <div
-                    onClick={() => setCurrPath(dirItem.name)}
                     key={index}
-                    className="grid grid-cols-4 border-1 border-[#1d1d25] p-2 items-center hover:cursor-pointer hover:bg-[#2a2b3a]"
+                    className="grid grid-cols-4 border-1 border-[#1d1d25] p-2 items-center"
                   >
+<<<<<<< HEAD
                     <div>{dirItem.name.replace("/", "")}</div>
+=======
+                    <div>{dirItem}</div>
+>>>>>>> parent of e6a9513 (File + Folder retrieval now work. A bug exists however where replacing an existing empty folder doesn't update time. Also started implementing navigating folders.)
                     <div>Owner</div>
-                    <div>{new Date(dirItem.lastModified).toLocaleString()}</div>
+                    <div>{new Date().toLocaleString()}</div>
                     <div>
-                      <span>
-                        {dirItem.size.value + " " + dirItem.size.unit}
-                      </span>
+                      <span>0 B</span>
                     </div>
                   </div>
                 );
@@ -224,15 +223,9 @@ const RecentFiles = ({
                 );
               })}
             <div className="border-2 border-[#1d1d25] rounded-b-2xl p-2">
-              <div className="flex gap-2 text-sm">
-                <div>
-                  <span>{existingDirItems?.folders.length}</span>
-                  <span>{" folders"}</span>
-                </div>
-                <div>
-                  <span>{existingDirItems?.files.length}</span>
-                  <span>{" files"}</span>
-                </div>
+              <div className="text-sm">
+                {/* <span>{existingDirItems.length}</span> */}
+                <span>{" files"}</span>
               </div>
             </div>
           </div>
