@@ -1,4 +1,4 @@
-import { FileFolderBuffer } from "./FileFolderBuffer";
+import { FileFolderBuffer, FlatFile } from "../types/FileFolderBuffer";
 
 const entryToFile = (fileEntry: any) =>
   new Promise<File>((resolve, reject) => fileEntry.file(resolve, reject));
@@ -49,3 +49,36 @@ export const walkEntry = async (
     }
   }
 };
+
+export function splitBuffers(
+  nodes: FileFolderBuffer[],
+  base = ""
+): {
+  files: FlatFile[];
+  emptyFolders: string[];
+} {
+  const files: FlatFile[] = [];
+  const emptyFolders: string[] = [];
+
+  const walk = (list: FileFolderBuffer[], currBase: string) => {
+    for (const node of list) {
+      if (node.file) {
+        const relPath = (node.path || "/")
+          .replace(/^\/+/, "")
+          .replace(/\\/g, "/");
+        files.push({ file: node.file, relPath: relPath ? relPath : "" });
+      } else if (node.folder) {
+        const folderPath = (currBase + node.folder + "/").replace(/\\/g, "/");
+        const children = node.buffer ?? [];
+        if (children.length === 0) {
+          emptyFolders.push(folderPath);
+        } else {
+          walk(children, folderPath);
+        }
+      }
+    }
+  };
+
+  walk(nodes, base);
+  return { files, emptyFolders };
+}

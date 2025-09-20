@@ -1,27 +1,5 @@
 [
   {
-    "name": "Call to Arms.url",
-    "owner": "You",
-    "size": {
-      "raw": 222,
-      "value": 222,
-      "unit": "B"
-    },
-    "type": "application/octet-stream",
-    "lastModified": 1758327496406
-  },
-  {
-    "name": "Catan Universe.url",
-    "owner": "You",
-    "size": {
-      "raw": 222,
-      "value": 222,
-      "unit": "B"
-    },
-    "type": "application/octet-stream",
-    "lastModified": 1758327510867
-  },
-  {
     "name": "Screenshot_20210715-113407_WhatsApp-edited.jpg",
     "owner": "You",
     "size": {
@@ -30,6 +8,43 @@
       "unit": "KB"
     },
     "type": "image/jpeg",
-    "lastModified": 1758382032322
+    "lastModified": 1758397979571,
+    "path": ""
+  },
+  {
+    "name": "ChatGPT Image Sep 17, 2025, 05_49_04 PM.png",
+    "owner": "You",
+    "size": {
+      "raw": 1831349,
+      "value": 1.75,
+      "unit": "MB"
+    },
+    "type": "image/png",
+    "lastModified": 1758397982557,
+    "path": "SimpleFolder/InsideFolder/"
+  },
+  {
+    "name": "OSR_ADVISING - Copy.pdf",
+    "owner": "You",
+    "size": {
+      "raw": 22750,
+      "value": 22.22,
+      "unit": "KB"
+    },
+    "type": "application/pdf",
+    "lastModified": 1758397982557,
+    "path": "SimpleFolder/InsideFolder/"
+  },
+  {
+    "name": "NebulaVault.png",
+    "owner": "You",
+    "size": {
+      "raw": 1711935,
+      "value": 1.63,
+      "unit": "MB"
+    },
+    "type": "image/png",
+    "lastModified": 1758397982557,
+    "path": "SimpleFolder/"
   }
 ]

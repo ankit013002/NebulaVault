@@ -1,35 +1,88 @@
-import { FileSize, FileType } from "@/types/File";
+import { FileType } from "@/types/File";
 import { readDb, writeDb } from "@/utils/FileDb";
 import { getNormalizedSize } from "@/utils/NormalizedSize";
+import { mkdir, writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
+import path, { dirname } from "path";
+
+export const runtime = "nodejs";
+
+const UPLOAD_ROOT =
+  process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
+const ROOT_RESOLVED = path.resolve(UPLOAD_ROOT);
+
+function safeJoin(relPath: string) {
+  const clean = relPath.replace(/\\/g, "/").replace(/^\/+/, "");
+  const abs = path.resolve(ROOT_RESOLVED, clean);
+  const rel = path.relative(ROOT_RESOLVED, abs);
+  if (rel.startsWith("..") || path.isAbsolute(rel))
+    throw new Error("Invalid path");
+  return abs;
+}
+
+function mergeByNameAndPath(existing: FileType[], incoming: FileType[]) {
+  const key = (x: FileType) => `${x.path}::${x.name}`;
+  const map = new Map(existing.map((x) => [key(x), x]));
+  for (const f of incoming) map.set(key(f), f);
+  return Array.from(map.values());
+}
 
 export async function POST(req: Request) {
-  const formData = await req.formData();
-  const files = formData.getAll("files") as File[];
+  try {
+    const formData = await req.formData();
+    const emptyFolders: string[] = [];
 
-  const db = await readDb();
-  let updated: FileType[] = [...db];
-
-  files.forEach((file) => {
-    const exists = updated.find((f) => f.name === file.name);
-    if (exists) {
-      updated = updated.filter((f) => f.name !== file.name);
+    for (const part of formData.getAll("folders")) {
+      if (typeof part === "string") {
+        emptyFolders.push(...JSON.parse(part));
+      } else if (part instanceof File) {
+        emptyFolders.push(...JSON.parse(await part.text()));
+      }
     }
-    const size = getNormalizedSize(file.size);
 
-    updated.push({
-      name: file.name,
-      owner: "You",
-      size: size,
-      type: file.type,
-      lastModified: file.lastModified,
+    for (const folder of emptyFolders) {
+      await mkdir(safeJoin(folder), { recursive: true });
+    }
+
+    const fileParts = formData.getAll("files") as File[];
+    const savedFiles: FileType[] = [];
+
+    for (const file of fileParts) {
+      const relName = file.name.replace(/^[/\\]+/, "").replace(/\\/g, "/");
+      const absTarget = safeJoin(relName);
+      await mkdir(dirname(absTarget), { recursive: true });
+
+      const buffer = Buffer.from(await file.arrayBuffer());
+      await writeFile(absTarget, buffer);
+
+      const lastSlash = relName.lastIndexOf("/");
+      const dirPath = lastSlash >= 0 ? relName.slice(0, lastSlash + 1) : "";
+      const baseName = lastSlash >= 0 ? relName.slice(lastSlash + 1) : relName;
+
+      savedFiles.push({
+        name: baseName,
+        owner: "You",
+        size: getNormalizedSize(file.size),
+        type: file.type,
+        lastModified: file.lastModified,
+        path: dirPath,
+      });
+    }
+
+    const db = await readDb();
+    const updated = mergeByNameAndPath(db, savedFiles);
+    await writeDb(updated);
+
+    return NextResponse.json({
+      ok: true,
+      createdFolders: emptyFolders,
+      saved: savedFiles.map((f) => `${f.path}${f.name}`),
     });
-  });
-
-  await writeDb(updated);
-
-  return NextResponse.json({
-    status: "Success",
-    files: updated,
-  });
+  } catch (e) {
+    console.error("Upload error:", e);
+    return NextResponse.json(
+      { ok: false, error: e ?? "Upload failed" },
+      { status: 400 }
+    );
+  }
 }

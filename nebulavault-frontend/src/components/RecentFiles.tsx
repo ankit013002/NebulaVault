@@ -5,42 +5,62 @@ import { FaPlus } from "react-icons/fa";
 import LoadingSpinner from "./LoadingSpinner";
 import { FileType } from "@/types/File";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
-import { walkEntry } from "@/types/FileSystemUtils";
+import { walkEntry } from "@/utils/FileSystemUtils";
 
 interface RecentFilesProps {
   isLoading: boolean;
-  files: FileType[];
-  uploadFiles: (f: File[]) => Promise<void>;
+  existingDirItems: FileFolderBuffer;
+  uploadFiles: (f: FileFolderBuffer[]) => Promise<void>;
 }
 
-const RecentFiles = ({ isLoading, files, uploadFiles }: RecentFilesProps) => {
+const RecentFiles = ({
+  isLoading,
+  existingDirItems,
+  uploadFiles,
+}: RecentFilesProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [replaceFiles, setReplaceFiles] = useState<string[]>([]);
-  const [pendingFiles, setPendingFiles] = useState<File[]>([]);
+  const [pendingItems, setPendingItems] = useState<FileFolderBuffer[]>([]);
 
-  const areFilesBeingReplaced = (newFiles: File[]) => {
+  const areFilesBeingReplaced = (dirBuffer: FileFolderBuffer[]) => {
     const buffer: string[] = [];
 
-    newFiles
-      .filter((file) => files.find((f) => f.name === file.name))
-      .map((file) => buffer.push(file.name));
-
-    setReplaceFiles(buffer);
-    setPendingFiles(newFiles);
-
-    return buffer.length > 0;
-  };
-
-  const prepareFileUpload = async (files: File[]) => {
-    console.log(files);
-
-    if (files.length == 0) {
+    if (!existingDirItems.buffer) {
       return;
     }
 
-    const anyReplacements = areFilesBeingReplaced(files);
+    dirBuffer
+      .filter((item) => {
+        if (existingDirItems.buffer == null) return;
+        existingDirItems.buffer.find((existingItem) => {
+          if (existingItem.file && item.file) {
+            return existingItem.file.name === item.file.name;
+          } else if (existingItem.folder && item.folder) {
+            return existingItem.folder === item.folder;
+          }
+        });
+      })
+      .map((item) => {
+        if (item.file) {
+          buffer.push(item.file.name);
+        } else if (item.folder) {
+          buffer.push(item.folder);
+        }
+      });
+
+    setReplaceFiles(buffer);
+    setPendingItems(dirBuffer);
+    return buffer.length > 0;
+  };
+
+  const prepareFileUpload = async (dirNode: FileFolderBuffer) => {
+    if (!dirNode.buffer) {
+      return;
+    }
+
+    const anyReplacements = areFilesBeingReplaced(dirNode.buffer);
     if (!anyReplacements) {
-      await uploadFiles(files);
+      await uploadFiles(dirNode.buffer);
     }
   };
 
@@ -75,7 +95,7 @@ const RecentFiles = ({ isLoading, files, uploadFiles }: RecentFilesProps) => {
 
     await Promise.all(promises);
 
-    console.log("ROOT:", rootBuffer);
+    prepareFileUpload(rootBuffer);
   };
 
   const handleCancelReplace = () => {
@@ -83,7 +103,7 @@ const RecentFiles = ({ isLoading, files, uploadFiles }: RecentFilesProps) => {
   };
 
   const handleConfirmReplace = async () => {
-    uploadFiles(pendingFiles);
+    uploadFiles(pendingItems);
     setReplaceFiles([]);
   };
 
@@ -153,22 +173,30 @@ const RecentFiles = ({ isLoading, files, uploadFiles }: RecentFilesProps) => {
               <div>Last Modified</div>
               <div>File Size</div>
             </div>
-            {files.map((file, index) => (
-              <div
-                key={file.name}
-                className="grid grid-cols-4 border-1 border-[#1d1d25] p-2 items-center"
-              >
-                <div>{file.name}</div>
-                <div>{file.owner}</div>
-                <div>{new Date(file.lastModified).toLocaleString()}</div>
-                <div>
-                  <span>{file.size.value + " " + file.size.unit}</span>
-                </div>
-              </div>
-            ))}
+            {existingDirItems.buffer &&
+              existingDirItems.buffer.map((dirItem, index) => {
+                return dirItem.file ? (
+                  <div
+                    key={index}
+                    className="grid grid-cols-4 border-1 border-[#1d1d25] p-2 items-center"
+                  >
+                    <div>{dirItem.file.name}</div>
+                    <div>Owner</div>
+                    <div>
+                      {new Date(dirItem.file.lastModified).toLocaleString()}
+                    </div>
+                    <div>
+                      <span>0 B</span>
+                      {/* <span>{dirItem.file.size.value + " " + file.size.unit}</span> */}
+                    </div>
+                  </div>
+                ) : (
+                  <div key={index}>Folder</div>
+                );
+              })}
             <div className="border-2 border-[#1d1d25] rounded-b-2xl p-2">
               <div className="text-sm">
-                <span>{files.length}</span>
+                {/* <span>{existingDirItems.length}</span> */}
                 <span>{" files"}</span>
               </div>
             </div>

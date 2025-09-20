@@ -1,4 +1,4 @@
-import { FolderType } from "./Folder";
+export type FlatFile = { file: File; relPath: string };
 
 export type FileFolderBuffer = {
   file: File | null;
