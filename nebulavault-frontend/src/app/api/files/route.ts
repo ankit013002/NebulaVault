@@ -1,7 +1,10 @@
 import { readDb } from "@/utils/FileDb";
 import { NextResponse } from "next/server";
 import path from "path";
-import { readdir } from "fs/promises";
+import { readdir, stat } from "fs/promises";
+import { FolderType } from "@/types/Folder";
+import { FileType } from "@/types/File";
+import { getNormalizedSize } from "@/utils/NormalizedSize";
 
 export const runtime = "nodejs";
 
@@ -35,14 +38,70 @@ async function listImmediateSubdirs(relPath: string): Promise<string[]> {
   }
 }
 
+function aggregateFolderFromFiles(folderFullPath: string, all: FileType[]) {
+  const descendants = all.filter((f) =>
+    (f.path ?? "").startsWith(folderFullPath)
+  );
+
+  const sizeRaw = descendants.reduce((sum, f) => sum + (f.size?.raw ?? 0), 0);
+
+  let lastModified = 0;
+  let owner = "You";
+  if (descendants.length) {
+    const latest = descendants.reduce((a, b) =>
+      (a.lastModified ?? 0) >= (b.lastModified ?? 0) ? a : b
+    );
+    lastModified = latest.lastModified ?? 0;
+    owner = latest.owner ?? "You";
+  }
+
+  return { sizeRaw, lastModified, owner };
+}
+
+async function computeFolderInfo(
+  folderName: string,
+  parentPath: string,
+  all: FileType[]
+): Promise<FolderType> {
+  const folderFull = parentPath + folderName;
+
+  const { sizeRaw, lastModified, owner } = aggregateFolderFromFiles(
+    folderFull,
+    all
+  );
+  let finalLastModified = lastModified;
+
+  if (!finalLastModified) {
+    try {
+      const st = await stat(safeResolve(folderFull));
+      finalLastModified =
+        Number.isFinite(st.birthtimeMs) && st.birthtimeMs > 0
+          ? st.birthtimeMs
+          : st.mtimeMs;
+    } catch {
+      finalLastModified = Date.now();
+    }
+  }
+
+  return {
+    name: folderName,
+    path: parentPath,
+    owner,
+    size: getNormalizedSize(sizeRaw),
+    lastModified: finalLastModified,
+  };
+}
+
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const pathParam = normalizePathParam(url.searchParams.get("path"));
 
   const all = await readDb();
 
-  const folderSet = new Set<string>();
   const files = all.filter((f) => (f.path ?? "") === pathParam);
+
+  const folderSet = new Set<string>();
+
   for (const f of all) {
     const p = f.path ?? "";
     if (!p.startsWith(pathParam)) continue;
@@ -54,10 +113,15 @@ export async function GET(req: Request) {
   const diskSubs = await listImmediateSubdirs(pathParam);
   diskSubs.forEach((d) => folderSet.add(d));
 
+  const folderNames = Array.from(folderSet).sort();
+  const folders = await Promise.all(
+    folderNames.map((name) => computeFolderInfo(name, pathParam, all))
+  );
+
   return NextResponse.json({
     ok: true,
     path: pathParam,
-    folders: Array.from(folderSet).sort(),
+    folders: folders,
     files,
   });
 }
