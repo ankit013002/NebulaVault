@@ -1,5 +1,5 @@
 import { FileType } from "@/types/File";
-import { readDb } from "@/utils/fileDb";
+import { readDb } from "@/utils/FileDb";
 
 import { NextResponse } from "next/server";
 

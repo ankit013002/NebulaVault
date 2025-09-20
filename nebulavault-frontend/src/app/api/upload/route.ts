@@ -1,5 +1,5 @@
 import { FileSize, FileType } from "@/types/File";
-import { readDb, writeDb } from "@/utils/fileDb";
+import { readDb, writeDb } from "@/utils/FileDb";
 import { getNormalizedSize } from "@/utils/NormalizedSize";
 import { NextResponse } from "next/server";
 

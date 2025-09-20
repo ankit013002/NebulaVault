@@ -20,5 +20,16 @@
     },
     "type": "application/octet-stream",
     "lastModified": 1758327510867
+  },
+  {
+    "name": "Screenshot_20210715-113407_WhatsApp-edited.jpg",
+    "owner": "You",
+    "size": {
+      "raw": 319768,
+      "value": 312.27,
+      "unit": "KB"
+    },
+    "type": "image/jpeg",
+    "lastModified": 1758382032322
   }
 ]
