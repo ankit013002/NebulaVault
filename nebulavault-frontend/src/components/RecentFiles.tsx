@@ -11,14 +11,14 @@ import { ExistingDirectoryType } from "@/types/ExistingDirectory";
 interface RecentFilesProps {
   isLoading: boolean;
   existingDirItems: ExistingDirectoryType | null;
-  uploadFiles: (f: FileFolderBuffer[]) => Promise<void>;
+  uploadDirItems: (f: FileFolderBuffer[]) => Promise<void>;
   setCurrPath: React.Dispatch<React.SetStateAction<string>>;
 }
 
 const RecentFiles = ({
   isLoading,
   existingDirItems,
-  uploadFiles,
+  uploadDirItems,
   setCurrPath,
 }: RecentFilesProps) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -72,7 +72,7 @@ const RecentFiles = ({
 
     const anyReplacements = areFilesBeingReplaced(dirNode.buffer);
     if (!anyReplacements) {
-      await uploadFiles(dirNode.buffer);
+      await uploadDirItems(dirNode.buffer);
     }
   };
 
@@ -115,7 +115,7 @@ const RecentFiles = ({
   };
 
   const handleConfirmReplace = async () => {
-    uploadFiles(pendingItems);
+    uploadDirItems(pendingItems);
     setReplaceFiles([]);
   };
 

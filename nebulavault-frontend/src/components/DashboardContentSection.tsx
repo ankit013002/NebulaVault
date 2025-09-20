@@ -1,9 +1,9 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import StorageUsage from "./StorageUsage";
 import RecentFiles from "./RecentFiles";
-import { FileSize, FileType } from "@/types/File";
+import { FileSize } from "@/types/File";
 import { getNormalizedSize } from "@/utils/NormalizedSize";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { splitBuffers } from "@/utils/FileSystemUtils";
@@ -17,29 +17,26 @@ const DashboardContentSection = () => {
   const [existingDirectoryItems, setExistingDirectoryItems] =
     useState<ExistingDirectoryType | null>(null);
 
-  useEffect(() => {
-    const updateFiles = async () => {
-      try {
-        setIsLoading(true);
-        const res = await fetch(
-          `/api/files?path=${encodeURIComponent(currPath)}`,
-          {
-            method: "GET",
-          }
-        );
-        const data: ExistingDirectoryType = await res.json();
-        console.log(data);
-        setExistingDirectoryItems(data);
-        updateTotalStorageOccupied(data);
-      } catch (e) {
-        console.log("Error: ", e);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    updateFiles();
+  const fetchDir = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch(
+        `/api/files?path=${encodeURIComponent(currPath)}`,
+        { method: "GET" }
+      );
+      const data: ExistingDirectoryType = await res.json();
+      setExistingDirectoryItems(data);
+      updateTotalStorageOccupied(data);
+    } catch (e) {
+      console.log("Error: ", e);
+    } finally {
+      setIsLoading(false);
+    }
   }, [currPath]);
+
+  useEffect(() => {
+    fetchDir();
+  }, [fetchDir]);
 
   const updateTotalStorageOccupied = (dirNode: ExistingDirectoryType) => {
     let accumulatingSum = 0;
@@ -50,11 +47,8 @@ const DashboardContentSection = () => {
     setTotalStorageOccupied(getNormalizedSize(accumulatingSum));
   };
 
-  const uploadFiles = async (items: FileFolderBuffer[]) => {
-    console.log("Items: ", items);
+  const uploadDirItems = async (items: FileFolderBuffer[]) => {
     const { files, emptyFolders } = splitBuffers(items);
-    console.log("Files: ", files);
-    console.log("Folders: ", emptyFolders);
 
     const formData = new FormData();
 
@@ -76,7 +70,11 @@ const DashboardContentSection = () => {
       body: formData,
     });
 
-    if (!res.ok) throw new Error("Upload failed");
+    if (!res.ok) {
+      throw new Error("Upload failed");
+    } else {
+      await fetchDir();
+    }
   };
 
   return (
@@ -88,7 +86,7 @@ const DashboardContentSection = () => {
         <RecentFiles
           isLoading={isLoading}
           existingDirItems={existingDirectoryItems}
-          uploadFiles={(f: FileFolderBuffer[]) => uploadFiles(f)}
+          uploadDirItems={(f: FileFolderBuffer[]) => uploadDirItems(f)}
           setCurrPath={(path) => setCurrPath(path)}
         />
       </div>
