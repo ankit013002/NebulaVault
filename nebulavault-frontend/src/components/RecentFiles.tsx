@@ -5,6 +5,7 @@ import React, { useEffect, useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import LoadingSpinner from "./LoadingSpinner";
 import { FileType } from "@/types/File";
+import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 
 interface RecentFilesProps {
   isLoading: boolean;
@@ -31,6 +32,8 @@ const RecentFiles = ({ isLoading, files, uploadFiles }: RecentFilesProps) => {
   };
 
   const prepareFileUpload = async (files: File[]) => {
+    console.log(files);
+
     if (files.length == 0) {
       return;
     }
@@ -41,21 +44,71 @@ const RecentFiles = ({ isLoading, files, uploadFiles }: RecentFilesProps) => {
     }
   };
 
-  const handleDragDrop = (e: React.DragEvent<HTMLDivElement>) => {
-    const buffer: File[] = [];
+  const handleDragDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     setIsDragging(false);
-    console.log(e.dataTransfer.items);
+
     const items = [...e.dataTransfer.items];
-    items.forEach((item, index) => {
-      if (item.kind === "file") {
-        const file = item.getAsFile();
-        if (file) {
-          buffer.push(file);
-        }
-      }
+    const root: FileFolderBuffer[] = [];
+
+    for (const item of items) {
+      const entry = (item as any).webkitGetAsEntry?.();
+      if (!entry) continue;
+      await walkEntry(entry, "/", root);
+    }
+
+    console.log(root);
+
+    // prepareFileUpload(buffer);
+  };
+
+  const entryToFile = (fileEntry: any) =>
+    new Promise<File>((resolve, reject) => fileEntry.file(resolve, reject));
+
+  const readAllEntries = (reader: any) =>
+    new Promise<any[]>((resolve, reject) => {
+      const out: any[] = [];
+      const read = () =>
+        reader.readEntries(
+          (batch: any[]) => {
+            if (batch.length === 0) resolve(out);
+            else {
+              out.push(...batch);
+              read();
+            }
+          },
+          (err: any) => reject(err)
+        );
+      read();
     });
 
-    prepareFileUpload(buffer);
+  const walkEntry = async (
+    entry: any,
+    parentPath: string,
+    into: FileFolderBuffer[]
+  ) => {
+    if (entry.isFile) {
+      const file = await entryToFile(entry);
+      into.push({
+        file,
+        folder: null,
+        path: parentPath,
+        buffer: null,
+      });
+    } else if (entry.isDirectory) {
+      const dirNode: FileFolderBuffer = {
+        file: null,
+        folder: entry.name,
+        path: parentPath,
+        buffer: [],
+      };
+      into.push(dirNode);
+
+      const reader = entry.createReader();
+      const children = await readAllEntries(reader);
+      for (const child of children) {
+        await walkEntry(child, `${parentPath}${entry.name}/`, dirNode.buffer!);
+      }
+    }
   };
 
   const handleCancelReplace = () => {

@@ -12,4 +12,5 @@ export type FileType = {
   size: FileSize;
   type: string;
   lastModified: number;
+  path: string;
 };
