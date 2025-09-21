@@ -35,8 +35,10 @@ async function touchFolderMarker(relFolder: string) {
 
   try {
     await writeFile(markerAbs, new Uint8Array(), { flag: "wx" });
-  } catch (e: any) {
-    if (e?.code !== "EEXIST") throw e;
+  } catch (e) {
+    if (e instanceof Error) {
+      console.log(e);
+    }
   }
 
   const now = new Date();

@@ -3,13 +3,15 @@
 import React, { useState } from "react";
 import { FaPlus } from "react-icons/fa";
 import LoadingSpinner from "./LoadingSpinner";
-import { FileType } from "@/types/File";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { walkEntry } from "@/utils/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";
+import ReplaceModal from "./ReplaceModal";
+import Breadcrumbs from "./Breadcrumbs";
 
 interface RecentFilesProps {
   isLoading: boolean;
+  currPath: string;
   existingDirItems: ExistingDirectoryType | null;
   uploadDirItems: (f: FileFolderBuffer[]) => Promise<void>;
   setCurrPath: React.Dispatch<React.SetStateAction<string>>;
@@ -17,6 +19,7 @@ interface RecentFilesProps {
 
 const RecentFiles = ({
   isLoading,
+  currPath,
   existingDirItems,
   uploadDirItems,
   setCurrPath,
@@ -138,37 +141,11 @@ const RecentFiles = ({
       className="relative h-full"
     >
       {replaceFiles.length > 0 ? (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-          <div className="bg-[#181922] rounded-2xl shadow-2xl w-[90%] max-w-md p-6 flex flex-col gap-4 animate-fade-in">
-            <div className="text-center text-xl font-semibold text-white">
-              Replace Files?
-            </div>
-            <div className="bg-[#1f2029] rounded-lg p-3 max-h-40 overflow-y-auto text-sm text-gray-300">
-              {replaceFiles.map((file) => (
-                <div
-                  key={file}
-                  className="border-b border-gray-700 py-1 last:border-none"
-                >
-                  {file}
-                </div>
-              ))}
-            </div>
-            <div className="flex w-full justify-end gap-3">
-              <button
-                className="btn btn-secondary px-5"
-                onClick={() => handleCancelReplace()}
-              >
-                Cancel
-              </button>
-              <button
-                className="btn btn-primary px-5"
-                onClick={() => handleConfirmReplace()}
-              >
-                Replace
-              </button>
-            </div>
-          </div>
-        </div>
+        <ReplaceModal
+          replaceFiles={replaceFiles}
+          handleCancelReplace={() => handleCancelReplace()}
+          handleConfirmReplace={() => handleConfirmReplace()}
+        />
       ) : isLoading ? (
         <LoadingSpinner />
       ) : isDragging ? (
@@ -178,6 +155,9 @@ const RecentFiles = ({
       ) : (
         <div className="flex flex-col gap-5 h-full">
           <div className="text-2xl font-medium">Recent Files</div>
+          <div>
+            <Breadcrumbs path={currPath} />
+          </div>
           <div className="bg-[#181922] rounded-2xl flex flex-col p-0">
             <div className="grid grid-cols-4 border-1 border-[#1d1d25] rounded-t-2xl p-2 text-lg font-medium">
               <div>Name</div>
