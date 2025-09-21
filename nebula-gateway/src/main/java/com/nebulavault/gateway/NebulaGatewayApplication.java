@@ -6,6 +6,8 @@ import org.springframework.cloud.gateway.route.RouteLocator;
 import org.springframework.cloud.gateway.route.builder.RouteLocatorBuilder;
 import org.springframework.context.annotation.Bean;
 
+import java.util.List;
+
 @SpringBootApplication
 public class NebulaGatewayApplication {
 
@@ -14,15 +16,5 @@ public class NebulaGatewayApplication {
 	}
 
 
-    @Bean
-    public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
-        return builder.routes()
-                .route(r -> r.path("/files/**")
-                        .filters(f -> f
-                                .prefixPath("/api")
-                                .addResponseHeader("Nebula-Gateway","Nebula Vault")
-                        ).uri("http://192.168.0.215:5000")
-                ).build();
-    }
 
 }

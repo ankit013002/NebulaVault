@@ -1,18 +1,22 @@
-#server:
-#  port: 8080
-#
-#spring:
-#  application:
-#    name: nebula-gateway
-#  cloud:
-#    gateway:
-#      server:
-#        webflux:
-#          routes:
-#          - id: files-route
-#            uri: ${FILES_META_DATA_ROUTE_URL:http://192.168.0.215:5000}
-#            predicates:
-#              - Path=/files/**,/folder/**
-#            filters:
-#              - PrefixPath=/api
-#              - AddResponseHeader=Nebula-Gateway,Nebula Vault
+server:
+  port: 8080
+
+spring:
+  application:
+    name: nebula-gateway
+
+routes:
+  files:
+    uri: ${FILES_SERVICE_URI:http://localhost:5000}
+  auth:
+    uri: ${AUTH_SERVICE_URI:http://localhost:4000}
+  drive:
+    uri: ${DRIVE_SERVICE_URI:http://localhost:8082}
+  billing:
+    uri: ${BILLING_SERVICE_URI:http://localhost:8083}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
