@@ -259,6 +259,7 @@ data/
 
 - [ ] Delete files / folders
 - [ ] Download files / folders
+- [ ] Make the "New" button function in creating new folders for now
 - [ ] Rename / move actions with optimistic UI
 - [ ] File previews (images, PDFs, text) in a side panel
 - [ ] Drag-select and keyboard shortcuts (select all, rename, delete)

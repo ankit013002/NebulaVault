@@ -8,13 +8,11 @@ import { walkEntry } from "@/utils/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";
 import ReplaceModal from "./ReplaceModal";
 import Breadcrumbs from "./Breadcrumbs";
-import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import { IoMdDownload } from "react-icons/io";
-import { FaRegTrashAlt } from "react-icons/fa";
+import FileRow from "./FileRow";
+import FolderRow from "./FolderRow";
 
 interface RecentFilesProps {
   isLoading: boolean;
-  currPath: string;
   existingDirItems: ExistingDirectoryType | null;
   uploadDirItems: (f: FileFolderBuffer[]) => Promise<void>;
   updatePath: (path: string) => void;
@@ -22,7 +20,6 @@ interface RecentFilesProps {
 
 const RecentFiles = ({
   isLoading,
-  currPath,
   existingDirItems,
   uploadDirItems,
   updatePath,
@@ -177,39 +174,7 @@ const RecentFiles = ({
                     key={index}
                     className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-1 border-[#1d1d25] p-2 items-center hover:cursor-pointer hover:bg-[#2a2b3a]"
                   >
-                    <div>{dirItem.name.replace("/", "")}</div>
-                    <div>Owner</div>
-                    <div>{new Date(dirItem.lastModified).toLocaleString()}</div>
-                    <div className="text-center">
-                      <span>
-                        {dirItem.size.value + " " + dirItem.size.unit}
-                      </span>
-                    </div>
-                    <div className="justify-self-center min-w-20 flex justify-center items-center">
-                      <div
-                        className="dropdown dropdown-end"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button tabIndex={0} className="btn btn-ghost btn-sm ">
-                          <HiOutlineDotsHorizontal />
-                        </button>
-                        <ul
-                          tabIndex={0}
-                          className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box "
-                        >
-                          <li className="tooltip" data-tip="Download">
-                            <button>
-                              <IoMdDownload />
-                            </button>
-                          </li>
-                          <li className="tooltip" data-tip="Delete">
-                            <button>
-                              <FaRegTrashAlt />
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
+                    <FolderRow folder={dirItem} />
                   </div>
                 );
               })}
@@ -220,39 +185,7 @@ const RecentFiles = ({
                     key={index}
                     className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-1 border-[#1d1d25] p-2 items-center"
                   >
-                    <div>{dirItem.name}</div>
-                    <div>Owner</div>
-                    <div>{new Date(dirItem.lastModified).toLocaleString()}</div>
-                    <div className="text-center">
-                      <span>
-                        {dirItem.size.value + " " + dirItem.size.unit}
-                      </span>
-                    </div>
-                    <div className="justify-self-center min-w-20 flex justify-center items-center">
-                      <div
-                        className="dropdown dropdown-end"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button tabIndex={0} className="btn btn-ghost btn-sm">
-                          <HiOutlineDotsHorizontal />
-                        </button>
-                        <ul
-                          tabIndex={0}
-                          className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box"
-                        >
-                          <li className="tooltip" data-tip="Download">
-                            <button>
-                              <IoMdDownload />
-                            </button>
-                          </li>
-                          <li className="tooltip" data-tip="Delete">
-                            <button>
-                              <FaRegTrashAlt />
-                            </button>
-                          </li>
-                        </ul>
-                      </div>
-                    </div>
+                    <FileRow file={dirItem} />
                   </div>
                 );
               })}

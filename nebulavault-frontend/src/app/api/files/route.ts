@@ -5,27 +5,15 @@ import { readdir, stat } from "fs/promises";
 import { FolderType } from "@/types/Folder";
 import { FileType } from "@/types/File";
 import { getNormalizedSize } from "@/utils/NormalizedSize";
+import { safeResolve } from "@/utils/pathUtils";
 
 export const runtime = "nodejs";
-
-const UPLOAD_ROOT =
-  process.env.UPLOAD_DIR ?? path.join(process.cwd(), "uploads");
-const ROOT_RESOLVED = path.resolve(UPLOAD_ROOT);
 
 function normalizePathParam(p?: string | null) {
   let s = (p ?? "").replace(/\\/g, "/");
   if (s.startsWith("/")) s = s.slice(1);
   if (s !== "" && !s.endsWith("/")) s += "/";
   return s;
-}
-
-function safeResolve(rel: string) {
-  const abs = path.resolve(ROOT_RESOLVED, rel);
-  const relBack = path.relative(ROOT_RESOLVED, abs);
-  if (relBack.startsWith("..") || path.isAbsolute(relBack)) {
-    throw new Error("Invalid path");
-  }
-  return abs;
 }
 
 async function listImmediateSubdirs(relPath: string): Promise<string[]> {

@@ -96,7 +96,6 @@ const DashboardContentSection = () => {
       <div className="h-full">
         <RecentFiles
           isLoading={isLoading}
-          currPath={currPath}
           existingDirItems={existingDirectoryItems}
           uploadDirItems={(f: FileFolderBuffer[]) => uploadDirItems(f)}
           updatePath={(path: string) => updatePath(path)}
