@@ -14,7 +14,7 @@ interface RecentFilesProps {
   currPath: string;
   existingDirItems: ExistingDirectoryType | null;
   uploadDirItems: (f: FileFolderBuffer[]) => Promise<void>;
-  setCurrPath: React.Dispatch<React.SetStateAction<string>>;
+  updatePath: (path: string) => void;
 }
 
 const RecentFiles = ({
@@ -22,7 +22,7 @@ const RecentFiles = ({
   currPath,
   existingDirItems,
   uploadDirItems,
-  setCurrPath,
+  updatePath,
 }: RecentFilesProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [replaceFiles, setReplaceFiles] = useState<string[]>([]);
@@ -156,7 +156,7 @@ const RecentFiles = ({
         <div className="flex flex-col gap-5 h-full">
           <div className="text-2xl font-medium">Recent Files</div>
           <div>
-            <Breadcrumbs path={currPath} />
+            <Breadcrumbs />
           </div>
           <div className="bg-[#181922] rounded-2xl flex flex-col p-0">
             <div className="grid grid-cols-4 border-1 border-[#1d1d25] rounded-t-2xl p-2 text-lg font-medium">
@@ -169,7 +169,7 @@ const RecentFiles = ({
               existingDirItems.folders.map((dirItem, index) => {
                 return (
                   <div
-                    onClick={() => setCurrPath(dirItem.name)}
+                    onClick={() => updatePath(dirItem.name.replace("/", ""))}
                     key={index}
                     className="grid grid-cols-4 border-1 border-[#1d1d25] p-2 items-center hover:cursor-pointer hover:bg-[#2a2b3a]"
                   >

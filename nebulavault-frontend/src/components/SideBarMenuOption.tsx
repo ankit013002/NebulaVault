@@ -1,5 +1,10 @@
 "use client";
 
+import {
+  resetPath,
+  selectCurrentPath,
+} from "@/app/features/currentPath/currentPathSlice";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { SideBarOptionType } from "@/utils/SideBarOptions";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -18,6 +23,9 @@ const SideBarMenuOption = ({
   const [isOptionSelected, setIsOptionSelected] = useState(false);
   const router = useRouter();
 
+  const dispatch = useAppDispatch();
+  const currPath = useAppSelector(selectCurrentPath);
+
   useEffect(() => {
     setIsOptionSelected(pageSelected === option.name);
   }, [pageSelected, option.name]);
@@ -26,6 +34,14 @@ const SideBarMenuOption = ({
     setPageSelected(option.name);
     router.push(`${option.name}`);
   };
+
+  const clearSelect = () => {
+    console.log("PATH:", currPath);
+    if (option.name === "Dashboard") {
+      dispatch(resetPath());
+    }
+  };
+
   return (
     <>
       <label
@@ -45,6 +61,7 @@ const SideBarMenuOption = ({
             setPageSelected(option.name);
             handleSelect();
           }}
+          onClick={() => clearSelect()}
         />
         {option.icon && <span className="text-lg">{option.icon}</span>}
         <span>{option.name}</span>

@@ -8,14 +8,21 @@ import { getNormalizedSize } from "@/utils/NormalizedSize";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { splitBuffers } from "@/utils/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import {
+  enterFolder,
+  selectCurrentPath,
+} from "@/app/features/currentPath/currentPathSlice";
 
 const DashboardContentSection = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [totalStorageOccupied, setTotalStorageOccupied] =
     useState<FileSize | null>(null);
-  const [currPath, setCurrPath] = useState("");
   const [existingDirectoryItems, setExistingDirectoryItems] =
     useState<ExistingDirectoryType | null>(null);
+
+  const dispatch = useAppDispatch();
+  const currPath = useAppSelector(selectCurrentPath);
 
   const fetchDir = useCallback(async () => {
     try {
@@ -77,6 +84,10 @@ const DashboardContentSection = () => {
     }
   };
 
+  const updatePath = (path: string) => {
+    dispatch(enterFolder(path));
+  };
+
   return (
     <>
       <div>
@@ -88,7 +99,7 @@ const DashboardContentSection = () => {
           currPath={currPath}
           existingDirItems={existingDirectoryItems}
           uploadDirItems={(f: FileFolderBuffer[]) => uploadDirItems(f)}
-          setCurrPath={(path) => setCurrPath(path)}
+          updatePath={(path: string) => updatePath(path)}
         />
       </div>
     </>
