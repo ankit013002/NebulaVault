@@ -1,0 +1,18 @@
+#server:
+#  port: 8080
+#
+#spring:
+#  application:
+#    name: nebula-gateway
+#  cloud:
+#    gateway:
+#      server:
+#        webflux:
+#          routes:
+#          - id: files-route
+#            uri: ${FILES_META_DATA_ROUTE_URL:http://192.168.0.215:5000}
+#            predicates:
+#              - Path=/files/**,/folder/**
+#            filters:
+#              - PrefixPath=/api
+#              - AddResponseHeader=Nebula-Gateway,Nebula Vault
