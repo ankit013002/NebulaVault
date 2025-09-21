@@ -1,5 +1,6 @@
 "use client";
 
+import Counter from "@/app/features/counter/Counter";
 import React, { useEffect, useState } from "react";
 
 interface BreadcrumbsProps {
@@ -24,6 +25,7 @@ const Breadcrumbs = ({ path }: BreadcrumbsProps) => {
         </li>
         <li>Add Document</li>
       </ul>
+      <Counter />
     </div>
   );
 };

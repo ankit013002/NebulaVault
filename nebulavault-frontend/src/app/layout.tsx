@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Sidebar } from "lucide-react";
 import MainSidebar from "@/components/MainSidebar";
+import StoreProvider from "./store/StoreProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -25,17 +26,19 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <div className="flex">
-          <div className="w-[20%] h-screen max-w-[300px]">
-            <MainSidebar />
+    <StoreProvider>
+      <html lang="en">
+        <body
+          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        >
+          <div className="flex">
+            <div className="w-[20%] h-screen max-w-[300px]">
+              <MainSidebar />
+            </div>
+            <div className="w-full h-screen">{children}</div>
           </div>
-          <div className="w-full h-screen">{children}</div>
-        </div>
-      </body>
-    </html>
+        </body>
+      </html>
+    </StoreProvider>
   );
 }
