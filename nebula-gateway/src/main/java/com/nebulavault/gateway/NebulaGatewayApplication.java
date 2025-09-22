@@ -15,6 +15,4 @@ public class NebulaGatewayApplication {
 		SpringApplication.run(NebulaGatewayApplication.class, args);
 	}
 
-
-
 }

@@ -36,7 +36,6 @@ const SideBarMenuOption = ({
   };
 
   const clearSelect = () => {
-    console.log("PATH:", currPath);
     if (option.name === "Dashboard") {
       dispatch(resetPath());
     }

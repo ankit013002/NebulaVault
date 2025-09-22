@@ -31,8 +31,6 @@ const RecentFiles = ({
   const areFilesBeingReplaced = (dirBuffer: FileFolderBuffer[]) => {
     const buffer: string[] = [];
 
-    console.log(dirBuffer);
-
     if (!existingDirItems) {
       return;
     }
@@ -46,9 +44,6 @@ const RecentFiles = ({
         } else if (item.folder) {
           return existingDirItems.folders.find((existingFolder) => {
             const folderName = existingFolder.name.replace("/", "");
-            console.log("CHECK");
-            console.log(folderName);
-            console.log(existingFolder);
             return folderName === item.folder;
           });
         }
@@ -60,8 +55,6 @@ const RecentFiles = ({
           buffer.push(item.folder);
         }
       });
-
-    console.log("replace: ", dirBuffer);
 
     setReplaceFiles(buffer);
     setPendingItems(dirBuffer);

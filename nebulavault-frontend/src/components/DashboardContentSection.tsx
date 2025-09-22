@@ -54,34 +54,62 @@ const DashboardContentSection = () => {
     setTotalStorageOccupied(getNormalizedSize(accumulatingSum));
   };
 
+  // const uploadDirItems = async (items: FileFolderBuffer[]) => {
+  //   const { files, emptyFolders } = splitBuffers(items);
+
+  //   const formData = new FormData();
+
+  //   for (const { file, relPath } of files) {
+  //     const filenameWithPath = `${relPath}${file.name}`;
+  //     formData.append("files", file, filenameWithPath);
+  //   }
+
+  //   if (emptyFolders.length > 0) {
+  //     formData.append(
+  //       "folders",
+  //       new Blob([JSON.stringify(emptyFolders)], { type: "application/json" }),
+  //       "folders.json"
+  //     );
+  //   }
+
+  //   const res = await fetch("/api/upload", {
+  //     method: "POST",
+  //     body: formData,
+  //   });
+
+  //   if (!res.ok) {
+  //     throw new Error("Upload failed");
+  //   } else {
+  //     await fetchDir();
+  //   }
+  // };
+
   const uploadDirItems = async (items: FileFolderBuffer[]) => {
     const { files, emptyFolders } = splitBuffers(items);
 
-    const formData = new FormData();
-
-    for (const { file, relPath } of files) {
-      const filenameWithPath = `${relPath}${file.name}`;
-      formData.append("files", file, filenameWithPath);
-    }
-
-    if (emptyFolders.length > 0) {
-      formData.append(
-        "folders",
-        new Blob([JSON.stringify(emptyFolders)], { type: "application/json" }),
-        "folders.json"
-      );
-    }
+    const payload = {
+      files: files.map(({ file, relPath }) => ({
+        name: file.name,
+        path: relPath,
+        size: file.size,
+        type: file.type,
+        lastModified: file.lastModified,
+      })),
+      emptyFolders,
+    };
 
     const res = await fetch("/api/upload", {
       method: "POST",
-      body: formData,
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(payload),
     });
 
-    if (!res.ok) {
-      throw new Error("Upload failed");
-    } else {
-      await fetchDir();
-    }
+    const body = await res.json();
+
+    console.log(body);
+
+    if (!res.ok) throw new Error("Upload failed");
+    await fetchDir();
   };
 
   const updatePath = (path: string) => {

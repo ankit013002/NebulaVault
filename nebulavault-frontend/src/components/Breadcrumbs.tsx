@@ -17,13 +17,10 @@ const Breadcrumbs = () => {
   const currPath = useAppSelector(selectCurrentPath);
 
   useEffect(() => {
-    console.log(currPath);
     if (currPath.length > 0) {
       setSubPaths(currPath.split("/"));
     }
   }, [currPath]);
-
-  console.log(subpaths);
 
   const denormalize = (path: string[]) => {
     let denormalizedPath = "";
