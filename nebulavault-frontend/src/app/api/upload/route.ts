@@ -68,6 +68,7 @@ export async function POST(req: Request) {
     }
 
     const fileParts = formData.getAll("files") as File[];
+
     const savedFiles: FileType[] = [];
 
     for (const file of fileParts) {

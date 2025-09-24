@@ -10,6 +10,8 @@ import ReplaceModal from "./ReplaceModal";
 import Breadcrumbs from "./Breadcrumbs";
 import FileRow from "./FileRow";
 import FolderRow from "./FolderRow";
+import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
+import { selectCurrentPath } from "@/app/features/currentPath/currentPathSlice";
 
 interface RecentFilesProps {
   isLoading: boolean;
@@ -28,10 +30,11 @@ const RecentFiles = ({
   const [replaceFiles, setReplaceFiles] = useState<string[]>([]);
   const [pendingItems, setPendingItems] = useState<FileFolderBuffer[]>([]);
 
+  const dispatch = useAppDispatch();
+  const currPath = useAppSelector(selectCurrentPath);
+
   const areFilesBeingReplaced = (dirBuffer: FileFolderBuffer[]) => {
     const buffer: string[] = [];
-
-    console.log(dirBuffer);
 
     if (!existingDirItems) {
       return;
@@ -46,9 +49,6 @@ const RecentFiles = ({
         } else if (item.folder) {
           return existingDirItems.folders.find((existingFolder) => {
             const folderName = existingFolder.name.replace("/", "");
-            console.log("CHECK");
-            console.log(folderName);
-            console.log(existingFolder);
             return folderName === item.folder;
           });
         }
@@ -60,8 +60,6 @@ const RecentFiles = ({
           buffer.push(item.folder);
         }
       });
-
-    console.log("replace: ", dirBuffer);
 
     setReplaceFiles(buffer);
     setPendingItems(dirBuffer);
@@ -86,7 +84,7 @@ const RecentFiles = ({
     const rootBuffer: FileFolderBuffer = {
       file: null,
       folder: "root",
-      path: "",
+      path: currPath,
       buffer: [],
     };
     const root = rootBuffer.buffer;
@@ -94,14 +92,14 @@ const RecentFiles = ({
     const promises = items.map(async (item) => {
       const entry = item.webkitGetAsEntry?.();
       if (entry && root) {
-        await walkEntry(entry, "/", root);
+        await walkEntry(entry, currPath + "/", root);
       } else if (item.kind === "file") {
         const file = item.getAsFile();
         if (file && root) {
           root.push({
             file,
-            folder: null,
-            path: "/",
+            folder: currPath,
+            path: "/" + currPath,
             buffer: null,
           });
         }

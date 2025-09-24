@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  enterFolder,
   resetPath,
   selectCurrentPath,
   setPath,
@@ -17,13 +16,10 @@ const Breadcrumbs = () => {
   const currPath = useAppSelector(selectCurrentPath);
 
   useEffect(() => {
-    console.log(currPath);
     if (currPath.length > 0) {
       setSubPaths(currPath.split("/"));
     }
   }, [currPath]);
-
-  console.log(subpaths);
 
   const denormalize = (path: string[]) => {
     let denormalizedPath = "";
@@ -36,7 +32,6 @@ const Breadcrumbs = () => {
   const handlePathRedirect = (crumb: string, index: number) => {
     const newPathArray = subpaths.slice(0, index + 1);
     const newPath = denormalize(newPathArray);
-    console.log(newPath);
     dispatch(setPath(newPath));
   };
 
