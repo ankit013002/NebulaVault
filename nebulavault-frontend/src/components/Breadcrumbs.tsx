@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  enterFolder,
   resetPath,
   selectCurrentPath,
   setPath,
@@ -33,7 +32,6 @@ const Breadcrumbs = () => {
   const handlePathRedirect = (crumb: string, index: number) => {
     const newPathArray = subpaths.slice(0, index + 1);
     const newPath = denormalize(newPathArray);
-    console.log(newPath);
     dispatch(setPath(newPath));
   };
 

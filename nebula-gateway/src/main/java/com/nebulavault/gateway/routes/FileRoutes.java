@@ -13,7 +13,7 @@ public class FileRoutes {
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder, @Value("${routes.files.uri}") String filesUri) {
         return builder.routes()
                 .route("files-route",r -> r
-                        .path("/files/**", "/folders/**")
+                        .path("/files/upload/**", "/folders/upload/**")
                             .filters(f -> f
                                     .prefixPath("/api")
                                     .addResponseHeader("Nebula-Gateway","Nebula Vault")
