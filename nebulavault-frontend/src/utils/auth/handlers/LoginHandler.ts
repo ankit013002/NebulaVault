@@ -2,6 +2,9 @@
 
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
+import { z } from "zod";
+import { loginSchema } from "../schemas/UserLoginSchema";
+import { ActionState } from "@/types/AuthActionState";
 
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET ?? "dev-secret"
@@ -55,3 +58,18 @@ export async function getSession(): Promise<Session | null> {
   if (!token) return null;
   return await verifySession(token);
 }
+
+export async function login(_prevState: ActionState, formData: FormData) {
+  const parseResult = loginSchema.safeParse(Object.fromEntries(formData));
+
+  if (!parseResult.success) {
+    return {
+      success: false,
+      errors: "Invalid email or password",
+    };
+  }
+
+  return { success: true, data: parseResult.data };
+}
+
+export async function logout(_prevState: ActionState, formData: FormData) {}
