@@ -1,11 +1,11 @@
-import { readDb } from "@/utils/FileDb";
+import { readDb } from "@/utils/file-system/FileDb";
 import { NextResponse } from "next/server";
 import path from "path";
 import { readdir, stat } from "fs/promises";
 import { FolderType } from "@/types/Folder";
 import { FileType } from "@/types/File";
-import { getNormalizedSize } from "@/utils/NormalizedSize";
-import { safeResolve } from "@/utils/pathUtils";
+import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
+import { safeResolve } from "@/utils/file-system/pathUtils";
 
 export const runtime = "nodejs";
 

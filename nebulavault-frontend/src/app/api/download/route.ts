@@ -1,6 +1,6 @@
 import path from "path";
 import { stat } from "fs/promises";
-import { safeResolve } from "@/utils/pathUtils";
+import { safeResolve } from "@/utils/file-system/pathUtils";
 import { createReadStream } from "fs";
 import { Readable } from "stream";
 import { lookup } from "mime-types";

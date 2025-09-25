@@ -1,5 +1,5 @@
 import { FileSize } from "@/types/File";
-import { getNormalizedSize } from "@/utils/NormalizedSize";
+import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
 import React, { useEffect, useState } from "react";
 
 interface StorageUsageProps {

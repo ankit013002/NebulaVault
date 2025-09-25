@@ -4,9 +4,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import StorageUsage from "./StorageUsage";
 import RecentFiles from "./RecentFiles";
 import { FileSize } from "@/types/File";
-import { getNormalizedSize } from "@/utils/NormalizedSize";
+import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
-import { splitBuffers } from "@/utils/FileSystemUtils";
+import { splitBuffers } from "@/utils/file-system/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import {

@@ -1,4 +1,4 @@
-import { FileFolderBuffer, FlatFile } from "../types/FileFolderBuffer";
+import { FileFolderBuffer, FlatFile } from "../../types/FileFolderBuffer";
 
 const entryToFile = (fileEntry: any) =>
   new Promise<File>((resolve, reject) => fileEntry.file(resolve, reject));
