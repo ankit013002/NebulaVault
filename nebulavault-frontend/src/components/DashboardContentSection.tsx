@@ -54,36 +54,6 @@ const DashboardContentSection = () => {
     setTotalStorageOccupied(getNormalizedSize(accumulatingSum));
   };
 
-  // const uploadDirItems = async (items: FileFolderBuffer[]) => {
-  //   const { files, emptyFolders } = splitBuffers(items);
-
-  //   const formData = new FormData();
-
-  //   for (const { file, relPath } of files) {
-  //     const filenameWithPath = `${relPath}${file.name}`;
-  //     formData.append("files", file, filenameWithPath);
-  //   }
-
-  //   if (emptyFolders.length > 0) {
-  //     formData.append(
-  //       "folders",
-  //       new Blob([JSON.stringify(emptyFolders)], { type: "application/json" }),
-  //       "folders.json"
-  //     );
-  //   }
-
-  //   const res = await fetch("/api/upload", {
-  //     method: "POST",
-  //     body: formData,
-  //   });
-
-  //   if (!res.ok) {
-  //     throw new Error("Upload failed");
-  //   } else {
-  //     await fetchDir();
-  //   }
-  // };
-
   const uploadDirItems = async (items: FileFolderBuffer[]) => {
     const { files, emptyFolders } = splitBuffers(items);
 
@@ -98,7 +68,7 @@ const DashboardContentSection = () => {
       emptyFolders,
     };
 
-    const res = await fetch("/api/upload", {
+    const res = await fetch("/api/dev-proxy/files/presign-batch", {
       method: "POST",
       headers: { "content-type": "application/json" },
       body: JSON.stringify(payload),
