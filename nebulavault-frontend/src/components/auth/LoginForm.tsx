@@ -1,12 +1,16 @@
 "use client";
 
-import { login } from "@/utils/auth/handlers/LoginHandler";
 import React, { useActionState } from "react";
 import FormSubmissionButton from "./FormSubmissionButton";
 import Link from "next/link";
+import { login } from "@/utils/auth/handlers/LoginHandler";
+import { ActionState } from "@/types/AuthActionState";
 
 const LoginForm = () => {
-  const [state, loginAction] = useActionState(login, undefined);
+  const [state, loginAction] = useActionState<ActionState, FormData>(
+    login,
+    undefined
+  );
 
   return (
     <div className="hero bg-base-200 min-h-screen">

@@ -60,16 +60,31 @@ export async function getSession(): Promise<Session | null> {
 }
 
 export async function login(_prevState: ActionState, formData: FormData) {
-  const parseResult = loginSchema.safeParse(Object.fromEntries(formData));
+  const parsed = loginSchema.safeParse(Object.fromEntries(formData));
 
-  if (!parseResult.success) {
+  if (!parsed.success) {
     return {
       success: false,
-      errors: "Invalid email or password",
+      errors: {
+        general: "Invalid email or password",
+      },
     };
   }
 
-  return { success: true, data: parseResult.data };
+  const res = await fetch(`${process.env.GATEWAY_ORIGIN}/login`, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(parsed.data),
+    cache: "no-store",
+  });
+
+  const data = await res.json();
+
+  console.log(data);
+
+  if (!res.ok) {
+    console.log("ERROR HITTING GATEWAY");
+  }
 }
 
 export async function logout(_prevState: ActionState, formData: FormData) {}
