@@ -29,6 +29,8 @@ export async function register(
     };
   }
 
+  console.log(parsed);
+
   return {
     ok: true,
     message: "Account created. Check your email to verify, then sign in.",

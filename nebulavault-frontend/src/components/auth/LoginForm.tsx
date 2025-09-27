@@ -1,16 +1,38 @@
 "use client";
 
-import React, { useActionState } from "react";
+import React, { useActionState, useState } from "react";
 import FormSubmissionButton from "./FormSubmissionButton";
 import Link from "next/link";
 import { login } from "@/utils/auth/handlers/LoginHandler";
-import { ActionState } from "@/types/AuthActionState";
+import { ActionErrors, ActionState } from "@/types/AuthActionState";
 
 const LoginForm = () => {
   const [state, loginAction] = useActionState<ActionState, FormData>(
     login,
     undefined
   );
+
+  const [email, setEmail] = useState("");
+
+  const [clientErrors, setClientErrors] = useState<ActionErrors>({});
+
+  function validateClient(): boolean {
+    console.log("VALIDATING");
+    const errs: ActionErrors = {};
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+      errs.email = "Enter a valid email.";
+    setClientErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    if (!validateClient()) {
+      e.preventDefault();
+      return;
+    }
+  }
+
+  const errors = state?.errors ?? clientErrors;
 
   return (
     <div className="hero bg-base-200 min-h-screen">
@@ -25,9 +47,10 @@ const LoginForm = () => {
         </div>
         <div className="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
           <div className="card-body">
-            <form className="fieldset" action={loginAction}>
+            <form className="fieldset" action={loginAction} onSubmit={onSubmit}>
               <label className="label">Email</label>
               <input
+                onChange={(e) => setEmail(e.target.value)}
                 name="email"
                 type="email"
                 className="input"
@@ -35,19 +58,9 @@ const LoginForm = () => {
               />
               {state?.errors && (
                 <div className="label-text-alt text-error mt-1">
-                  <span>{state.errors}</span>
+                  <span>{errors.general}</span>
                 </div>
               )}
-              <label className="label">Password</label>
-              <input
-                name="password"
-                type="password"
-                className="input"
-                placeholder="Password"
-              />
-              <div>
-                <a className="link link-hover">Forgot password?</a>
-              </div>
               <FormSubmissionButton
                 content="Log In"
                 altContent="Logging In..."

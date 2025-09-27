@@ -1,10 +1,8 @@
-// app/(auth)/register/RegisterForm.tsx
 "use client";
 
 import React, { useActionState, useId, useMemo, useState } from "react";
 import { register } from "@/utils/auth/handlers/RegistrationHandler";
 import FormSubmissionButton from "./FormSubmissionButton";
-import { PasswordStrength } from "@/utils/auth/handlers/PasswordStrengthHandler";
 
 type ActionErrors = Partial<
   Record<"email" | "password" | "confirmPassword" | "general", string>
@@ -20,14 +18,9 @@ export default function RegisterForm() {
   );
 
   const emailId = useId();
-  const pwId = useId();
-  const cpwId = useId();
   const termsId = useId();
 
   const [email, setEmail] = useState("");
-  const [pw, setPw] = useState("");
-  const [cpw, setCpw] = useState("");
-  const [showPw, setShowPw] = useState(false);
 
   const [clientErrors, setClientErrors] = useState<ActionErrors>({});
 
@@ -35,8 +28,6 @@ export default function RegisterForm() {
     const errs: ActionErrors = {};
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       errs.email = "Enter a valid email.";
-    if (pw.length < 8) errs.password = "Use at least 8 characters.";
-    if (pw !== cpw) errs.confirmPassword = "Passwords do not match.";
     setClientErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -115,7 +106,7 @@ export default function RegisterForm() {
                 </span>
               )}
 
-              <div className="mt-3">
+              {/* <div className="mt-3">
                 <label htmlFor={pwId} className="label">
                   Password
                 </label>
@@ -191,7 +182,7 @@ export default function RegisterForm() {
                     {errors.confirmPassword}
                   </span>
                 )}
-              </div>
+              </div> */}
 
               <div className="form-control mt-4">
                 <label className="label cursor-pointer justify-start gap-3">

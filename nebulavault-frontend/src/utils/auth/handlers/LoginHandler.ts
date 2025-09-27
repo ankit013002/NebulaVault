@@ -59,32 +59,41 @@ export async function getSession(): Promise<Session | null> {
   return await verifySession(token);
 }
 
-export async function login(_prevState: ActionState, formData: FormData) {
+export async function login(
+  _prevState: ActionState,
+  formData: FormData
+): Promise<ActionState> {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
 
-  if (!parsed.success) {
-    return {
-      success: false,
-      errors: {
-        general: "Invalid email or password",
-      },
-    };
-  }
+  // if (!parsed.success) {
+  //   return {
+  //     success: false,
+  //     errors: {
+  //       general: "Invalid email or password",
+  //     },
+  //   };
+  // }
 
-  const res = await fetch(`${process.env.GATEWAY_ORIGIN}/login`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(parsed.data),
-    cache: "no-store",
-  });
+  // const res = await fetch(`${process.env.GATEWAY_ORIGIN}/login`, {
+  //   method: "POST",
+  //   headers: { "content-type": "application/json" },
+  //   body: JSON.stringify(parsed.data),
+  //   cache: "no-store",
+  // });
 
-  const data = await res.json();
+  // const data = await res.json();
 
-  console.log(data);
+  // console.log(data);
 
-  if (!res.ok) {
-    console.log("ERROR HITTING GATEWAY");
-  }
+  // if (!res.ok) {
+  //   console.log("ERROR HITTING GATEWAY");
+  // }
+
+  return {
+    ok: true,
+    message: "Logging In.",
+    errors: {},
+  };
 }
 
 export async function logout(_prevState: ActionState, formData: FormData) {}
