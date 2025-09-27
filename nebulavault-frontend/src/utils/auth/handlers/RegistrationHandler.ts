@@ -4,6 +4,7 @@ import "server-only";
 import { z } from "zod";
 import { registrationSchema } from "../schemas/RegistrationSchema";
 import { ActionErrors, ActionState } from "@/types/AuthActionState";
+import { redirect } from "next/navigation";
 
 function zodToFieldErrors(err: z.ZodError): ActionErrors {
   const out: ActionErrors = {};
@@ -29,11 +30,21 @@ export async function register(
     };
   }
 
-  console.log(parsed);
+  const email = parsed.data.email;
 
-  return {
-    ok: true,
-    message: "Account created. Check your email to verify, then sign in.",
-    errors: {},
-  };
+  // check if the account exists here
+  const accountExists = false;
+  if (accountExists) {
+    return {
+      ok: false,
+      message: "That email already has an account. Try signing in.",
+      errors: { email: "Email already in use." },
+    };
+  }
+
+  // if account does not exist
+  redirect(
+    `${process.env.GATEWAY_ORIGIN}/auth/oidc/start` +
+      `?screen_hint=signup&login_hint=${encodeURIComponent(email)}`
+  );
 }
