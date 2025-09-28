@@ -6,10 +6,10 @@ import { z } from "zod";
 import { loginSchema } from "../schemas/UserLoginSchema";
 import { ActionState } from "@/types/AuthActionState";
 
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET ?? "dev-secret"
-);
-
+const RAW = (process.env.AUTH_SECRET ?? "dev-secret").trim();
+const secret: Uint8Array = /^[0-9a-f]{64}$/i.test(RAW)
+  ? Buffer.from(RAW, "hex")
+  : Buffer.from(RAW, "utf8");
 export type Session = JWTPayload & {
   sub: string;
   email: string;
@@ -34,7 +34,8 @@ export async function verifySession(token: string): Promise<Session | null> {
       algorithms: ["HS256"],
     });
     return payload as Session;
-  } catch {
+  } catch (e) {
+    console.error("session error:", e);
     return null;
   }
 }

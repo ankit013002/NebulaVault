@@ -19,7 +19,10 @@ const CLIENT_ID = process.env.OIDC_CLIENT_ID!;
 const CLIENT_SECRET = process.env.OIDC_CLIENT_SECRET!;
 const REDIRECT = process.env.OIDC_REDIRECT_URI!;
 const APP_ORIGIN = process.env.APP_ORIGIN || "http://localhost:3000";
-const AUTH_SECRET = process.env.AUTH_SECRET || "dev-secret";
+const RAW = (process.env.AUTH_SECRET || "dev-secret").trim();
+const SIGNING_SECRET = /^[0-9a-f]{64}$/i.test(RAW)
+  ? Buffer.from(RAW, "hex")
+  : Buffer.from(RAW, "utf8");
 
 app.get("/api/auth/oidc/start", (req, res) => {
   const authz = new URL(`${ISSUER_BASE}/authorize`);
@@ -105,7 +108,7 @@ app.get("/api/auth/oidc/callback", async (req, res) => {
 
   const access = jwt.sign(
     { sub: userId, email, roles: ["user"] },
-    AUTH_SECRET,
+    SIGNING_SECRET,
     {
       algorithm: "HS256",
       expiresIn: "15m",
