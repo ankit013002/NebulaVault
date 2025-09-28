@@ -34,6 +34,14 @@ app.get("/api/auth/oidc/start", (req, res) => {
   authz.searchParams.set("screen_hint", "signup");
   authz.searchParams.set("connection", "NebulaVaultNeonDB");
 
+  console.log(authz);
+
+  const screen_hint =
+    typeof req.query.screen_hint === "string"
+      ? req.query.screen_hint
+      : "signup";
+  authz.searchParams.set("screen_hint", screen_hint);
+
   const login_hint =
     typeof req.query.login_hint === "string" ? req.query.login_hint : undefined;
   if (login_hint) authz.searchParams.set("login_hint", login_hint);
@@ -48,55 +56,46 @@ app.get("/api/auth/oidc/callback", async (req, res) => {
   const wellKnown = await fetch(
     `${ISSUER_BASE}/.well-known/openid-configuration`
   ).then((r) => r.json());
-  const tokenEndpoint = wellKnown.token_endpoint as string;
 
-  const body = new URLSearchParams({
-    grant_type: "authorization_code",
-    client_id: CLIENT_ID,
-    client_secret: CLIENT_SECRET,
-    redirect_uri: REDIRECT,
-    code,
-  });
-
-  const tokens = await fetch(tokenEndpoint, {
+  const tokens = await fetch(wellKnown.token_endpoint, {
     method: "POST",
     headers: { "content-type": "application/x-www-form-urlencoded" },
-    body,
+    body: new URLSearchParams({
+      grant_type: "authorization_code",
+      client_id: CLIENT_ID,
+      client_secret: CLIENT_SECRET,
+      redirect_uri: REDIRECT,
+      code,
+    }),
   }).then((r) => r.json());
 
   const idToken = tokens.id_token as string | undefined;
   if (!idToken) return res.status(400).send("no id_token");
 
-  const wellKnownUrl = `${ISSUER_BASE}/.well-known/openid-configuration`;
-  const meta = await fetch(wellKnownUrl).then((r) => r.json());
-  const JWKS = createRemoteJWKSet(new URL(meta.jwks_uri));
+  const JWKS = createRemoteJWKSet(new URL(wellKnown.jwks_uri));
   const { payload } = await jwtVerify(idToken, JWKS, {
     issuer: ISSUER_WITH_SLASH,
     audience: CLIENT_ID,
   });
 
   const email = String(payload.email ?? "");
-  const name = String(payload.name ?? email);
-  const vendorSub = String(payload.sub);
   const emailVerified = !!payload.email_verified;
+  const userSub = String(payload.sub);
 
   const c = await pool.connect();
-  let userId: string,
-    isNew = false;
+  let isNew = false;
   try {
     await c.query("BEGIN");
     const r = await c.query(
-      `insert into users (email, name, email_verified, vendor_sub)
-       values ($1,$2,$3,$4)
-       on conflict (email) do update set
-         name=excluded.name,
-         vendor_sub=excluded.vendor_sub,
-         email_verified = users.email_verified or excluded.email_verified
-       returning id, (xmax = 0) as is_new`,
-      [email, name, emailVerified, vendorSub]
+      `INSERT INTO profiles (user_sub, email, email_verified)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (user_sub) DO UPDATE
+         SET email = EXCLUDED.email,
+             email_verified = profiles.email_verified OR EXCLUDED.email_verified
+       RETURNING (xmax = 0) AS is_new`,
+      [userSub, email, emailVerified]
     );
-    userId = String(r.rows[0].id);
-    isNew = !!r.rows[0].is_new;
+    isNew = !!r.rows[0]?.is_new;
     await c.query("COMMIT");
   } catch (e) {
     console.error("DB upsert error:", e);
@@ -107,13 +106,11 @@ app.get("/api/auth/oidc/callback", async (req, res) => {
   }
 
   const access = jwt.sign(
-    { sub: userId, email, roles: ["user"] },
+    { sub: userSub, email, roles: ["user"], isNew },
     SIGNING_SECRET,
-    {
-      algorithm: "HS256",
-      expiresIn: "15m",
-    }
+    { algorithm: "HS256", expiresIn: "15m" }
   );
+
   res.cookie("session", access, {
     httpOnly: true,
     sameSite: "lax",

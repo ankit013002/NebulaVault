@@ -32,17 +32,6 @@ export async function register(
 
   const email = parsed.data.email;
 
-  // check if the account exists here
-  const accountExists = false;
-  if (accountExists) {
-    return {
-      ok: false,
-      message: "That email already has an account. Try signing in.",
-      errors: { email: "Email already in use." },
-    };
-  }
-
-  // if account does not exist
   redirect(
     `${process.env.GATEWAY_ORIGIN}/auth/oidc/start` +
       `?screen_hint=signup&login_hint=${encodeURIComponent(email)}`

@@ -1,6 +1,7 @@
 import React from "react";
 import SideBarTitleSection from "./SideBarTitleSection";
 import SideBarMenuOptions from "./SideBarMenuOptions";
+import SideBarAccountSection from "./SideBarAccountSection";
 
 const MainSidebar = () => {
   return (
@@ -10,6 +11,9 @@ const MainSidebar = () => {
       </section>
       <section className="w-full">
         <SideBarMenuOptions />
+      </section>
+      <section className="flex items-end w-full h-full">
+        <SideBarAccountSection />
       </section>
     </div>
   );

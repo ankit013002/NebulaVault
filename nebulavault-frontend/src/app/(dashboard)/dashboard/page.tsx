@@ -1,5 +1,6 @@
 import DashboardContentSection from "@/components/DashboardContentSection";
 import DashboardTitleSection from "@/components/DashboardTitleSection";
+import { getSession } from "@/utils/auth/handlers/LoginHandler";
 import React from "react";
 
 const page = () => {

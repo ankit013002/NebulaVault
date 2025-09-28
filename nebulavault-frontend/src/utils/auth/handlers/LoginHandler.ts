@@ -2,9 +2,9 @@
 
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify, type JWTPayload } from "jose";
-import { z } from "zod";
 import { loginSchema } from "../schemas/UserLoginSchema";
 import { ActionState } from "@/types/AuthActionState";
+import { redirect } from "next/navigation";
 
 const RAW = (process.env.AUTH_SECRET ?? "dev-secret").trim();
 const secret: Uint8Array = /^[0-9a-f]{64}$/i.test(RAW)
@@ -66,35 +66,21 @@ export async function login(
 ): Promise<ActionState> {
   const parsed = loginSchema.safeParse(Object.fromEntries(formData));
 
-  // if (!parsed.success) {
-  //   return {
-  //     success: false,
-  //     errors: {
-  //       general: "Invalid email or password",
-  //     },
-  //   };
-  // }
+  if (!parsed.success) {
+    return {
+      ok: false,
+      errors: {
+        general: "Invalid email or password",
+      },
+    };
+  }
 
-  // const res = await fetch(`${process.env.GATEWAY_ORIGIN}/login`, {
-  //   method: "POST",
-  //   headers: { "content-type": "application/json" },
-  //   body: JSON.stringify(parsed.data),
-  //   cache: "no-store",
-  // });
+  const email = parsed.data.email;
 
-  // const data = await res.json();
-
-  // console.log(data);
-
-  // if (!res.ok) {
-  //   console.log("ERROR HITTING GATEWAY");
-  // }
-
-  return {
-    ok: true,
-    message: "Logging In.",
-    errors: {},
-  };
+  redirect(
+    `${process.env.GATEWAY_ORIGIN}/auth/oidc/start` +
+      `?screen_hint=login&login_hint=${encodeURIComponent(email)}`
+  );
 }
 
 export async function logout(_prevState: ActionState, formData: FormData) {}
