@@ -8,6 +8,7 @@ const secret = /^[0-9a-f]{64}$/i.test(RAW)
   : new TextEncoder().encode(RAW);
 
 const isPublic = (p: string) =>
+  p === "/" ||
   p === "/login" ||
   p === "/register" ||
   p === "/favicon.ico" ||
@@ -19,7 +20,18 @@ const isPublic = (p: string) =>
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  if (isPublic(pathname)) return NextResponse.next();
+  if (isPublic(pathname)) {
+    if (pathname === "/") {
+      const token = req.cookies.get("session")?.value;
+      if (token) {
+        try {
+          await jwtVerify(token, secret, { algorithms: ["HS256"] });
+          return NextResponse.redirect(new URL("/dashboard", req.url));
+        } catch {}
+      }
+    }
+    return NextResponse.next();
+  }
 
   const token = req.cookies.get("session")?.value;
   if (!token) {

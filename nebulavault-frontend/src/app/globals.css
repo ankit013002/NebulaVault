@@ -2,31 +2,29 @@
 @import "tw-animate-css";
 @plugin "daisyui";
 
-
-
 /* === Custom Dark Variant (for DaisyUI + Shadcn sync) === */
 @custom-variant dark (&:is(.dark *));
 
 /* === Theme Variables === */
 :root {
   /* === Base (dark, space-like) === */
-  --background: rgba(14, 15, 23);   /* deep navy / cosmic blue */
-  --foreground: oklch(0.96 0.01 280);   /* soft white with slight cool tint */
+  --background: rgba(14, 15, 23); /* deep navy / cosmic blue */
+  --foreground: oklch(0.96 0.01 280); /* soft white with slight cool tint */
 
   /* === UI Surfaces === */
-  --card: oklch(0.2 0.03 275); 
+  --card: oklch(0.2 0.03 275);
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
 
   /* === Branding === */
-  --primary: oklch(0.35 0.1 270);        /* DARK nebula blue */
+  --primary: oklch(0.35 0.1 270); /* DARK nebula blue */
   --primary-foreground: oklch(0.97 0 0); /* white text */
 
-  --secondary: oklch(0.32 0.1 300);      /* deep purple */
+  --secondary: oklch(0.32 0.1 300); /* deep purple */
   --secondary-foreground: oklch(0.97 0 0);
 
-  --accent: oklch(0.72 0.2 250);         /* glowing electric blue */
+  --accent: oklch(0.72 0.2 250); /* glowing electric blue */
   --accent-glow: #6ea8ff;
   --accent-foreground: oklch(0.98 0 0);
 
@@ -34,7 +32,7 @@
   --muted: oklch(0.26 0.02 280);
   --muted-foreground: oklch(0.7 0.02 290);
 
-  --destructive: oklch(0.6 0.25 30);     /* cosmic red */
+  --destructive: oklch(0.6 0.25 30); /* cosmic red */
   --destructive-foreground: oklch(0.97 0 0);
 
   /* === Inputs & Borders === */
@@ -47,7 +45,7 @@
   --chart-2: oklch(0.5 0.15 250); /* bright cyan-blue */
   --chart-3: oklch(0.42 0.12 300); /* purple */
   --chart-4: oklch(0.55 0.18 200); /* teal */
-  --chart-5: oklch(0.65 0.2 90);   /* golden amber */
+  --chart-5: oklch(0.65 0.2 90); /* golden amber */
 
   /* === Sidebar === */
   --sidebar: var(--background);
@@ -197,8 +195,7 @@
 
 /* === Cosmic Glow Accent === */
 .glow {
-  text-shadow: 0 0 10px var(--accent-glow),
-               0 0 20px var(--accent-glow);
+  text-shadow: 0 0 10px var(--accent-glow), 0 0 20px var(--accent-glow);
 }
 
 /* === Card Utility === */
