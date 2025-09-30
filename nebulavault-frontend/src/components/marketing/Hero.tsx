@@ -1,10 +1,22 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion, useScroll } from "framer-motion";
 import AnimatedStorageBar from "./AnimatedStorageBar";
 import Starfield from "./Startfield";
+import { useEffect, useState } from "react";
 
 export default function Hero() {
+  const { scrollY } = useScroll();
+  const [atTop, setAtTop] = useState(true);
+
+  useEffect(() => {
+    return scrollY.on("change", (latest) => {
+      setAtTop(latest <= 1);
+    });
+  }, [scrollY]);
+
+  console.log(atTop);
+
   const signUpUrl = `${process.env.NEXT_PUBLIC_GATEWAY_ORIGIN}/auth/oidc/start?screen_hint=signup`;
   const signInUrl = `${process.env.NEXT_PUBLIC_GATEWAY_ORIGIN}/auth/oidc/start?screen_hint=login`;
 
@@ -18,7 +30,7 @@ export default function Hero() {
         </div>
       </div>
 
-      <div className="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
+      <div className="flex flex-col gap-4 z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -79,9 +91,9 @@ export default function Hero() {
         </motion.div>
 
         <motion.div
-          className="pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 z-[1]"
+          className="pointer-events-none absolute bottom-18 right-10 -translate-x-1/2 z-[1]"
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={atTop ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 0.8, delay: 1.5 }}
         >
           <motion.div

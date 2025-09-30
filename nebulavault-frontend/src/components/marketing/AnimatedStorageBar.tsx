@@ -4,8 +4,8 @@ import { motion, useInView, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type Props = {
-  usedKB?: number;
-  quotaMB?: number;
+  initalIsedGB?: number;
+  quotaGB?: number;
 };
 
 const COLORS = {
@@ -20,19 +20,29 @@ const COLORS = {
 };
 
 export default function AnimatedStorageBar({
-  usedKB = 50.27,
-  quotaMB = 100,
+  initalIsedGB = 50.27,
+  quotaGB = 150,
 }: Props) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
   const prefersReduced = useReducedMotion();
   const [pct, setPct] = useState(0);
+  const [timer, setTimer] = useState(0);
+  const [usedGB, setUsedGB] = useState(initalIsedGB);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTimer((prev) => prev + 1);
+      setUsedGB(Math.random() * 150);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
 
   const computedPct = useMemo(() => {
-    const usedMB = usedKB / 1024;
-    const raw = (usedMB / quotaMB) * 100;
+    const raw = (usedGB / quotaGB) * 100;
     return Math.min(100, Math.max(raw, raw > 0 ? 0.4 : 0));
-  }, [usedKB, quotaMB]);
+  }, [usedGB, quotaGB]);
 
   useEffect(() => {
     if (isInView) {
@@ -64,7 +74,7 @@ export default function AnimatedStorageBar({
         }}
       >
         <span>Storage Usage</span>
-        <span>{quotaMB} MB</span>
+        <span>{quotaGB} GB</span>
       </div>
 
       <div
@@ -134,7 +144,7 @@ export default function AnimatedStorageBar({
         animate={isInView ? { opacity: 1 } : {}}
         transition={{ duration: 0.4, delay: 1.1 }}
       >
-        {usedKB.toFixed(2)} KB used
+        {usedGB.toFixed(2)} GB used
       </motion.div>
     </motion.div>
   );

@@ -137,6 +137,69 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
+
+  /* Colors used by your components (text-nv-*, bg-nv-*, border-nv-*, from-nv-*, to-nv-*) */
+  --color-nv-bg: var(--background);
+  --color-nv-surface: var(--card);
+  --color-nv-card: var(--card);
+  --color-nv-border: var(--border);
+  --color-nv-text: var(--foreground);
+  /* use the text tone for “muted” (your --muted is a surface color) */
+  --color-nv-muted: var(--muted-foreground);
+  --color-nv-primary: var(--primary);
+  /* second stop for gradients */
+  --color-nv-primary2: var(--accent);
+
+  /* Radius (for rounded-xl2) */
+  --radius-xl2: 1rem;
+
+  /* Shadows (for shadow-glow, shadow-glow-sm, shadow-card) */
+  --shadow-glow: 0 0 40px 8px rgba(34, 211, 238, 0.18);
+  --shadow-glow-sm: 0 0 20px 4px rgba(34, 211, 238, 0.12);
+  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
+
+  /* Animations (for animate-pulse-glow, animate-shimmer, animate-float, animate-fade-in) */
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-shimmer: shimmer 2s linear infinite;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-fade-in: fade-in 0.25s ease-out both;
+}
+
+@keyframes pulse-glow {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 /* === Dark Mode === */

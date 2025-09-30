@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, useInView } from "framer-motion";
+import { MotionConfig, motion, useInView } from "framer-motion";
 import { useRef } from "react";
 import {
   Zap,
@@ -50,6 +50,12 @@ const features = [
   },
 ];
 
+const cardVariants = {
+  rest: { y: 0, scale: 1, opacity: 1 },
+  hover: { y: -6, scale: 1.02, opacity: 1 },
+  press: { scale: 0.995 },
+};
+
 export default function FeatureCards() {
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-100px" });
@@ -74,27 +80,58 @@ export default function FeatureCards() {
           </p>
         </motion.div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {features.map(({ icon: Icon, title, description }, i) => (
-            <motion.div
-              key={title}
-              className="group rounded-2xl border border-nv-border bg-nv-surface/60 backdrop-blur-sm p-6 shadow-card"
-              initial={{ opacity: 0, y: 24 }}
-              animate={isInView ? { opacity: 1, y: 0 } : {}}
-              transition={{ duration: 0.5, delay: i * 0.05 }}
-              whileHover={{ y: -4 }}
-            >
-              <div className="flex items-center gap-3 mb-3">
-                <div className="rounded-xl p-2 bg-gradient-to-r from-nv-primary/15 to-nv-primary2/15 border border-nv-border">
-                  <Icon className="size-5 text-nv-primary" />
+        <MotionConfig
+          transition={{
+            type: "spring",
+            stiffness: 260,
+            damping: 26,
+            mass: 0.8,
+          }}
+        >
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-7">
+            {features.map(({ icon: Icon, title, description }, i) => (
+              <motion.div
+                key={title}
+                variants={cardVariants}
+                initial="rest"
+                whileHover="hover"
+                whileTap="press"
+                animate={
+                  isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }
+                }
+                transition={{ delay: i * 0.05 }}
+                className="
+                  group relative rounded-2xl border border-nv-border bg-nv-surface/60
+                  backdrop-blur-sm p-6 shadow-card
+                  transform-gpu will-change-transform
+                  cursor-pointer
+                "
+              >
+                <div
+                  className="
+                    pointer-events-none absolute inset-0 rounded-2xl opacity-0
+                    group-hover:opacity-100 transition-opacity duration-300
+                    bg-gradient-to-r from-nv-primary/10 via-transparent to-nv-primary2/10
+                  "
+                  aria-hidden
+                />
+
+                <div className="relative z-10">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="rounded-xl p-2 bg-gradient-to-r from-nv-primary/15 to-nv-primary2/15 border border-nv-border">
+                      <Icon className="size-5 text-nv-primary" />
+                    </div>
+                    <h3 className="text-xl font-semibold text-nv-text">
+                      {title}
+                    </h3>
+                  </div>
+                  <p className="text-nv-muted">{description}</p>
+                  <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-nv-primary/20 to-transparent" />
                 </div>
-                <h3 className="text-xl font-semibold text-nv-text">{title}</h3>
-              </div>
-              <p className="text-nv-muted">{description}</p>
-              <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-nv-primary/20 to-transparent" />
-            </motion.div>
-          ))}
-        </div>
+              </motion.div>
+            ))}
+          </div>
+        </MotionConfig>
       </div>
     </section>
   );
