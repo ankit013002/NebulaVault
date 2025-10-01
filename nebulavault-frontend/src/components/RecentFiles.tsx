@@ -30,7 +30,6 @@ const RecentFiles = ({
   const [replaceFiles, setReplaceFiles] = useState<string[]>([]);
   const [pendingItems, setPendingItems] = useState<FileFolderBuffer[]>([]);
 
-  const dispatch = useAppDispatch();
   const currPath = useAppSelector(selectCurrentPath);
 
   const areFilesBeingReplaced = (dirBuffer: FileFolderBuffer[]) => {

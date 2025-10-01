@@ -13,6 +13,8 @@ import {
   enterFolder,
   selectCurrentPath,
 } from "@/app/features/currentPath/currentPathSlice";
+import { redirect } from "next/dist/server/api-utils";
+import { useRouter } from "next/navigation";
 
 const DashboardContentSection = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +22,7 @@ const DashboardContentSection = () => {
     useState<FileSize | null>(null);
   const [existingDirectoryItems, setExistingDirectoryItems] =
     useState<ExistingDirectoryType | null>(null);
+  const router = useRouter();
 
   const dispatch = useAppDispatch();
   const currPath = useAppSelector(selectCurrentPath);
@@ -83,7 +86,9 @@ const DashboardContentSection = () => {
   };
 
   const updatePath = (path: string) => {
-    dispatch(enterFolder(path));
+    const newPath = currPath ? `${currPath}/${path}` : path;
+    router.push(`/dashboard/${newPath}`);
+    dispatch(enterFolder(newPath));
   };
 
   return (
