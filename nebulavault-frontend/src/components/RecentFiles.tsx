@@ -12,6 +12,7 @@ import FileRow from "./FileRow";
 import FolderRow from "./FolderRow";
 import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
 import { selectCurrentPath } from "@/app/features/currentPath/currentPathSlice";
+import { useParams } from "next/navigation";
 
 interface RecentFilesProps {
   isLoading: boolean;
@@ -30,7 +31,8 @@ const RecentFiles = ({
   const [replaceFiles, setReplaceFiles] = useState<string[]>([]);
   const [pendingItems, setPendingItems] = useState<FileFolderBuffer[]>([]);
 
-  const currPath = useAppSelector(selectCurrentPath);
+  const params = useParams() as { path?: string[] };
+  const currPath = (params?.path ?? []).join("/");
 
   const areFilesBeingReplaced = (dirBuffer: FileFolderBuffer[]) => {
     const buffer: string[] = [];
@@ -86,15 +88,15 @@ const RecentFiles = ({
       path: currPath,
       buffer: [],
     };
-    const root = rootBuffer.buffer;
+    const root = rootBuffer.buffer!;
 
     const promises = items.map(async (item) => {
       const entry = item.webkitGetAsEntry?.();
-      if (entry && root) {
-        await walkEntry(entry, currPath + "/", root);
+      if (entry) {
+        await walkEntry(entry, currPath ? currPath + "/" : "", root);
       } else if (item.kind === "file") {
         const file = item.getAsFile();
-        if (file && root) {
+        if (file) {
           root.push({
             file,
             folder: currPath,
@@ -106,8 +108,7 @@ const RecentFiles = ({
     });
 
     await Promise.all(promises);
-
-    prepareFileUpload(rootBuffer);
+    await prepareFileUpload(rootBuffer);
   };
 
   const handleCancelReplace = () => {

@@ -8,24 +8,18 @@ import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { splitBuffers } from "@/utils/file-system/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";
-import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import {
-  enterFolder,
-  selectCurrentPath,
-} from "@/app/features/currentPath/currentPathSlice";
-import { redirect } from "next/dist/server/api-utils";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
-const DashboardContentSection = () => {
+export default function DashboardContentSection() {
   const [isLoading, setIsLoading] = useState(true);
   const [totalStorageOccupied, setTotalStorageOccupied] =
     useState<FileSize | null>(null);
   const [existingDirectoryItems, setExistingDirectoryItems] =
     useState<ExistingDirectoryType | null>(null);
-  const router = useRouter();
 
-  const dispatch = useAppDispatch();
-  const currPath = useAppSelector(selectCurrentPath);
+  const router = useRouter();
+  const params = useParams() as { path?: string[] };
+  const currPath = (params?.path ?? []).join("/");
 
   const fetchDir = useCallback(async () => {
     try {
@@ -51,9 +45,7 @@ const DashboardContentSection = () => {
   const updateTotalStorageOccupied = (dirNode: ExistingDirectoryType) => {
     let accumulatingSum = 0;
     dirNode.folders.forEach((folder) => (accumulatingSum += folder.size.raw));
-    dirNode.files.forEach((file) => {
-      accumulatingSum += file.size.raw;
-    });
+    dirNode.files.forEach((file) => (accumulatingSum += file.size.raw));
     setTotalStorageOccupied(getNormalizedSize(accumulatingSum));
   };
 
@@ -78,17 +70,15 @@ const DashboardContentSection = () => {
     });
 
     const body = await res.json();
-
     console.log(body);
 
     if (!res.ok) throw new Error("Upload failed");
     await fetchDir();
   };
 
-  const updatePath = (path: string) => {
-    const newPath = currPath ? `${currPath}/${path}` : path;
-    router.push(`/dashboard/${newPath}`);
-    dispatch(enterFolder(newPath));
+  const updatePath = (child: string) => {
+    const next = [currPath, child].filter(Boolean).join("/");
+    router.push(`/dashboard/${next}`);
   };
 
   return (
@@ -101,11 +91,9 @@ const DashboardContentSection = () => {
           isLoading={isLoading}
           existingDirItems={existingDirectoryItems}
           uploadDirItems={(f: FileFolderBuffer[]) => uploadDirItems(f)}
-          updatePath={(path: string) => updatePath(path)}
+          updatePath={(p: string) => updatePath(p)}
         />
       </div>
     </>
   );
-};
-
-export default DashboardContentSection;
+}
