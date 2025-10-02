@@ -37,7 +37,7 @@ jobs:
               - 'nebulavault-file-service/**'
               - 'simple-flask-server/**'
 
-    web:
+  web:
     name: Frontend (Next.js) — build
     needs: detect-changes
     if: needs.detect-changes.outputs.web == 'true'
@@ -86,7 +86,9 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.auth == 'true'
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: nebulavault-auth-service } }
+    defaults:
+      run:
+        working-directory: nebulavault-auth-service
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -112,7 +114,9 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.gateway == 'true'
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: nebula-gateway } }
+    defaults:
+      run:
+        working-directory: nebula-gateway
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -134,7 +138,9 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.files == 'true'
     runs-on: ubuntu-latest
-    defaults: { run: { working-directory: nebulavault-file-service } }
+    defaults:
+      run:
+        working-directory: nebulavault-file-service
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
