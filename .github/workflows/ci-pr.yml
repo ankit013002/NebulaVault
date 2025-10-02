@@ -136,7 +136,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          # ❌ remove cache-dependency-path to avoid errors when files don't exist
       - name: Install deps
         run: |
           if [ -f requirements.txt ]; then
