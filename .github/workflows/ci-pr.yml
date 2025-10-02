@@ -46,6 +46,8 @@ jobs:
     env:
       NEXT_TELEMETRY_DISABLED: 1
       NODE_ENV: production
+      NEXT_PUBLIC_GATEWAY_ORIGIN: http://localhost:8080
+      GATEWAY_ORIGIN: http://localhost:8080
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -60,8 +62,13 @@ jobs:
         run: npm run lint --if-present
       - name: Typecheck (if present)
         run: npm run typecheck --if-present
-      - name: Build
-        run: npm run build --if-present
+      - name: Build (with fallback)
+        run: |
+          if npm run -s | grep -qE '(^| )build( |$)'; then
+            npm run build
+          else
+            npx --yes next build
+          fi
       - uses: actions/upload-artifact@v4
         with:
           name: web-next-build
@@ -86,8 +93,13 @@ jobs:
       - name: Install
         run: |
           if [ -f package-lock.json ]; then npm ci; else npm i; fi
-      - name: Build (if present)
-        run: npm run build --if-present
+      - name: Build (with fallback)
+        run: |
+          if npm run -s | grep -qE '(^| )build( |$)'; then
+            npm run build
+          else
+            npx --yes tsc -p tsconfig.json
+          fi
       - name: Test (if present)
         run: npm test --if-present
 
@@ -124,15 +136,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-          cache: pip
-          cache-dependency-path: |
-            nebulavault-file-service/requirements.txt
-            nebulavault-file-service/pyproject.toml
-            nebulavault-file-service/Pipfile
+          # ❌ remove cache-dependency-path to avoid errors when files don't exist
       - name: Install deps
         run: |
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; else pip install flask; fi
-          if [ -d tests ]; then pip install pytest; fi
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            pip install flask pytest || pip install flask
+          fi
       - name: Tests (if present)
         run: |
           if [ -d tests ]; then pytest -q; else echo "no tests"; fi
