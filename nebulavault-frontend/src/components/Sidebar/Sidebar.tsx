@@ -1,9 +1,9 @@
 import React from "react";
-import SideBarTitleSection from "./SideBarTitleSection";
-import SideBarMenuOptions from "./SideBarMenuOptions";
-import SideBarAccountSection from "./SideBarAccountSection";
+import SideBarTitleSection from "./SidebarTitleSection";
+import SideBarMenuOptions from "./SidebarMenuOptions";
+import SideBarAccountSection from "./SidebarAccountSection";
 
-const MainSidebar = () => {
+const Sidebar = () => {
   return (
     <div className="flex flex-col items-center gap-5 py-10 p-2 h-full border-2 border-[#15161d]">
       <section className="w-full">
@@ -19,4 +19,4 @@ const MainSidebar = () => {
   );
 };
 
-export default MainSidebar;
+export default Sidebar;

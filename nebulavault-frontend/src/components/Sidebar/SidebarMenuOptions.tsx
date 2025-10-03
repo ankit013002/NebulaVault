@@ -2,8 +2,8 @@
 
 import { SideBarOptions } from "@/utils/SideBarOptions";
 import React, { useEffect, useState } from "react";
-import SideBarMenuOption from "./SideBarMenuOption";
 import { usePathname } from "next/navigation";
+import SideBarMenuOption from "./SidebarMenuOption";
 
 const SideBarMenuOptions = () => {
   const pathname = usePathname();

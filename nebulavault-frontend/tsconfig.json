@@ -27,7 +27,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "src/Dashboard"
-, "src/utils/auth/handlers/PasswordStrengthHandler.tss"  ],
+    "src/Dashboard",
+    "src/utils/auth/handlers/PasswordStrengthHandler.tss"
+  ],
   "exclude": ["node_modules"]
 }

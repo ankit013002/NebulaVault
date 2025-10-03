@@ -1,8 +1,8 @@
 // app/(protected)/layout.tsx
 import { redirect } from "next/navigation";
 import StoreProvider from "@/app/store/StoreProvider";
-import MainSidebar from "@/components/MainSidebar";
 import { getSession } from "@/utils/auth/handlers/LoginHandler";
+import Sidebar from "@/components/Sidebar/Sidebar";
 
 export default async function ProtectedLayout({
   children,
@@ -16,7 +16,7 @@ export default async function ProtectedLayout({
     <StoreProvider>
       <div className="flex">
         <div className="w-[20%] h-screen max-w-[300px]">
-          <MainSidebar />
+          <Sidebar />
         </div>
         <div className="w-full h-screen">{children}</div>
       </div>
