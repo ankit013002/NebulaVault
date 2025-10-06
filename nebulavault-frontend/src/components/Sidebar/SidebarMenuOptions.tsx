@@ -12,7 +12,8 @@ const SideBarMenuOptions = () => {
   useEffect(() => {
     if (pathname) {
       const segments = pathname.split("/").filter(Boolean);
-      const current = segments[segments.length - 1] || "dashboard";
+      console.log(segments);
+      const current = segments[0] || "dashboard";
       const formatted = current.charAt(0).toUpperCase() + current.slice(1);
 
       setPageSelected(formatted);
