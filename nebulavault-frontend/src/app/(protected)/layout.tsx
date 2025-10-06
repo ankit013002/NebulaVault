@@ -15,7 +15,7 @@ export default async function ProtectedLayout({
   return (
     <StoreProvider>
       <div className="flex">
-        <div className="w-[20%] h-screen max-w-[300px]">
+        <div className="h-screen max-w-[300px]">
           <Sidebar />
         </div>
         <div className="w-full h-screen">{children}</div>
