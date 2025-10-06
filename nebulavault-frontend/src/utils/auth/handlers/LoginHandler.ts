@@ -82,5 +82,3 @@ export async function login(
       `?screen_hint=login&login_hint=${encodeURIComponent(email)}`
   );
 }
-
-export async function logout(_prevState: ActionState, formData: FormData) {}

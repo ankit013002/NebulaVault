@@ -1,6 +1,10 @@
+"use client";
+
 import Image from "next/image";
 import React from "react";
 import pfp from "/public/pfp.jpg";
+import { logout } from "@/utils/auth/handlers/LogoutHandler";
+import { useRouter } from "next/navigation";
 
 type Props = {
   name?: string;
@@ -16,6 +20,18 @@ const SideBarAccountSection: React.FC<Props> = ({
   quotaGb = 100,
 }) => {
   const pct = Math.min(100, Math.round((usedGb / quotaGb) * 100));
+  const router = useRouter();
+
+  const onSignOut = async () => {
+    const res = await logout();
+    if (res) {
+      router.replace("/");
+      router.refresh();
+    } else {
+      // TODO: Handle accordingly
+      console.log("Couldn't Sign Out");
+    }
+  };
 
   return (
     <div className="mt-auto sticky bottom-0 inset-x-0 bg-nv-surface/80 backdrop-blur-md border-t border-nv-border shadow-card px-3 py-3">
@@ -111,7 +127,9 @@ const SideBarAccountSection: React.FC<Props> = ({
                 <a className="text-nv-text">Keyboard shortcuts</a>
               </li>
               <li>
-                <button className="text-error">Sign out</button>
+                <button className="text-error" onClick={() => onSignOut()}>
+                  Sign out
+                </button>
               </li>
             </ul>
           </div>

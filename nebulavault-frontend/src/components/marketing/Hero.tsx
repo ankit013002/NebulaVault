@@ -15,8 +15,6 @@ export default function Hero() {
     });
   }, [scrollY]);
 
-  console.log(atTop);
-
   const signUpUrl = `${process.env.NEXT_PUBLIC_GATEWAY_ORIGIN}/auth/oidc/start?screen_hint=signup`;
   const signInUrl = `${process.env.NEXT_PUBLIC_GATEWAY_ORIGIN}/auth/oidc/start?screen_hint=login`;
 

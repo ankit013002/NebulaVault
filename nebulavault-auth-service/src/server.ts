@@ -34,8 +34,6 @@ app.get("/api/auth/oidc/start", (req, res) => {
   authz.searchParams.set("screen_hint", "signup");
   authz.searchParams.set("connection", "NebulaVaultNeonDB");
 
-  console.log(authz);
-
   const screen_hint =
     typeof req.query.screen_hint === "string"
       ? req.query.screen_hint
@@ -122,9 +120,14 @@ app.get("/api/auth/oidc/callback", async (req, res) => {
   return res.redirect(`${APP_ORIGIN}/dashboard`);
 });
 
-app.post("/api/login", (req: Request, res: Response) => {
-  console.log("HIT");
-  res.json({ youSent: req.body });
+app.post("/api/auth/logout", (req, res) => {
+  res.clearCookie("session", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+    path: "/",
+  });
+  return res.status(200).json({ ok: true });
 });
 
 app.use((req: Request, res: Response) =>

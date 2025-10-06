@@ -25,6 +25,13 @@ public class RegistrationRoute {
                                 .addResponseHeader("Nebula-Gateway","Nebula Vault")
                         ).uri(authUri)
                 )
+                .route("auth-logout", r -> r
+                        .path("/auth/logout/**")
+                        .filters(f -> f
+                                .prefixPath("/api")
+                                .addResponseHeader("Nebula-Gateway", "Nebula Vault")
+                        ).uri(authUri)
+                )
                 .build();
     }
 }
