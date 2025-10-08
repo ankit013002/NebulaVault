@@ -2,7 +2,6 @@ import "dotenv/config";
 import express, { Request, Response, NextFunction } from "express";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 import jwt from "jsonwebtoken";
-import pool from "./db";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -32,7 +31,6 @@ app.get("/api/auth/oidc/start", (req, res) => {
   authz.searchParams.set("scope", "openid email profile");
   authz.searchParams.set("prompt", "login");
   authz.searchParams.set("screen_hint", "signup");
-  authz.searchParams.set("connection", "NebulaVaultNeonDB");
 
   const screen_hint =
     typeof req.query.screen_hint === "string"
@@ -80,28 +78,7 @@ app.get("/api/auth/oidc/callback", async (req, res) => {
   const emailVerified = !!payload.email_verified;
   const userSub = String(payload.sub);
 
-  const c = await pool.connect();
   let isNew = false;
-  try {
-    await c.query("BEGIN");
-    const r = await c.query(
-      `INSERT INTO profiles (user_sub, email, email_verified)
-       VALUES ($1, $2, $3)
-       ON CONFLICT (user_sub) DO UPDATE
-         SET email = EXCLUDED.email,
-             email_verified = profiles.email_verified OR EXCLUDED.email_verified
-       RETURNING (xmax = 0) AS is_new`,
-      [userSub, email, emailVerified]
-    );
-    isNew = !!r.rows[0]?.is_new;
-    await c.query("COMMIT");
-  } catch (e) {
-    console.error("DB upsert error:", e);
-    await c.query("ROLLBACK");
-    return res.status(500).send("db error");
-  } finally {
-    c.release();
-  }
 
   const access = jwt.sign(
     { sub: userSub, email, roles: ["user"], isNew },
