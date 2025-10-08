@@ -10,8 +10,8 @@ routes:
     uri: ${FILES_SERVICE_URI:http://localhost:5000}
   auth:
     uri: ${AUTH_SERVICE_URI:http://localhost:4000}
-  drive:
-    uri: ${DRIVE_SERVICE_URI:http://localhost:8082}
+  user:
+    uri: ${USER_SERVICE_URI:http://localhost:8082}
   billing:
     uri: ${BILLING_SERVICE_URI:http://localhost:8083}
 
@@ -20,3 +20,6 @@ management:
     web:
       exposure:
         include: health,info,gateway
+
+auth:
+  hmacSecret: ${AUTH_SECRET}
