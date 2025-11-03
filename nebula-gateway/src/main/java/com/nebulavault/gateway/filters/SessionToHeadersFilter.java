@@ -77,9 +77,11 @@ public class SessionToHeadersFilter implements GatewayFilter, Ordered {
                         h.remove("X-User-AuthSub");
                         h.remove("X-User-Email");
                         h.remove("X-User-Name");
+                        h.remove("X-User-Id");
+                        h.add("X-User-Id", sub);
                         h.add("X-User-AuthSub", sub);
                         h.add("X-User-Email", email);
-                        if (name != null && !name.isBlank()) {
+                        if (name != null && !name.isBlank()) h.add("X-User-Name", name);{
                             h.add("X-User-Name", name);
                         }
                     })

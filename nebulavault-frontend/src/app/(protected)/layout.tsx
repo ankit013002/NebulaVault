@@ -3,6 +3,19 @@ import StoreProvider from "@/app/store/StoreProvider";
 import { getSession } from "@/utils/auth/handlers/LoginHandler";
 import Sidebar from "@/components/Sidebar/Sidebar";
 import { cookies } from "next/headers";
+import ClientHydrator from "../(app)/ClientHydrator";
+
+type Me = {
+  id: string;
+  email: string;
+  name: string | null;
+  avatarUrl: string | null;
+  plan: string;
+  quotaBytes: number;
+  usedBytes: number;
+  createdAt?: string;
+  updatedAt?: string;
+} | null;
 
 export default async function ProtectedLayout({
   children,
@@ -11,7 +24,7 @@ export default async function ProtectedLayout({
 }) {
   const session = await getSession();
   if (!session) redirect("/login");
-
+  let me: Me = null;
   // TODO: Add if(session.isNew) after done testing and setting up serivce
   try {
     const cookieHeader = (await cookies()).toString();
@@ -38,8 +51,7 @@ export default async function ProtectedLayout({
         }
       );
     }
-    const data = await res.json();
-    console.log(data);
+    me = res.ok ? await res.json() : null;
 
     if (!res.ok) console.error("Bootstrap failed:", res.status);
   } catch (err) {
@@ -48,6 +60,7 @@ export default async function ProtectedLayout({
 
   return (
     <StoreProvider>
+      <ClientHydrator user={me} />
       <div className="flex">
         <div className="h-screen max-w-[300px]">
           <Sidebar />

@@ -1,15 +1,18 @@
+import { cookies } from "next/headers";
+
 export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   const body = await req.text();
-  console.log(body);
-  const upstream = await fetch("http://localhost:8080/files/upload", {
+  const cookieHeader = (await cookies()).toString();
+
+  console.log("HEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEE");
+
+  const upstream = await fetch("http://localhost:8080/drive-nodes", {
     method: "POST",
-    headers: { "content-type": "application/json" },
+    headers: { "content-type": "application/json", cookie: cookieHeader },
     body,
   });
-
-  console.log("STATUS: " + upstream.status);
 
   return new Response(upstream.body, {
     status: upstream.status,

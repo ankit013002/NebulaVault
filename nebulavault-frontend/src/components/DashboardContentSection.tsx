@@ -9,6 +9,7 @@ import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { splitBuffers } from "@/utils/file-system/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";
 import { useRouter, useParams } from "next/navigation";
+import { useAppSelector } from "@/app/store/hooks";
 
 export default function DashboardContentSection() {
   const [isLoading, setIsLoading] = useState(true);
@@ -20,6 +21,8 @@ export default function DashboardContentSection() {
   const router = useRouter();
   const params = useParams() as { path?: string[] };
   const currPath = (params?.path ?? []).join("/");
+
+  const me = useAppSelector((s) => s.user);
 
   const fetchDir = useCallback(async () => {
     try {
@@ -63,29 +66,13 @@ export default function DashboardContentSection() {
       emptyFolders,
     };
 
-    console.log(nodes);
+    const res = await fetch("/api/dev-proxy/files/presign-batch", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(nodes),
+    });
 
-    const payload = {
-      ownerId,
-      nodes,
-    };
-
-    // const res = await fetch("/api/dev-proxy/files/presign-batch", {
-    //   method: "POST",
-    //   headers: { "content-type": "application/json" },
-    //   body: JSON.stringify(payload),
-    // });
-
-    // const res = await fetch("http://localhost:5000/drive-nodes", {
-    //   method: "POST",
-    //   headers: {
-    //     "content-type": "application/json",
-    //     body: JSON.stringify(payload),
-    //   },
-    // });
-
-    const body = await res.json();
-    console.log(body);
+    console.log("GOT RESPONSE");
 
     if (!res.ok) throw new Error("Upload failed");
     await fetchDir();
