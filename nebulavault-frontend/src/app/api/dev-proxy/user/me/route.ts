@@ -1,11 +1,11 @@
+import { cookies } from "next/headers";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-import { cookies } from "next/headers";
-
-export async function POST() {
+export async function GET() {
   const cookieStore = await cookies();
   const session = cookieStore.get("session")?.value;
+
   if (!session) {
     return new Response(JSON.stringify({ ok: false, error: "No session" }), {
       status: 401,
@@ -13,8 +13,8 @@ export async function POST() {
     });
   }
 
-  const upstream = await fetch(`${process.env.GATEWAY_ORIGIN}/user/bootstrap`, {
-    method: "POST",
+  const upstream = await fetch(`${process.env.GATEWAY_ORIGIN}/user/me`, {
+    method: "GET",
     cache: "no-store",
     headers: {
       cookie: `session=${session}`,
@@ -22,15 +22,10 @@ export async function POST() {
     },
   });
 
+  console.log("HERE");
   console.log(upstream);
-  const data = upstream.body;
-  console.log(data);
 
   return new Response(upstream.body, {
     status: upstream.status,
-    headers: {
-      "content-type":
-        upstream.headers.get("content-type") ?? "application/json",
-    },
   });
 }

@@ -15,17 +15,32 @@ export default async function ProtectedLayout({
   // TODO: Add if(session.isNew) after done testing and setting up serivce
   try {
     const cookieHeader = (await cookies()).toString();
-    const res = await fetch(
-      `${process.env.APP_BASE_URL}/api/dev-proxy/user/bootstrap`,
-      {
-        method: "POST",
-        cache: "no-store",
-        headers: {
-          cookie: cookieHeader,
-          "content-type": "application/json",
-        },
-      }
-    );
+    let res = null;
+
+    res = await fetch(`${process.env.APP_BASE_URL}/api/dev-proxy/user/me`, {
+      method: "GET",
+      cache: "no-store",
+      headers: {
+        cookie: cookieHeader,
+        "content-type": "application/json",
+      },
+    });
+    if (res.status === 404) {
+      res = await fetch(
+        `${process.env.APP_BASE_URL}/api/dev-proxy/user/bootstrap`,
+        {
+          method: "POST",
+          cache: "no-store",
+          headers: {
+            cookie: cookieHeader,
+            "content-type": "application/json",
+          },
+        }
+      );
+    }
+    const data = await res.json();
+    console.log(data);
+
     if (!res.ok) console.error("Bootstrap failed:", res.status);
   } catch (err) {
     console.error("Bootstrap error:", err);

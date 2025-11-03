@@ -52,7 +52,7 @@ export default function DashboardContentSection() {
   const uploadDirItems = async (items: FileFolderBuffer[]) => {
     const { files, emptyFolders } = splitBuffers(items);
 
-    const payload = {
+    const nodes = {
       files: files.map(({ file, relPath }) => ({
         name: file.name,
         path: relPath,
@@ -63,11 +63,26 @@ export default function DashboardContentSection() {
       emptyFolders,
     };
 
-    const res = await fetch("/api/dev-proxy/files/presign-batch", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(payload),
-    });
+    console.log(nodes);
+
+    const payload = {
+      ownerId,
+      nodes,
+    };
+
+    // const res = await fetch("/api/dev-proxy/files/presign-batch", {
+    //   method: "POST",
+    //   headers: { "content-type": "application/json" },
+    //   body: JSON.stringify(payload),
+    // });
+
+    // const res = await fetch("http://localhost:5000/drive-nodes", {
+    //   method: "POST",
+    //   headers: {
+    //     "content-type": "application/json",
+    //     body: JSON.stringify(payload),
+    //   },
+    // });
 
     const body = await res.json();
     console.log(body);

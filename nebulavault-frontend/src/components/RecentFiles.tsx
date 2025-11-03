@@ -10,8 +10,6 @@ import ReplaceModal from "./ReplaceModal";
 import Breadcrumbs from "./Breadcrumbs";
 import FileRow from "./FileRow";
 import FolderRow from "./FolderRow";
-import { useAppDispatch, useAppSelector } from "@/app/store/hooks";
-import { selectCurrentPath } from "@/app/features/currentPath/currentPathSlice";
 import { useParams } from "next/navigation";
 
 interface RecentFilesProps {

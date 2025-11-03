@@ -23,6 +23,13 @@ public class UserRoute {
                                 .addResponseHeader("Nebula-Gateway", "Nebula Vault"))
                         .uri(userUri)
                 )
+                .route("user-me", r -> r
+                        .path("/user/me")
+                        .filters(f -> f
+                                .filter(sessionFilter)
+                                .addResponseHeader("Nebula-Gateway", "Nebula Vault"))
+                        .uri(userUri)
+                )
                 .build();
     }
 }

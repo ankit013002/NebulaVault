@@ -27,6 +27,7 @@ public class UserController {
 
     @GetMapping("/me")
     public User me(@RequestHeader("X-User-AuthSub") String authSub) {
+        System.out.println((authSub));
         return userService.meByAuthSub(authSub);
     }
 }
