@@ -4,8 +4,8 @@ const {
 } = require("../utils/handleUsualMongooseError");
 
 async function addDriveNodes(req, res) {
-  const { ownerId, nodes } = req.body;
-  console.log("HERE");
+  const ownerId = req.get("x-user-id");
+  const nodes = req.body;
   try {
     const driveNodes = await createDriveNodes(ownerId, nodes);
 

@@ -6,8 +6,6 @@ export async function POST(req: Request) {
   const body = await req.text();
   const cookieHeader = (await cookies()).toString();
 
-  console.log("HEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEE");
-
   const upstream = await fetch("http://localhost:8080/drive-nodes", {
     method: "POST",
     headers: { "content-type": "application/json", cookie: cookieHeader },
