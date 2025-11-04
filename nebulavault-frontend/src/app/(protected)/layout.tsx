@@ -62,7 +62,7 @@ export default async function ProtectedLayout({
     <StoreProvider>
       <ClientHydrator user={me} />
       <div className="flex">
-        <div className="h-screen max-w-[300px]">
+        <div className="h-screen w-auto">
           <Sidebar />
         </div>
         <div className="w-full h-screen">{children}</div>

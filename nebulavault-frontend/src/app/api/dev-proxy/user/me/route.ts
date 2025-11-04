@@ -22,9 +22,6 @@ export async function GET() {
     },
   });
 
-  console.log("HERE");
-  console.log(upstream);
-
   return new Response(upstream.body, {
     status: upstream.status,
   });

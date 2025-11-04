@@ -22,10 +22,6 @@ export async function POST() {
     },
   });
 
-  console.log(upstream);
-  const data = upstream.body;
-  console.log(data);
-
   return new Response(upstream.body, {
     status: upstream.status,
     headers: {
