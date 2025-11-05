@@ -7,8 +7,6 @@ export function getNormalizedSize(bytes: number): FileSize {
   const rawSize = bytes;
   let size = bytes;
 
-  console.log(bytes);
-
   while (Math.floor(size / 1024) > 0) {
     size /= 1024;
     unit = FileSizeUnits[++index];
@@ -29,8 +27,6 @@ export function sizeConversion(
   const fromSizeIndex = FileSizeUnits.indexOf(fromSize);
   const toSizeIndex = FileSizeUnits.indexOf(toSize);
 
-  console.log("HERE");
-
   if (fromSizeIndex < 0 || toSizeIndex < 0 || fromSizeIndex >= toSizeIndex) {
     return {
       raw: -1,
@@ -39,13 +35,8 @@ export function sizeConversion(
     };
   }
 
-  console.log("HERE");
-
   const size = value / Math.pow(1024, toSizeIndex - fromSizeIndex);
   const rawSize = getBytes(size, toSizeIndex);
-
-  console.log(size);
-  console.log(rawSize);
 
   return {
     raw: rawSize,

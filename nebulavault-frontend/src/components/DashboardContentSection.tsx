@@ -66,6 +66,8 @@ export default function DashboardContentSection() {
       emptyFolders,
     };
 
+    console.log(nodes);
+
     const res = await fetch("/api/dev-proxy/files/presign-batch", {
       method: "POST",
       headers: { "content-type": "application/json" },
