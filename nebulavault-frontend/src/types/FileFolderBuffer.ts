@@ -1,4 +1,5 @@
-export type FlatFile = { file: File; relPath: string };
+export type FlatFile = { file: File; path: string };
+export type FlatFolder = { name: string; path: string };
 
 export type FileFolderBuffer = {
   file: File | null;

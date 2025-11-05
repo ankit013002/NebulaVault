@@ -1,4 +1,7 @@
-const { createDriveNodes } = require("../services/driveNodes.services");
+const {
+  createDriveNodes,
+  retrieveDriveNodesFromPath,
+} = require("../services/driveNodes.services");
 const {
   handleUsualMongooseErrors,
 } = require("../utils/handleUsualMongooseError");
@@ -18,4 +21,20 @@ async function addDriveNodes(req, res) {
   }
 }
 
-module.exports = { addDriveNodes };
+async function getDriveNodes(req, res) {
+  const ownerId = req.get("x-user-id");
+  const path = req.query.path;
+
+  try {
+    const drivesNdoes = await retrieveDriveNodesFromPath(ownerId, path);
+
+    return res.status(200).json({
+      message: "Successfully retrieved drive nodes",
+      data: drivesNdoes,
+    });
+  } catch (err) {
+    return handleUsualMongooseErrors(err, res);
+  }
+}
+
+module.exports = { addDriveNodes, getDriveNodes };

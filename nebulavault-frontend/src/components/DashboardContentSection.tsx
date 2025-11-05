@@ -53,17 +53,20 @@ export default function DashboardContentSection() {
   };
 
   const uploadDirItems = async (items: FileFolderBuffer[]) => {
-    const { files, emptyFolders } = splitBuffers(items);
+    const { files, emptyFolders, folders } = splitBuffers(items);
+
+    console.log("Folders: ", folders);
 
     const nodes = {
-      files: files.map(({ file, relPath }) => ({
+      files: files.map(({ file, path }) => ({
         name: file.name,
-        path: relPath,
+        path: path,
         size: file.size,
         type: file.type,
         lastModified: file.lastModified,
       })),
       emptyFolders,
+      folders,
     };
 
     console.log(nodes);
