@@ -26,11 +26,14 @@ async function getDriveNodes(req, res) {
   const path = req.query.path;
 
   try {
-    const drivesNdoes = await retrieveDriveNodesFromPath(ownerId, path);
+    const drivesNodes = await retrieveDriveNodesFromPath(ownerId, path);
 
     return res.status(200).json({
       message: "Successfully retrieved drive nodes",
-      data: drivesNdoes,
+      data: {
+        files: drivesNodes.files,
+        folders: drivesNodes.folders,
+      },
     });
   } catch (err) {
     return handleUsualMongooseErrors(err, res);

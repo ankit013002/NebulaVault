@@ -1,4 +1,5 @@
 const DriveNode = require("../models/driveNode.model");
+const mongoose = require("mongoose");
 
 async function createDriveNodes(ownerId, nodes) {
   console.log(ownerId);
@@ -46,8 +47,49 @@ async function createDriveNodes(ownerId, nodes) {
 }
 
 async function retrieveDriveNodesFromPath(ownerId, path) {
-  const driveNodes = await DriveNode.find({ ownerId: ownerId, path: path });
-  return driveNodes;
+  // for files, pass back the ext
+
+  if (path) {
+    path = path.toLowerCase() + "/";
+  }
+
+  console.log(path);
+
+  const driveNodes = await DriveNode.aggregate([
+    { $match: { ownerId: ownerId, path: path } },
+    {
+      $project: {
+        type: 1,
+        name: 1,
+        path: 1,
+        bytes: 1,
+      },
+    },
+    {
+      $group: {
+        _id: "$type",
+        data: {
+          $push: {
+            name: "$name",
+            type: "$type",
+            path: "$path",
+            bytes: "$bytes",
+          },
+        },
+      },
+    },
+  ]);
+
+  const files = driveNodes.find((node) => node._id === "file")?.data || [];
+  const folders = driveNodes.find((node) => node._id === "folder")?.data || [];
+
+  console.log(files);
+  console.log(folders);
+
+  return {
+    files,
+    folders,
+  };
 }
 
 module.exports = { createDriveNodes, retrieveDriveNodesFromPath };

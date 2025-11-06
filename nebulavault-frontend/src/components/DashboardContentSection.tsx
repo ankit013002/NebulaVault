@@ -10,6 +10,7 @@ import { splitBuffers } from "@/utils/file-system/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";
 import { useRouter, useParams } from "next/navigation";
 import { useAppSelector } from "@/app/store/hooks";
+import { FolderType } from "@/types/Folder";
 
 export default function DashboardContentSection() {
   const [isLoading, setIsLoading] = useState(true);
@@ -27,13 +28,41 @@ export default function DashboardContentSection() {
   const fetchDir = useCallback(async () => {
     try {
       setIsLoading(true);
+      console.log(currPath);
       const res = await fetch(
-        `/api/files?path=${encodeURIComponent(currPath)}`,
-        { method: "GET" }
+        `/api/dev-proxy/files/presign-batch?path=${currPath}`,
+        {
+          method: "GET",
+        }
       );
-      const data: ExistingDirectoryType = await res.json();
-      setExistingDirectoryItems(data);
-      updateTotalStorageOccupied(data);
+      const data = await res.json();
+      console.log("DATA:", data);
+
+      const folders: FolderType[] = data.data.folders.map((folder) => {
+        return {
+          name: folder.name,
+          path: folder.path,
+          size: getNormalizedSize(folder.bytes),
+        };
+      });
+
+      const files: FolderType[] = data.data.files.map((file) => {
+        return {
+          name: file.name,
+          size: getNormalizedSize(file.bytes),
+          path: file.path,
+        };
+      });
+
+      const existingDirectory: ExistingDirectoryType = {
+        ok: true,
+        path: currPath,
+        files: files,
+        folders: folders,
+      };
+
+      setExistingDirectoryItems(existingDirectory);
+      updateTotalStorageOccupied(data.data);
     } catch (e) {
       console.log("Error: ", e);
     } finally {
