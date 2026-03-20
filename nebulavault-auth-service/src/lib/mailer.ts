@@ -15,7 +15,7 @@ const APP_ORIGIN = process.env.APP_ORIGIN || "http://localhost:3000";
 
 export async function sendVerificationEmail(
   to: string,
-  rawToken: string
+  rawToken: string,
 ): Promise<void> {
   const link = `${APP_ORIGIN}/verify-email?token=${rawToken}`;
   await transporter.sendMail({
@@ -33,7 +33,7 @@ export async function sendVerificationEmail(
 
 export async function sendPasswordResetEmail(
   to: string,
-  rawToken: string
+  rawToken: string,
 ): Promise<void> {
   const link = `${APP_ORIGIN}/reset-password?token=${rawToken}`;
   await transporter.sendMail({
