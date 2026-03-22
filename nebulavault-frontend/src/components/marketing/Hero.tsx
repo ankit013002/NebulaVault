@@ -24,7 +24,7 @@ export default function Hero() {
 
       <div className="absolute inset-0 flex items-center justify-center">
         <div className="w-[800px] h-[800px] rounded-full opacity-20">
-          <div className="w-full h-full rounded-full bg-gradient-to-r from-nv-primary/20 via-nv-primary2/10 to-transparent blur-3xl animate-pulse-glow" />
+          <div className="w-full h-full rounded-full bg-gradient-to-r from-bz-primary/20 via-bz-primary2/10 to-transparent blur-3xl animate-pulse-glow" />
         </div>
       </div>
 
@@ -34,16 +34,16 @@ export default function Hero() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-nv-text leading-tight mb-6">
+          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-bz-text leading-tight mb-6">
             Your personal cloud,{" "}
-            <span className="bg-gradient-to-r from-nv-primary via-nv-primary2 to-sky-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-bz-primary via-bz-primary2 to-sky-400 bg-clip-text text-transparent">
               reimagined
             </span>
           </h1>
         </motion.div>
 
         <motion.p
-          className="text-lg sm:text-xl text-nv-muted max-w-3xl mx-auto mb-8"
+          className="text-lg sm:text-xl text-bz-muted max-w-3xl mx-auto mb-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
@@ -61,7 +61,7 @@ export default function Hero() {
         >
           <motion.a
             href={signUpUrl}
-            className="px-8 py-4 bg-gradient-to-r from-nv-primary to-nv-primary2 text-nv-bg font-semibold rounded-xl2 shadow-glow hover:shadow-glow text-lg min-w-[200px]"
+            className="px-8 py-4 bg-gradient-to-r from-bz-primary to-bz-primary2 text-bz-bg font-semibold rounded-xl2 shadow-glow hover:shadow-glow text-lg min-w-[200px]"
             whileHover={{ y: -2, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400 }}
@@ -71,7 +71,7 @@ export default function Hero() {
 
           <motion.a
             href={signInUrl}
-            className="px-8 py-4 bg-nv-surface/50 backdrop-blur-sm text-nv-text font-semibold rounded-xl2 border border-nv-border hover:bg-nv-surface/70 hover:border-nv-primary/30 transition-all duration-200 text-lg min-w-[200px]"
+            className="px-8 py-4 bg-bz-surface/50 backdrop-blur-sm text-bz-text font-semibold rounded-xl2 border border-bz-border hover:bg-bz-surface/70 hover:border-bz-primary/30 transition-all duration-200 text-lg min-w-[200px]"
             whileHover={{ y: -2, scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
             transition={{ type: "spring", stiffness: 400 }}
@@ -95,7 +95,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 1.5 }}
         >
           <motion.div
-            className="w-6 h-10 border-2 border-nv-primary/40 rounded-full flex justify-center"
+            className="w-6 h-10 border-2 border-bz-primary/40 rounded-full flex justify-center"
             animate={{
               boxShadow: [
                 "0 0 0px rgba(45, 212, 191, 0.3)",
@@ -106,7 +106,7 @@ export default function Hero() {
             transition={{ duration: 2, repeat: Infinity }}
           >
             <motion.div
-              className="w-1 h-3 bg-nv-primary rounded-full mt-2"
+              className="w-1 h-3 bg-bz-primary rounded-full mt-2"
               animate={{ y: [0, 12, 0] }}
               transition={{ duration: 2, repeat: Infinity }}
             />

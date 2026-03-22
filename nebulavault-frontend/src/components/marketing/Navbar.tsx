@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Sun, Moon } from "lucide-react";
 import GlowOrb from "./Gloworb";
+import { useTheme } from "next-themes";
 
 const navLinks = [
   { href: "#features", label: "Features" },
@@ -14,6 +15,7 @@ const navLinks = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { theme, setTheme } = useTheme();
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -29,7 +31,7 @@ export default function Navbar() {
       aria-label="Primary"
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled
-          ? "bg-nv-surface/80 backdrop-blur-xl border-b border-nv-border shadow-card"
+          ? "bg-bz-surface/80 backdrop-blur-xl border-b border-bz-border shadow-card"
           : "bg-transparent"
       }`}
       initial={{ y: -100 }}
@@ -40,16 +42,16 @@ export default function Navbar() {
         <div className="flex items-center justify-between h-16">
           <motion.a
             href="#"
-            className="flex items-center space-x-3 focus:outline-none focus:ring-2 focus:ring-nv-primary/40 rounded-md"
+            className="flex items-center space-x-3 focus:outline-none focus:ring-2 focus:ring-bz-primary/40 rounded-md"
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
             <GlowOrb size="md" />
             <div className="flex flex-col">
-              <span className="text-lg font-bold text-nv-text leading-tight">
+              <span className="text-lg font-bold text-bz-text leading-tight">
                 NEBULA
               </span>
-              <span className="text-lg font-bold text-nv-text leading-tight">
+              <span className="text-lg font-bold text-bz-text leading-tight">
                 VAULT
               </span>
             </div>
@@ -60,7 +62,7 @@ export default function Navbar() {
               <motion.a
                 key={link.href}
                 href={link.href}
-                className="text-nv-muted hover:text-nv-text transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-nv-primary/40 rounded-md"
+                className="text-bz-muted hover:text-bz-text transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-bz-primary/40 rounded-md"
                 whileHover={{ y: -1 }}
                 transition={{ type: "spring", stiffness: 400 }}
               >
@@ -70,9 +72,41 @@ export default function Navbar() {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
+            {/* Light/Dark mode toggle */}
+            <motion.button
+              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+              className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg bg-bz-surface/60 border border-bz-border hover:bg-bz-surface hover:border-bz-primary/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-bz-primary/40"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+            >
+              <AnimatePresence mode="wait">
+                {theme === "light" ? (
+                  <motion.div
+                    key="sun"
+                    initial={{ opacity: 0, rotate: -180, scale: 0 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    exit={{ opacity: 0, rotate: 180, scale: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Sun size={20} className="text-amber-500" />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="moon"
+                    initial={{ opacity: 0, rotate: -180, scale: 0 }}
+                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                    exit={{ opacity: 0, rotate: 180, scale: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Moon size={20} className="text-blue-300" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
             <motion.a
               href={signInUrl}
-              className="text-nv-muted hover:text-nv-text transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-nv-primary/40 rounded-md"
+              className="text-bz-muted hover:text-bz-text transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-bz-primary/40 rounded-md"
               whileHover={{ y: -1 }}
               transition={{ type: "spring", stiffness: 400 }}
             >
@@ -80,7 +114,7 @@ export default function Navbar() {
             </motion.a>
             <motion.a
               href={signUpUrl}
-              className="px-4 py-2 bg-gradient-to-r from-nv-primary to-nv-primary2 text-nv-bg font-semibold rounded-xl2 hover:shadow-glow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-nv-primary/40"
+              className="px-4 py-2 bg-gradient-to-r from-bz-primary to-bz-primary2 text-bz-bg font-semibold rounded-xl2 hover:shadow-glow-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-bz-primary/40"
               whileHover={{ y: -1, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               transition={{ type: "spring", stiffness: 400 }}
@@ -90,7 +124,7 @@ export default function Navbar() {
           </div>
 
           <motion.button
-            className="md:hidden text-nv-text p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-nv-primary/40"
+            className="md:hidden text-bz-text p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-bz-primary/40"
             onClick={() => setIsMobileMenuOpen((v) => !v)}
             whileTap={{ scale: 0.95 }}
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
@@ -111,12 +145,12 @@ export default function Navbar() {
               exit={{ opacity: 0, height: 0 }}
               transition={{ duration: 0.3 }}
             >
-              <div className="px-2 pt-2 pb-3 space-y-3 bg-nv-surface/95 backdrop-blur-xl rounded-2xl mt-2 border border-nv-border">
+              <div className="px-2 pt-2 pb-3 space-y-3 bg-bz-surface/95 backdrop-blur-xl rounded-2xl mt-2 border border-bz-border">
                 {navLinks.map((link) => (
                   <a
                     key={link.href}
                     href={link.href}
-                    className="block px-3 py-2 text-nv-muted hover:text-nv-text transition-colors duration-200 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-nv-primary/40"
+                    className="block px-3 py-2 text-bz-muted hover:text-bz-text transition-colors duration-200 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-bz-primary/40"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
                     {link.label}
@@ -125,13 +159,13 @@ export default function Navbar() {
                 <div className="pt-2 space-y-2">
                   <a
                     href={signInUrl}
-                    className="block px-3 py-2 text-nv-muted hover:text-nv-text transition-colors duration-200 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-nv-primary/40"
+                    className="block px-3 py-2 text-bz-muted hover:text-bz-text transition-colors duration-200 font-medium rounded-md focus:outline-none focus:ring-2 focus:ring-bz-primary/40"
                   >
                     Sign in
                   </a>
                   <a
                     href={signUpUrl}
-                    className="block px-3 py-2 bg-gradient-to-r from-nv-primary to-nv-primary2 text-nv-bg font-semibold rounded-xl2 text-center focus:outline-none focus:ring-2 focus:ring-nv-primary/40"
+                    className="block px-3 py-2 bg-gradient-to-r from-bz-primary to-bz-primary2 text-bz-bg font-semibold rounded-xl2 text-center focus:outline-none focus:ring-2 focus:ring-bz-primary/40"
                   >
                     Get started
                   </a>

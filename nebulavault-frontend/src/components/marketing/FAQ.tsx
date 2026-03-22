@@ -29,22 +29,22 @@ export default function FAQ() {
   return (
     <section id="faq" className="py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto">
-        <h2 className="text-3xl sm:text-4xl font-bold text-nv-text text-center mb-10">
+        <h2 className="text-3xl sm:text-4xl font-bold text-bz-text text-center mb-10">
           Frequently asked questions
         </h2>
         <div className="space-y-3">
           {faqs.map((item) => (
             <details
               key={item.q}
-              className="group rounded-2xl border border-nv-border bg-nv-surface/60 backdrop-blur-sm p-5"
+              className="group rounded-2xl border border-bz-border bg-bz-surface/60 backdrop-blur-sm p-5"
             >
-              <summary className="cursor-pointer list-none font-semibold text-nv-text flex items-center justify-between">
+              <summary className="cursor-pointer list-none font-semibold text-bz-text flex items-center justify-between">
                 {item.q}
-                <span className="ml-4 text-nv-muted group-open:rotate-45 transition">
+                <span className="ml-4 text-bz-muted group-open:rotate-45 transition">
                   +
                 </span>
               </summary>
-              <p className="mt-3 text-nv-muted">{item.a}</p>
+              <p className="mt-3 text-bz-muted">{item.a}</p>
             </details>
           ))}
         </div>

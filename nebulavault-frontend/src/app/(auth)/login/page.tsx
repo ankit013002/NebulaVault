@@ -13,7 +13,7 @@ export default function Page() {
       title="Welcome back"
       subtitle="Sign in to access your files, versions, and shares."
       footer={
-        <p className="text-sm text-nv-muted">
+        <p className="text-sm text-bz-muted">
           New here?{" "}
           <Link href="/register" className="link link-hover">
             Create an account

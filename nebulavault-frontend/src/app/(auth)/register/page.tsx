@@ -13,7 +13,7 @@ export default function Page() {
       title="Create your account"
       subtitle="One login for web & Electron. You control the keys."
       footer={
-        <p className="text-sm text-nv-muted">
+        <p className="text-sm text-bz-muted">
           Already have an account?{" "}
           <Link href="/login" className="link link-hover">
             Sign in

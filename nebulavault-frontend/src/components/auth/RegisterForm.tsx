@@ -91,7 +91,7 @@ export default function RegisterForm() {
               id={termsId}
               name="acceptTerms"
               type="checkbox"
-              className="checkbox border-1 border-nv-primary"
+              className="checkbox border-1 border-bz-primary"
               required
             />
             <span className="label-text">
