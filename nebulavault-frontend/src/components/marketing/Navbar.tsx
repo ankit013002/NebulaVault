@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Sun, Moon } from "lucide-react";
 import GlowOrb from "./Gloworb";
+import BenzeneRing, { BenzeneWordmark } from "./BenzeneRing";
 import { useTheme } from "next-themes";
 
 const navLinks = [
@@ -46,15 +47,7 @@ export default function Navbar() {
             whileHover={{ scale: 1.02 }}
             transition={{ type: "spring", stiffness: 400 }}
           >
-            <GlowOrb size="md" />
-            <div className="flex flex-col">
-              <span className="text-lg font-bold text-bz-text leading-tight">
-                NEBULA
-              </span>
-              <span className="text-lg font-bold text-bz-text leading-tight">
-                VAULT
-              </span>
-            </div>
+            <BenzeneWordmark iconSize={48} />
           </motion.a>
 
           <div className="hidden md:flex items-center space-x-8">

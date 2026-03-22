@@ -262,3 +262,91 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--primary);
 }
+
+/* === Benzene Logo Animations === */
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap');
+
+@keyframes bzRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bzCounterRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes bzPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes bzFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bzShimmer {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -200;
+  }
+}
+
+.bz-outer-ring {
+  transform-origin: center;
+  animation: bzRotate 18s linear infinite;
+}
+
+.bz-inner-circle {
+  transform-origin: center;
+  animation: bzCounterRotate 22s linear infinite;
+}
+
+.bz-glow-dot {
+  animation: bzPulse 3s ease-in-out infinite;
+}
+
+.bz-wordmark {
+  animation: bzFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
+}
+
+.bz-icon {
+  animation: bzFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bz-shimmer-ring {
+  stroke-dasharray: 40 160;
+  animation: bzShimmer 4s linear infinite;
+}
+
+.bz-root:hover .bz-outer-ring {
+  animation-duration: 6s;
+}
+
+.bz-root:hover .bz-icon-hex {
+  filter: drop-shadow(0 0 6px rgba(0, 82, 204, 0.7));
+  transition: filter 0.4s ease;
+}
