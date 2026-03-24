@@ -17,7 +17,9 @@ router.post("/signup", signupLimiter, async (req: Request, res: Response) => {
     signupSchema.parse({ email, password, name });
 
     const result = await pool.query(
-      `SELECT * FROM credentials WHERE email = $1`,
+      `
+      SELECT * FROM credentials
+      WHERE email = $1`,
       [email],
     );
 
@@ -57,12 +59,12 @@ router.post("/signup", signupLimiter, async (req: Request, res: Response) => {
 
     const accessToken = signAccessToken(insertResult.rows[0].id, email);
 
-    const refreshToken = makeOpaqueToken();
-    const hashedRefreshToken = hashToken(refreshToken);
+    const rawRefreshToken = makeOpaqueToken();
+    const hashedRefreshToken = hashToken(rawRefreshToken);
 
     await pool.query(
       `
-      INSERT INTO refresh_tokens
+      INSERT INTO refresh_tokens (credential_id, token_hash, expires_at)
       VALUES ($1, $2, $3)`,
       [
         insertResult.rows[0].id,
@@ -71,7 +73,7 @@ router.post("/signup", signupLimiter, async (req: Request, res: Response) => {
       ],
     );
 
-    setAuthCookies(res, accessToken, refreshToken);
+    setAuthCookies(res, accessToken, rawRefreshToken);
 
     return res.status(201).json({
       message: "Successfully signed up",
