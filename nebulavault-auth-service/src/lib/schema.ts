@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { email } from "zod/v4";
 
 export const signupSchema = z.object({
   email: z.string().email("Invalid email address"),
