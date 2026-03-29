@@ -1,23 +1,12 @@
 import { Router, Request, Response } from "express";
-import pool from "../db/index";
-import { hashToken } from "../lib/tokens";
 import { clearAuthCookies } from "../lib/cookies";
+import handleLogout from "../controller/logout.controller";
 
 const router = Router();
 
 router.post("/logout", async (req: Request, res: Response) => {
   try {
-    const refreshToken = req.cookies.refresh_token;
-    if (refreshToken) {
-      const hashedRefreshToken = hashToken(refreshToken);
-
-      await pool.query(
-        `
-        DELETE FROM refresh_tokens WHERE token_hash = $1;
-        `,
-        [hashedRefreshToken],
-      );
-    }
+    await handleLogout(req.body);
 
     clearAuthCookies(res);
 

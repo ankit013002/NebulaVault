@@ -7,10 +7,17 @@ const COOKIE_OPTIONS = {
   path: "/",
 };
 
+/**
+ * Sets the authentication cookies for the user.
+ *
+ * @param res
+ * @param accessToken
+ * @param refreshToken
+ */
 export function setAuthCookies(
   res: Response,
   accessToken: string,
-  refreshToken: string
+  refreshToken: string,
 ): void {
   res.cookie("session", accessToken, {
     ...COOKIE_OPTIONS,
@@ -22,6 +29,11 @@ export function setAuthCookies(
   });
 }
 
+/**
+ * Clears the authentication cookies for the user.
+ *
+ * @param res
+ */
 export function clearAuthCookies(res: Response): void {
   res.clearCookie("session", { ...COOKIE_OPTIONS });
   res.clearCookie("refresh_token", { ...COOKIE_OPTIONS });
