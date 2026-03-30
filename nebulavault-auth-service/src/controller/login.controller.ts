@@ -1,10 +1,17 @@
 import { hashToken, makeOpaqueToken, signAccessToken } from "../lib/tokens";
-import {
-  createRefreshToken,
-  retrieveCredentialsByEmail,
-} from "../services/credentials.service";
+import { retrieveCredentialsByEmail } from "../services/credentials.service";
 import bcrypt from "bcrypt";
+import { createRefreshToken } from "../services/refresh.service";
 
+/**
+ * Handles user login by validating credentials, generating access and refresh tokens,
+ * and returning them along with the email verification status.
+ * If the credentials are invalid, it throws an error indicating that the login attempt was unsuccessful.
+ *
+ * @param data
+ * @returns An object containing the access token, refresh token, and email verification status.
+ * @throws {InvalidCredentialsError} If the email does not exist or the password is incorrect.
+ */
 async function loginController(data: { email: string; password: string }) {
   const { email, password } = data;
 

@@ -1,5 +1,16 @@
 import nodemailer from "nodemailer";
 
+/**
+ * Configure the nodemailer transporter using environment variables. This transporter will be used to send emails for verification and password resets.
+ *
+ * Environment variables:
+ * - SMTP_HOST: The hostname of the SMTP server (default: "localhost")
+ * - SMTP_PORT: The port number of the SMTP server (default: 1025)
+ * - SMTP_SECURE: Whether to use a secure connection (true/false, default: false)
+ * - SMTP_USER: The username for SMTP authentication (optional)
+ * - SMTP_PASS: The password for SMTP authentication (optional)
+ * - SMTP_FROM: The "from" address for outgoing emails (default: "NebulaVault <noreply@nebulavault.dev>")
+ */
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "localhost",
   port: Number(process.env.SMTP_PORT) || 1025,
@@ -13,6 +24,13 @@ const transporter = nodemailer.createTransport({
 const FROM = process.env.SMTP_FROM || "NebulaVault <noreply@nebulavault.dev>";
 const APP_ORIGIN = process.env.APP_ORIGIN || "http://localhost:3000";
 
+/**
+ * Sends a verification email to the specified address with a link containing the provided token.
+ * The link directs the user to the frontend application where they can verify their email address.
+ *
+ * @param to
+ * @param rawToken
+ */
 export async function sendVerificationEmail(
   to: string,
   rawToken: string,
@@ -31,6 +49,12 @@ export async function sendVerificationEmail(
   });
 }
 
+/**
+ * Sends a password reset email to the specified address with a link containing the provided token.
+ *
+ * @param to
+ * @param rawToken
+ */
 export async function sendPasswordResetEmail(
   to: string,
   rawToken: string,

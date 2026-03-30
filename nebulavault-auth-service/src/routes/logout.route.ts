@@ -6,7 +6,7 @@ const router = Router();
 
 router.post("/logout", async (req: Request, res: Response) => {
   try {
-    await handleLogout(req.body);
+    await handleLogout(req.cookies);
 
     clearAuthCookies(res);
 

@@ -1,5 +1,8 @@
 import rateLimit from "express-rate-limit";
 
+/**
+ * Rate limiters for authentication-related routes to prevent brute-force attacks and abuse.
+ */
 export const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 5,
@@ -8,12 +11,18 @@ export const loginLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+/**
+ * Rate limiter for signup route to prevent abuse. Allows a maximum of 3 signup attempts per hour from the same IP address.
+ */
 export const signupLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 3,
   message: "Too many signup attempts, please try again later",
 });
 
+/**
+ * Rate limiter for password reset route to prevent abuse. Allows a maximum of 5 password reset attempts per hour from the same IP address.
+ */
 export const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,

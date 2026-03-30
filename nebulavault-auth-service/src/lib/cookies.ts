@@ -1,5 +1,11 @@
 import { Response } from "express";
 
+/**
+ * Common cookie options for authentication cookies.
+ * - httpOnly: true to prevent client-side JavaScript from accessing the cookies.
+ * - sameSite: "lax" to allow cookies to be sent with top-level navigations and GET requests initiated by third-party websites.
+ * - secure: true in production to ensure cookies are only sent over HTTPS.
+ */
 const COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: "lax" as const,

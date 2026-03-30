@@ -1,10 +1,10 @@
 import { sendVerificationEmail } from "../lib/mailer";
 import { hashToken, makeOpaqueToken, signAccessToken } from "../lib/tokens";
 import {
-  createRefreshToken,
   createVerficationToken,
   retrieveCredentialsByEmail,
 } from "../services/credentials.service";
+import { createRefreshToken } from "../services/refresh.service";
 import { createCredentials } from "../services/signup.service";
 import bcrypt from "bcrypt";
 
@@ -12,7 +12,9 @@ import bcrypt from "bcrypt";
  * Creates a new user account, sends a verification email, and returns the access and refresh tokens.
  *
  * @param data
- * @returns
+ * @returns An object containing the access token and refresh token for the newly created user.
+ * @throws {UserExistsError} If a user with the provided email already exists in the database.
+ * @throws {Error} If there is an issue during user creation, token generation, or email sending.
  */
 async function createUser(data: {
   email: string;
