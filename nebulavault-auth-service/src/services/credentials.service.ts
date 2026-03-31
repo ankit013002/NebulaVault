@@ -1,10 +1,10 @@
 import pool from "../db";
-import { Credential, RefreshToken } from "../types/database";
+import { Credential } from "../types/database";
 
 /**
  * Retrieves user credentials from the database based on the provided email.
  *
- * @param email
+ * @param email - The email address associated with the credentials to retrieve.
  * @returns A promise resolving to the user credentials or null if not found.
  */
 export async function retrieveCredentialsByEmail(
@@ -21,28 +21,9 @@ export async function retrieveCredentialsByEmail(
 }
 
 /**
- * Creates a new email verification token for the specified credential ID and token hash.
- *
- * @param credentialId
- * @param tokenHash
- */
-export async function createVerficationToken(
-  credentialId: string,
-  tokenHash: string,
-): Promise<void> {
-  await pool.query(
-    `
-          INSERT INTO email_verification_tokens
-          values ($1, $2, $3)  
-        `,
-    [credentialId, tokenHash, new Date(Date.now() + 24 * 60 * 60 * 1000)],
-  );
-}
-
-/**
  * Retrieves user credentials from the database based on the provided credential ID.
  *
- * @param credentialId
+ * @param credentialId - The ID of the credential to retrieve.
  * @returns A promise resolving to the user credentials or null if not found.
  */
 export async function retrieveCredentialsByCredentialId(
@@ -55,4 +36,24 @@ export async function retrieveCredentialsByCredentialId(
     [credentialId],
   );
   return result.rows[0] || null;
+}
+
+/**
+ * Updates the credentials table to set the email_verified field for a specific credential ID.
+ *
+ * @param credentialsId - The ID of the credential to update.
+ * @param emailVerified - A boolean indicating whether the email is verified or not.
+ */
+export async function updateCredentialsTable(
+  credentialsId: string,
+  emailVerified: boolean,
+): Promise<void> {
+  await pool.query(
+    `
+            UPDATE credentials
+            SET email_verified = $1
+            WHERE id = $2
+        `,
+    [emailVerified, credentialsId],
+  );
 }

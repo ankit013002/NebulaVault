@@ -1,5 +1,5 @@
 import { hashToken } from "../lib/tokens";
-import { deleteRefreshTokenWithHash } from "../services/logout.service";
+import { deleteRefreshTokenWithHash } from "../services/refresh.service";
 
 /**
  * Handles user logout by invalidating the provided refresh token.

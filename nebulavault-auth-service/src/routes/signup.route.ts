@@ -16,12 +16,12 @@ router.post("/signup", signupLimiter, async (req: Request, res: Response) => {
       ok: true,
       emailVerified: false,
     });
-  } catch (error) {
-    if (error instanceof Error && error.name === "UserExistsError") {
+  } catch (err) {
+    if (err instanceof Error && err.name === "UserExistsError") {
       return res.status(409).json({ error: "Email already in use" });
     }
 
-    console.error(error);
+    console.error(err);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

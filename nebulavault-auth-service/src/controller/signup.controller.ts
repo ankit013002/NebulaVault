@@ -1,9 +1,7 @@
 import { sendVerificationEmail } from "../lib/mailer";
 import { hashToken, makeOpaqueToken, signAccessToken } from "../lib/tokens";
-import {
-  createVerficationToken,
-  retrieveCredentialsByEmail,
-} from "../services/credentials.service";
+import { retrieveCredentialsByEmail } from "../services/credentials.service";
+import { createVerficationToken } from "../services/email-verification-token";
 import { createRefreshToken } from "../services/refresh.service";
 import { createCredentials } from "../services/signup.service";
 import bcrypt from "bcrypt";

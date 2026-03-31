@@ -33,7 +33,7 @@ async function refreshRefreshToken(data: { refreshToken?: string }) {
     new Date(),
   );
 
-  if (!refresh_token_entry || refresh_token_entry.rows.length === 0) {
+  if (!refresh_token_entry) {
     const error = new Error("Invalid refresh token");
     error.name = "InvalidTokenError";
     throw error;
