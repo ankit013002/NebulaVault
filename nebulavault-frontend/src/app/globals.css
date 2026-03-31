@@ -264,7 +264,7 @@ body {
 }
 
 /* === Benzene Logo Animations === */
-@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap");
 
 @keyframes bzRotate {
   from {
@@ -343,7 +343,7 @@ body {
 }
 
 .bz-root:hover .bz-outer-ring {
-  animation-duration: 6s;
+  animation-play-state: paused;
 }
 
 .bz-root:hover .bz-icon-hex {

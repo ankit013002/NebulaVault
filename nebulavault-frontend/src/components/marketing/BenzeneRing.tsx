@@ -76,11 +76,6 @@ function BenzeneIcon({ size }: BenzeneIconProps) {
     >
       <defs>
         <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur
-            in="SourceGraphic"
-            stdDeviation={size * 0.06}
-            result="blur"
-          />
           <feMerge>
             <feMergeNode in="blur" />
             <feMergeNode in="SourceGraphic" />
@@ -113,7 +108,7 @@ function BenzeneIcon({ size }: BenzeneIconProps) {
           stroke={BENZENE_BLUE_DIM}
           strokeWidth={swThin}
         />
-        {ticks.map((t, i) => (
+        {/* {ticks.map((t, i) => (
           <line
             key={i}
             x1={t.x1}
@@ -124,7 +119,7 @@ function BenzeneIcon({ size }: BenzeneIconProps) {
             strokeWidth={t.major ? sw : swThin}
             strokeLinecap="round"
           />
-        ))}
+        ))} */}
         {/* Shimmer arc */}
         <circle
           className="bz-shimmer-ring"
@@ -142,13 +137,12 @@ function BenzeneIcon({ size }: BenzeneIconProps) {
       {/* Hexagon */}
       <path
         d={hexPath}
-        stroke={BENZENE_BLUE_MID}
+        stroke={BENZENE_BLUE}
         strokeWidth={swFat}
         strokeLinejoin="round"
         className="bz-icon-hex"
       />
       {/* Hexagon fill glow */}
-      <path d={hexPath} fill={BENZENE_BLUE} opacity="0.03" />
 
       {/* Inner aromatic circle — counter-rotating */}
       <g
@@ -161,13 +155,12 @@ function BenzeneIcon({ size }: BenzeneIconProps) {
           r={innerR}
           stroke={BENZENE_BLUE}
           strokeWidth={swThin * 1.5}
-          opacity="0.4"
           strokeDasharray={`${innerR * 0.35} ${innerR * 0.2}`}
         />
       </g>
 
       {/* Solid inner circle (non-rotating) */}
-      <circle
+      {/* <circle
         cx={cx}
         cy={cy}
         r={innerR}
@@ -175,10 +168,10 @@ function BenzeneIcon({ size }: BenzeneIconProps) {
         strokeWidth={sw * 0.9}
         opacity="0.85"
         filter="url(#glow)"
-      />
+      /> */}
 
       {/* Vertex nodes */}
-      {ring.map((v, i) => (
+      {/* {ring.map((v, i) => (
         <g key={i}>
           <circle
             cx={v.x}
@@ -198,7 +191,7 @@ function BenzeneIcon({ size }: BenzeneIconProps) {
             filter="url(#glow)"
           />
         </g>
-      ))}
+      ))} */}
 
       {/* Center dot */}
       {/* <circle
