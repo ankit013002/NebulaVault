@@ -4,8 +4,8 @@ import { EmailVerificationToken } from "../types/database";
 /**
  * Creates a new email verification token for the specified credential ID and token hash.
  *
- * @param credentialId
- * @param tokenHash
+ * @param credentialId - The ID of the credential for which the verification token is being created.
+ * @param tokenHash - The hash of the verification token to be stored in the database for later verification.
  */
 export async function createVerficationToken(
   credentialId: string,
@@ -22,8 +22,8 @@ export async function createVerficationToken(
 /**
  * Retrieves an email verification token entry from the database based on the provided token hash.
  *
- * @param token_hash
- * @returns
+ * @param token_hash - The hash of the verification token used to look up the corresponding entry in the database.
+ * @returns A promise resolving to the email verification token entry if found and valid, or null if not found or expired.
  */
 export async function getVerificationTokenEntryByTokenHash(
   token_hash: string,

@@ -16,9 +16,9 @@ const SIGNING_SECRET = (() => {
  * The token includes the credential ID as the subject (sub), the email, and a roles array with a default role of "user".
  * The token is signed using the HS256 algorithm and has an expiration time of 15 minutes.
  *
- * @param credentialId
- * @param email
- * @returns
+ * @param credentialId - The unique identifier for the user's credentials, which will be included in the token's subject (sub) claim.
+ * @param email - The email address of the user, which will be included in the token's payload for reference.
+ * @returns A signed JWT access token as a string that can be used for authentication in the application.
  */
 export function signAccessToken(credentialId: string, email: string): string {
   return jwt.sign(
@@ -40,22 +40,9 @@ export function makeOpaqueToken(): string {
  * Hashes a raw token using SHA-256 for secure storage in the database.
  * This ensures that even if the database is compromised, the actual token values are not exposed.
  *
- * @param raw
+ * @param raw - The raw token string that needs to be hashed before storing in the database.
  * @returns A SHA-256 hash of the input token as a hexadecimal string.
  */
 export function hashToken(raw: string): string {
   return crypto.createHash("sha256").update(raw).digest("hex");
 }
-
-/**
- * Creates both an access token and a refresh token for the given credential ID and email.
- * The access token is a JWT that can be used for authentication, while the refresh token
- * is an opaque token that can be used to obtain new access tokens when the current one expires.
- *
- * @param credentialId
- * @param email
- */
-export function createAccessTokenAndRefreshToken(
-  credentialId: string,
-  email: string,
-) {}

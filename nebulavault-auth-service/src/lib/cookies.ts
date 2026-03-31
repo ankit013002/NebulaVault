@@ -16,9 +16,9 @@ const COOKIE_OPTIONS = {
 /**
  * Sets the authentication cookies for the user.
  *
- * @param res
- * @param accessToken
- * @param refreshToken
+ * @param res - The Express response object used to set the cookies.
+ * @param accessToken - The access token to be set in the "session" cookie.
+ * @param refreshToken - The refresh token to be set in the "refresh_token" cookie.
  */
 export function setAuthCookies(
   res: Response,
@@ -38,7 +38,7 @@ export function setAuthCookies(
 /**
  * Clears the authentication cookies for the user.
  *
- * @param res
+ * @param res - The Express response object used to clear the cookies.
  */
 export function clearAuthCookies(res: Response): void {
   res.clearCookie("session", { ...COOKIE_OPTIONS });

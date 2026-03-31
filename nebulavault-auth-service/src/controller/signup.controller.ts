@@ -9,7 +9,7 @@ import bcrypt from "bcrypt";
 /**
  * Creates a new user account, sends a verification email, and returns the access and refresh tokens.
  *
- * @param data
+ * @param data - An object containing the user's email, password, and name for account creation.
  * @returns An object containing the access token and refresh token for the newly created user.
  * @throws {UserExistsError} If a user with the provided email already exists in the database.
  * @throws {Error} If there is an issue during user creation, token generation, or email sending.

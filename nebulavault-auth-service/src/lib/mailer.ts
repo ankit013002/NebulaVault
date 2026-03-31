@@ -28,8 +28,8 @@ const APP_ORIGIN = process.env.APP_ORIGIN || "http://localhost:3000";
  * Sends a verification email to the specified address with a link containing the provided token.
  * The link directs the user to the frontend application where they can verify their email address.
  *
- * @param to
- * @param rawToken
+ * @param to - The recipient's email address to which the verification email will be sent.
+ * @param rawToken - The raw verification token that will be included in the verification link sent to the user.
  */
 export async function sendVerificationEmail(
   to: string,
@@ -52,8 +52,8 @@ export async function sendVerificationEmail(
 /**
  * Sends a password reset email to the specified address with a link containing the provided token.
  *
- * @param to
- * @param rawToken
+ * @param to - The recipient's email address to which the password reset email will be sent.
+ * @param rawToken - The raw password reset token that will be included in the reset link sent to the user.
  */
 export async function sendPasswordResetEmail(
   to: string,

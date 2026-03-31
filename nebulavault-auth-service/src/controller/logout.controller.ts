@@ -7,7 +7,7 @@ import { deleteRefreshTokenWithHash } from "../services/refresh.service";
  * entry from the database to ensure that it can no longer be used to obtain new access tokens.
  * If no refresh token is provided, the function simply returns without performing any action.
  *
- * @param data
+ * @param data - An object that may contain the refresh token to be invalidated during logout.
  */
 async function handleLogout(data: { refreshToken?: string }) {
   const refreshToken = data.refreshToken;

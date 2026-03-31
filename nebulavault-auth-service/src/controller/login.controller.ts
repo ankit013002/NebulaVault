@@ -8,7 +8,7 @@ import { createRefreshToken } from "../services/refresh.service";
  * and returning them along with the email verification status.
  * If the credentials are invalid, it throws an error indicating that the login attempt was unsuccessful.
  *
- * @param data
+ * @param data - An object containing the user's email and password for authentication.
  * @returns An object containing the access token, refresh token, and email verification status.
  * @throws {InvalidCredentialsError} If the email does not exist or the password is incorrect.
  */

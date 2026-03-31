@@ -4,9 +4,9 @@ import { RefreshToken } from "../types/database";
 /**
  * Creates a new refresh token for the specified credential ID, token hash, and expiration date.
  *
- * @param credentialId
- * @param tokenHash
- * @param expiresAt
+ * @param credentialId - The ID of the credential for which the refresh token is being created.
+ * @param tokenHash - The hash of the refresh token to be stored in the database for later verification.
+ * @param expiresAt - The expiration date and time for the refresh token, after which it will no longer be valid.
  * @returns A promise resolving to the created refresh token record from the database.
  */
 export async function createRefreshToken(
@@ -28,8 +28,8 @@ export async function createRefreshToken(
 /**
  * Retrieves a refresh token from the database based on the provided token hash and current date.
  *
- * @param refresh_token
- * @param now
+ * @param refresh_token - The hash of the refresh token used to look up the corresponding entry in the database.
+ * @param now - The current date and time used to check if the refresh token is still valid (not expired).
  * @returns A promise resolving to the refresh token record if found and valid, or null if not found or expired.
  */
 export async function retrieveRefreshToken(
@@ -50,7 +50,7 @@ export async function retrieveRefreshToken(
 /**
  * Deletes a refresh token from the database based on the provided token ID.
  *
- * @param tokenId
+ * @param tokenId - The unique identifier of the refresh token to be deleted from the database.
  */
 export async function deleteRefreshTokenWithId(tokenId: string): Promise<void> {
   await pool.query(
