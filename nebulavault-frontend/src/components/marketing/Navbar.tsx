@@ -16,7 +16,12 @@ const navLinks = [
 export default function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -66,37 +71,39 @@ export default function Navbar() {
 
           <div className="hidden md:flex items-center space-x-4">
             {/* Light/Dark mode toggle */}
-            <motion.button
-              onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-              className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg bg-bz-surface/60 border border-bz-border hover:bg-bz-surface hover:border-bz-primary/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-bz-primary/40"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
-            >
-              <AnimatePresence mode="wait">
-                {theme === "light" ? (
-                  <motion.div
-                    key="sun"
-                    initial={{ opacity: 0, rotate: -180, scale: 0 }}
-                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                    exit={{ opacity: 0, rotate: 180, scale: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Sun size={20} className="text-amber-500" />
-                  </motion.div>
-                ) : (
-                  <motion.div
-                    key="moon"
-                    initial={{ opacity: 0, rotate: -180, scale: 0 }}
-                    animate={{ opacity: 1, rotate: 0, scale: 1 }}
-                    exit={{ opacity: 0, rotate: 180, scale: 0 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    <Moon size={20} className="text-blue-300" />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.button>
+            {mounted && (
+              <motion.button
+                onClick={() => setTheme(theme === "light" ? "dark" : "light")}
+                className="relative inline-flex items-center justify-center w-10 h-10 rounded-lg bg-bz-surface/60 border border-bz-border hover:bg-bz-surface hover:border-bz-primary/30 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-bz-primary/40"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                aria-label={`Switch to ${theme === "light" ? "dark" : "light"} mode`}
+              >
+                <AnimatePresence mode="wait">
+                  {theme === "light" ? (
+                    <motion.div
+                      key="sun"
+                      initial={{ opacity: 0, rotate: -180, scale: 0 }}
+                      animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                      exit={{ opacity: 0, rotate: 180, scale: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Sun size={20} className="text-amber-500" />
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="moon"
+                      initial={{ opacity: 0, rotate: -180, scale: 0 }}
+                      animate={{ opacity: 1, rotate: 0, scale: 1 }}
+                      exit={{ opacity: 0, rotate: 180, scale: 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <Moon size={20} className="text-blue-300" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.button>
+            )}
             <motion.a
               href={signInUrl}
               className="text-bz-muted hover:text-bz-text transition-colors duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-bz-primary/40 rounded-md"
