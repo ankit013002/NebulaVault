@@ -55,3 +55,20 @@ export async function deleteVerificationTokenByTokenHash(
     [token_hash],
   );
 }
+
+/**
+ * Deletes all email verification tokens associated with a specific credential ID from the database.
+ *
+ * @param credentialId - The ID of the credential for which all associated email verification tokens should be deleted from the database.
+ */
+export async function deleteEmailVerificationTokensByCredentialId(
+  credentialId: string,
+) {
+  await pool.query(
+    `
+      DELETE FROM email_verification_tokens
+      WHERE credential_id = $1
+    `,
+    [credentialId],
+  );
+}

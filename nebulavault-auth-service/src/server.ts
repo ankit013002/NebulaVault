@@ -8,6 +8,7 @@ import loginRoute from "./routes/login.route";
 import logoutRoute from "./routes/logout.route";
 import refreshRoute from "./routes/refresh.route";
 import verifyEmailRoute from "./routes/verify-email.route";
+import resendVerificationRoute from "./routes/resend-verification.route";
 
 import { Request, Response } from "express";
 
@@ -29,6 +30,7 @@ app.use("/api/auth", loginRoute);
 app.use("/api/auth", logoutRoute);
 app.use("/api/auth", refreshRoute);
 app.use("/api/auth", verifyEmailRoute);
+app.use("/api/auth", resendVerificationRoute);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
