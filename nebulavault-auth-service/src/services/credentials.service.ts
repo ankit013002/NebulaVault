@@ -46,14 +46,26 @@ export async function retrieveCredentialsByCredentialId(
  */
 export async function updateCredentialsTable(
   credentialsId: string,
-  emailVerified: boolean,
+  emailVerified?: boolean,
+  hashedPassword?: string,
 ): Promise<void> {
-  await pool.query(
-    `
+  if (emailVerified) {
+    await pool.query(
+      `
             UPDATE credentials
             SET email_verified = $1
             WHERE id = $2
         `,
-    [emailVerified, credentialsId],
-  );
+      [emailVerified, credentialsId],
+    );
+  } else if (hashedPassword) {
+    await pool.query(
+      `
+        UPDATE credentials
+        SET password_hash = $1
+        WHERE id = $2
+      `,
+      [hashedPassword, credentialsId],
+    );
+  }
 }

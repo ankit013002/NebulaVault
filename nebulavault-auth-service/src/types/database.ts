@@ -23,7 +23,7 @@ export interface EmailVerificationToken {
   created_at: Date;
 }
 
-export interface password_reset_token {
+export interface PasswordResetToken {
   id: string;
   credential_id: string;
   token_hash: string;

@@ -76,3 +76,21 @@ export async function deleteRefreshTokenWithHash(
     [tokenHash],
   );
 }
+
+/**
+ * Deletes all refresh tokens from the database associated with the provided credential ID.
+ * This function is used after a password reset to invalidate all active sessions,
+ * forcing the user to re-login on all devices.
+ *
+ * @param credentialId - The ID of the credential whose refresh tokens should be deleted.
+ */
+export async function deleteRefreshTokenWithCredentialId(
+  credentialId: string,
+): Promise<void> {
+  await pool.query(
+    `
+        DELETE FROM refresh_tokens WHERE credential_id = $1;
+    `,
+    [credentialId],
+  );
+}
