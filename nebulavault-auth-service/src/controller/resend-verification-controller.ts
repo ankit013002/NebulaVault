@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import pool from "../db/index";
 import { makeOpaqueToken, hashToken } from "../lib/tokens";
 import { sendVerificationEmail } from "../lib/mailer";
 import { retrieveCredentialsByCredentialId } from "../services/credentials.service";

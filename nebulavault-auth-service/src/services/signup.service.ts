@@ -1,4 +1,5 @@
 import pool from "../db";
+import { Credential } from "../types/database";
 
 /**
  * Creates a new user credential in the database.
@@ -10,7 +11,7 @@ import pool from "../db";
 export async function createCredentials(
   email: string,
   passwordHash: string,
-): Promise<Credential> {
+): Promise<Credential | null> {
   const result = await pool.query(
     `
       INSERT INTO credentials (email, password_hash)

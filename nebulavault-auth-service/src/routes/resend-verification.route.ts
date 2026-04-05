@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import resendVerification from "../controller/resend-verification";
+import resendVerification from "../controller/resend-verification-controller";
 
 const router = Router();
 

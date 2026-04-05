@@ -58,7 +58,7 @@ async function refreshRefreshToken(data: { refreshToken?: string }) {
   await createRefreshToken(
     credentials.id,
     hashedRefreshTokenNew,
-    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
   );
 
   return { accessToken, refreshToken: rawRefreshToken };
