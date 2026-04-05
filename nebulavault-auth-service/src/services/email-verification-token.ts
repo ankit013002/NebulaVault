@@ -13,7 +13,7 @@ export async function createVerficationToken(
 ): Promise<void> {
   await pool.query(
     `
-        INSERT INTO email_verification_tokens
+        INSERT INTO email_verification_tokens (credential_id, token_hash, expires_at)
         values ($1, $2, $3)  
     `,
     [credentialId, tokenHash, new Date(Date.now() + 24 * 60 * 60 * 1000)],

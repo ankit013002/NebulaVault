@@ -13,8 +13,6 @@ import forgotPasswordRoute from "./routes/forgot-password.route";
 import resetPasswordRoute from "./routes/reset-password.route";
 
 import { Request, Response } from "express";
-import { error } from "console";
-import z from "zod";
 import notFoundHandler from "./middleware/not-found";
 import errorHandler from "./middleware/error-handler";
 
@@ -40,9 +38,11 @@ app.use("/api/auth", resendVerificationRoute);
 app.use("/api/auth", forgotPasswordRoute);
 app.use("/api/auth", resetPasswordRoute);
 
-app.use((req: Request, res: Response) => notFoundHandler(req, res));
+app.use((req: Request, res: Response, next: Function) =>
+  notFoundHandler(req, res),
+);
 
-app.use((err: unknown, req: Request, res: Response) =>
+app.use((err: unknown, req: Request, res: Response, next: Function) =>
   errorHandler(err, req, res),
 );
 

@@ -9,17 +9,13 @@ import bcrypt from "bcrypt";
 /**
  * Creates a new user account, sends a verification email, and returns the access and refresh tokens.
  *
- * @param data - An object containing the user's email, password, and name for account creation.
+ * @param data - An object containing the user's email, password for account creation.
  * @returns An object containing the access token and refresh token for the newly created user.
  * @throws {UserExistsError} If a user with the provided email already exists in the database.
  * @throws {Error} If there is an issue during user creation, token generation, or email sending.
  */
-async function createUser(data: {
-  email: string;
-  password: string;
-  name: string;
-}) {
-  const { email, password, name } = data;
+async function createUser(data: { email: string; password: string }) {
+  const { email, password } = data;
 
   const credentialsExist = await retrieveCredentialsByEmail(email);
 
@@ -32,7 +28,7 @@ async function createUser(data: {
   const saltRounds = 12;
   const hashedPassword = bcrypt.hashSync(password, saltRounds);
 
-  const credentials = await createCredentials(email, hashedPassword, name);
+  const credentials = await createCredentials(email, hashedPassword);
 
   const rawToken = makeOpaqueToken();
 
