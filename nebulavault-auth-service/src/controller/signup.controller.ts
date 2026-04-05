@@ -30,6 +30,12 @@ async function createUser(data: { email: string; password: string }) {
 
   const credentials = await createCredentials(email, hashedPassword);
 
+  if (!credentials) {
+    const error = new Error("Failed to create user credentials");
+    error.name = "UserCreationError";
+    throw error;
+  }
+
   const rawToken = makeOpaqueToken();
 
   const hashedToken = hashToken(rawToken);

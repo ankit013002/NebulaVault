@@ -21,6 +21,10 @@ router.post("/signup", signupLimiter, async (req: Request, res: Response) => {
       return res.status(409).json({ error: "Email already in use" });
     }
 
+    if (err instanceof Error && err.name === "UserCreationError") {
+      return res.status(500).json({ error: "Failed to create user" });
+    }
+
     console.error(err);
     return res.status(500).json({ error: "Internal server error" });
   }
