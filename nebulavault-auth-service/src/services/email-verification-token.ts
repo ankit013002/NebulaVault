@@ -7,7 +7,7 @@ import { EmailVerificationToken } from "../types/database";
  * @param credentialId - The ID of the credential for which the verification token is being created.
  * @param tokenHash - The hash of the verification token to be stored in the database for later verification.
  */
-export async function createVerficationToken(
+export async function createVerificationToken(
   credentialId: string,
   tokenHash: string,
 ): Promise<void> {

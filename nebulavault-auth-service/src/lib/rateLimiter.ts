@@ -18,11 +18,24 @@ export const signupLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 3,
   message: "Too many signup attempts, please try again later",
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 /**
  * Rate limiter for password reset route to prevent abuse. Allows a maximum of 5 password reset attempts per hour from the same IP address.
  */
+/**
+ * Rate limiter for resend-verification route to prevent inbox flooding. Allows a maximum of 3 resend attempts per hour from the same IP address.
+ */
+export const resendVerificationLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 3,
+  message: "Too many resend attempts, please try again later",
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 export const passwordResetLimiter = rateLimit({
   windowMs: 60 * 60 * 1000,
   max: 5,

@@ -1,4 +1,5 @@
 import { Router, Request, Response } from "express";
+import { z } from "zod";
 import { signupSchema } from "../lib/schema";
 import { signupLimiter } from "../lib/rateLimiter";
 import createUser from "../controller/signup.controller";
@@ -17,6 +18,10 @@ router.post("/signup", signupLimiter, async (req: Request, res: Response) => {
       emailVerified: false,
     });
   } catch (err) {
+    if (err instanceof z.ZodError) {
+      return res.status(400).json({ error: "Validation error", details: err.issues });
+    }
+
     if (err instanceof Error && err.name === "UserExistsError") {
       return res.status(409).json({ error: "Email already in use" });
     }

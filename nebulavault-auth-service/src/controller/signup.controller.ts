@@ -1,7 +1,7 @@
 import { sendVerificationEmail } from "../lib/mailer";
 import { hashToken, makeOpaqueToken, signAccessToken } from "../lib/tokens";
 import { retrieveCredentialsByEmail } from "../services/credentials.service";
-import { createVerficationToken } from "../services/email-verification-token";
+import { createVerificationToken } from "../services/email-verification-token";
 import { createRefreshToken } from "../services/refresh.service";
 import { createCredentials } from "../services/signup.service";
 import bcrypt from "bcrypt";
@@ -26,7 +26,7 @@ async function createUser(data: { email: string; password: string }) {
   }
 
   const saltRounds = 12;
-  const hashedPassword = bcrypt.hashSync(password, saltRounds);
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
 
   const credentials = await createCredentials(email, hashedPassword);
 
@@ -40,7 +40,7 @@ async function createUser(data: { email: string; password: string }) {
 
   const hashedToken = hashToken(rawToken);
 
-  await createVerficationToken(credentials.id, hashedToken);
+  await createVerificationToken(credentials.id, hashedToken);
 
   await sendVerificationEmail(email, rawToken);
 

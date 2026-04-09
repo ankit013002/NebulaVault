@@ -33,7 +33,7 @@ export async function createRefreshToken(
  * @returns A promise resolving to the refresh token record if found and valid, or null if not found or expired.
  */
 export async function retrieveRefreshToken(
-  refresh_token: string,
+  tokenHash: string,
   now: Date,
 ): Promise<RefreshToken | null> {
   const result = await pool.query(
@@ -41,7 +41,7 @@ export async function retrieveRefreshToken(
             SELECT * FROM refresh_tokens
             WHERE token_hash = $1 AND expires_at > $2
         `,
-    [refresh_token, now],
+    [tokenHash, now],
   );
 
   return result.rows[0];

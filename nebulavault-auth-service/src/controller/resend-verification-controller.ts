@@ -1,18 +1,11 @@
-import jwt from "jsonwebtoken";
+import { verifyAccessToken } from "../lib/tokens";
 import { makeOpaqueToken, hashToken } from "../lib/tokens";
 import { sendVerificationEmail } from "../lib/mailer";
 import { retrieveCredentialsByCredentialId } from "../services/credentials.service";
 import {
-  createVerficationToken,
+  createVerificationToken,
   deleteEmailVerificationTokensByCredentialId,
 } from "../services/email-verification-token";
-
-const SIGNING_SECRET = (() => {
-  const RAW = (process.env.AUTH_SECRET || "dev-secret").trim();
-  return /^[0-9a-f]{64}$/i.test(RAW)
-    ? Buffer.from(RAW, "hex")
-    : Buffer.from(RAW, "utf8");
-})();
 
 /**
  * Resends the email verification token to the user associated with the provided session token.
@@ -36,14 +29,14 @@ async function resendVerification(data: { session: string }): Promise<void> {
 
   let decoded;
   try {
-    decoded = jwt.verify(session, SIGNING_SECRET);
+    decoded = verifyAccessToken(session);
   } catch (err) {
     const error = new Error("Invalid or expired session token");
     error.name = "InvalidSessionTokenError";
     throw error;
   }
 
-  if (!decoded || typeof decoded !== "object" || !decoded.sub) {
+  if (!decoded || !decoded.sub) {
     const error = new Error("Invalid session token");
     error.name = "InvalidSessionTokenError";
     throw error;
@@ -70,7 +63,7 @@ async function resendVerification(data: { session: string }): Promise<void> {
   const rawVerificationToken = makeOpaqueToken();
   const hashedVerificationToken = hashToken(rawVerificationToken);
 
-  await createVerficationToken(credentialId, hashedVerificationToken);
+  await createVerificationToken(credentialId, hashedVerificationToken);
 
   await sendVerificationEmail(credentials.email, rawVerificationToken);
 }

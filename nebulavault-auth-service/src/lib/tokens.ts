@@ -1,4 +1,4 @@
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 import crypto from "crypto";
 
 /**
@@ -45,4 +45,15 @@ export function makeOpaqueToken(): string {
  */
 export function hashToken(raw: string): string {
   return crypto.createHash("sha256").update(raw).digest("hex");
+}
+
+/**
+ * Verifies a JWT access token and returns the decoded payload.
+ *
+ * @param token - The JWT access token to verify.
+ * @returns The decoded JWT payload.
+ * @throws If the token is invalid or expired.
+ */
+export function verifyAccessToken(token: string): JwtPayload {
+  return jwt.verify(token, SIGNING_SECRET) as JwtPayload;
 }

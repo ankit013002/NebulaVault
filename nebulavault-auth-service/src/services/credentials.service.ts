@@ -53,7 +53,7 @@ export async function updateCredentialsTable(
     await pool.query(
       `
             UPDATE credentials
-            SET email_verified = $1
+            SET email_verified = $1, updated_at = now()
             WHERE id = $2
         `,
       [emailVerified, credentialsId],
@@ -62,7 +62,7 @@ export async function updateCredentialsTable(
     await pool.query(
       `
         UPDATE credentials
-        SET password_hash = $1
+        SET password_hash = $1, updated_at = now()
         WHERE id = $2
       `,
       [hashedPassword, credentialsId],

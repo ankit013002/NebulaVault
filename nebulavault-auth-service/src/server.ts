@@ -12,7 +12,7 @@ import resendVerificationRoute from "./routes/resend-verification.route";
 import forgotPasswordRoute from "./routes/forgot-password.route";
 import resetPasswordRoute from "./routes/reset-password.route";
 
-import { Request, Response } from "express";
+import { Request, Response, NextFunction } from "express";
 import notFoundHandler from "./middleware/not-found";
 import errorHandler from "./middleware/error-handler";
 
@@ -38,11 +38,11 @@ app.use("/api/auth", resendVerificationRoute);
 app.use("/api/auth", forgotPasswordRoute);
 app.use("/api/auth", resetPasswordRoute);
 
-app.use((req: Request, res: Response, next: Function) =>
+app.use((req: Request, res: Response, next: NextFunction) =>
   notFoundHandler(req, res),
 );
 
-app.use((err: unknown, req: Request, res: Response, next: Function) =>
+app.use((err: unknown, req: Request, res: Response, next: NextFunction) =>
   errorHandler(err, req, res),
 );
 

@@ -1,9 +1,10 @@
 import { Router, Request, Response } from "express";
+import { resendVerificationLimiter } from "../lib/rateLimiter";
 import resendVerification from "../controller/resend-verification-controller";
 
 const router = Router();
 
-router.post("/resend-verification", async (req: Request, res: Response) => {
+router.post("/resend-verification", resendVerificationLimiter, async (req: Request, res: Response) => {
   try {
     await resendVerification({ session: req.cookies.session });
     return res.status(200).json({
