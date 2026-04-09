@@ -1,5 +1,5 @@
 {
-  "name": "nebulavault-auth-service",
+  "name": "benzene-auth-service",
   "version": "1.0.0",
   "main": "src/server.ts",
   "scripts": {

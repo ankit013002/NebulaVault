@@ -9,7 +9,7 @@ import nodemailer from "nodemailer";
  * - SMTP_SECURE: Whether to use a secure connection (true/false, default: false)
  * - SMTP_USER: The username for SMTP authentication (optional)
  * - SMTP_PASS: The password for SMTP authentication (optional)
- * - SMTP_FROM: The "from" address for outgoing emails (default: "NebulaVault <noreply@nebulavault.dev>")
+ * - SMTP_FROM: The "from" address for outgoing emails (default: "Benzene <noreply@benzene.dev>")
  */
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || "localhost",
@@ -21,7 +21,7 @@ const transporter = nodemailer.createTransport({
       : undefined,
 });
 
-const FROM = process.env.SMTP_FROM || "NebulaVault <noreply@nebulavault.dev>";
+const FROM = process.env.SMTP_FROM || "Benzene <noreply@benzene.dev>";
 const APP_ORIGIN = process.env.APP_ORIGIN || "http://localhost:3000";
 
 /**
@@ -39,9 +39,9 @@ export async function sendVerificationEmail(
   await transporter.sendMail({
     from: FROM,
     to,
-    subject: "Verify your NebulaVault email",
+    subject: "Verify your Benzene email",
     html: `
-      <p>Welcome to NebulaVault!</p>
+      <p>Welcome to Benzene!</p>
       <p>Click the link below to verify your email:</p>
       <a href="${link}">${link}</a>
       <p>This link expires in 24 hours.</p>
@@ -63,7 +63,7 @@ export async function sendPasswordResetEmail(
   await transporter.sendMail({
     from: FROM,
     to,
-    subject: "Reset your NebulaVault password",
+    subject: "Reset your Benzene password",
     html: `
       <p>Click the link below to reset your password:</p>
       <a href="${link}">${link}</a>
