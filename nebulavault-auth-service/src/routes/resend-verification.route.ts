@@ -7,7 +7,7 @@ router.post("/resend-verification", async (req: Request, res: Response) => {
   try {
     await resendVerification({ session: req.cookies.session });
     return res.status(200).json({
-      message: "Verification email resent successfully",
+      ok: true,
     });
   } catch (err) {
     if (err instanceof Error && err.name === "SessionTokenMissingError") {

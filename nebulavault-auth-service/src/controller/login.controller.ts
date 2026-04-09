@@ -42,7 +42,7 @@ async function loginController(data: { email: string; password: string }) {
   await createRefreshToken(
     credentials.id,
     hashedRefreshToken,
-    new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
   );
 
   return {

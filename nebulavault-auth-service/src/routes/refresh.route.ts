@@ -1,6 +1,4 @@
 import { Router, Request, Response } from "express";
-import pool from "../db/index";
-import { signAccessToken, makeOpaqueToken, hashToken } from "../lib/tokens";
 import { setAuthCookies } from "../lib/cookies";
 import refreshRefreshToken from "../controller/refresh.controller";
 
@@ -9,9 +7,10 @@ const router = Router();
 router.post("/refresh", async (req: Request, res: Response) => {
   try {
     const { accessToken, refreshToken } = await refreshRefreshToken(
-      req.cookies,
+      { refreshToken: req.cookies.refresh_token },
     );
     setAuthCookies(res, accessToken, refreshToken);
+    return res.json({ accessToken });
   } catch (err) {
     if (err instanceof Error && err.name === "InvalidTokenError") {
       return res.status(401).json({ error: "Invalid refresh token" });
