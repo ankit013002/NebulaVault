@@ -21,7 +21,11 @@ vi.mock("../lib/tokens", () => ({
 
 // --- Imports after mocks ---
 
-import { retrieveRefreshToken, deleteRefreshTokenWithId, createRefreshToken } from "../services/refresh.service";
+import {
+  retrieveRefreshToken,
+  deleteRefreshTokenWithId,
+  createRefreshToken,
+} from "../services/refresh.service";
 import { retrieveCredentialsByCredentialId } from "../services/credentials.service";
 import { hashToken, makeOpaqueToken, signAccessToken } from "../lib/tokens";
 
@@ -79,7 +83,9 @@ describe("refreshRefreshToken", () => {
   it("returns a new access token and refresh token on success", async () => {
     vi.mocked(hashToken).mockReturnValueOnce("hashed-old-token");
     vi.mocked(retrieveRefreshToken).mockResolvedValue(mockRefreshTokenEntry);
-    vi.mocked(retrieveCredentialsByCredentialId).mockResolvedValue(mockCredential);
+    vi.mocked(retrieveCredentialsByCredentialId).mockResolvedValue(
+      mockCredential,
+    );
     vi.mocked(deleteRefreshTokenWithId).mockResolvedValue(undefined);
     vi.mocked(signAccessToken).mockReturnValue("new-access-token");
     vi.mocked(makeOpaqueToken).mockReturnValue("new-raw-refresh-token");
@@ -97,7 +103,9 @@ describe("refreshRefreshToken", () => {
   it("deletes the old refresh token before issuing a new one (rotation)", async () => {
     vi.mocked(hashToken).mockReturnValue("hashed-token");
     vi.mocked(retrieveRefreshToken).mockResolvedValue(mockRefreshTokenEntry);
-    vi.mocked(retrieveCredentialsByCredentialId).mockResolvedValue(mockCredential);
+    vi.mocked(retrieveCredentialsByCredentialId).mockResolvedValue(
+      mockCredential,
+    );
     vi.mocked(deleteRefreshTokenWithId).mockResolvedValue(undefined);
     vi.mocked(signAccessToken).mockReturnValue("new-access-token");
     vi.mocked(makeOpaqueToken).mockReturnValue("new-raw-refresh-token");
@@ -105,6 +113,8 @@ describe("refreshRefreshToken", () => {
 
     await refreshRefreshToken({ refreshToken: "old-raw-token" });
 
-    expect(deleteRefreshTokenWithId).toHaveBeenCalledWith(mockRefreshTokenEntry.id);
+    expect(deleteRefreshTokenWithId).toHaveBeenCalledWith(
+      mockRefreshTokenEntry.id,
+    );
   });
 });

@@ -29,7 +29,10 @@ vi.mock("bcrypt", () => ({
 // --- Imports after mocks ---
 
 import { updateCredentialsTable } from "../services/credentials.service";
-import { getPasswordResetTokenByHashToken, updatePasswordResetToken } from "../services/password-reset-token.service";
+import {
+  getPasswordResetTokenByHashToken,
+  updatePasswordResetToken,
+} from "../services/password-reset-token.service";
 import { deleteRefreshTokenWithCredentialId } from "../services/refresh.service";
 import { hashToken } from "../lib/tokens";
 import bcrypt from "bcrypt";
@@ -63,7 +66,9 @@ describe("resetPassword", () => {
 
   it("hashes the new password and updates the credentials", async () => {
     vi.mocked(hashToken).mockReturnValue("hashed-token");
-    vi.mocked(getPasswordResetTokenByHashToken).mockResolvedValue(mockPasswordResetToken);
+    vi.mocked(getPasswordResetTokenByHashToken).mockResolvedValue(
+      mockPasswordResetToken,
+    );
     vi.mocked(bcrypt.hash).mockResolvedValue("new-hashed-password" as never);
     vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
     vi.mocked(updatePasswordResetToken).mockResolvedValue(undefined);
@@ -80,7 +85,9 @@ describe("resetPassword", () => {
 
   it("marks the reset token as used so it cannot be reused", async () => {
     vi.mocked(hashToken).mockReturnValue("hashed-token");
-    vi.mocked(getPasswordResetTokenByHashToken).mockResolvedValue(mockPasswordResetToken);
+    vi.mocked(getPasswordResetTokenByHashToken).mockResolvedValue(
+      mockPasswordResetToken,
+    );
     vi.mocked(bcrypt.hash).mockResolvedValue("new-hashed-password" as never);
     vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
     vi.mocked(updatePasswordResetToken).mockResolvedValue(undefined);
@@ -93,7 +100,9 @@ describe("resetPassword", () => {
 
   it("invalidates all active sessions after a password reset", async () => {
     vi.mocked(hashToken).mockReturnValue("hashed-token");
-    vi.mocked(getPasswordResetTokenByHashToken).mockResolvedValue(mockPasswordResetToken);
+    vi.mocked(getPasswordResetTokenByHashToken).mockResolvedValue(
+      mockPasswordResetToken,
+    );
     vi.mocked(bcrypt.hash).mockResolvedValue("new-hashed-password" as never);
     vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
     vi.mocked(updatePasswordResetToken).mockResolvedValue(undefined);
@@ -101,6 +110,8 @@ describe("resetPassword", () => {
 
     await resetPassword({ token: "raw-token", newPassword: "newpassword123" });
 
-    expect(deleteRefreshTokenWithCredentialId).toHaveBeenCalledWith(mockPasswordResetToken.credential_id);
+    expect(deleteRefreshTokenWithCredentialId).toHaveBeenCalledWith(
+      mockPasswordResetToken.credential_id,
+    );
   });
 });

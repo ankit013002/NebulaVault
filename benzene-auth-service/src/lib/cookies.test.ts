@@ -56,7 +56,10 @@ describe("clearAuthCookies", () => {
   it("clears the refresh_token cookie", () => {
     const res = createMockResponse();
     clearAuthCookies(res);
-    expect(res.clearCookie).toHaveBeenCalledWith("refresh_token", expect.any(Object));
+    expect(res.clearCookie).toHaveBeenCalledWith(
+      "refresh_token",
+      expect.any(Object),
+    );
   });
 
   it("calls res.clearCookie exactly twice", () => {

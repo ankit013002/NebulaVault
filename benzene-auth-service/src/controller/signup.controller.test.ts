@@ -96,7 +96,10 @@ describe("createUser (signup controller)", () => {
     vi.mocked(createVerificationToken).mockResolvedValue(undefined);
     vi.mocked(createRefreshToken).mockResolvedValue(null);
 
-    const result = await createUser({ email: "user@example.com", password: "password123" });
+    const result = await createUser({
+      email: "user@example.com",
+      password: "password123",
+    });
 
     expect(result).toEqual({
       accessToken: "access-token",
@@ -117,7 +120,10 @@ describe("createUser (signup controller)", () => {
 
     await createUser({ email: "user@example.com", password: "password123" });
 
-    expect(createCredentials).toHaveBeenCalledWith("user@example.com", "hashed-password");
+    expect(createCredentials).toHaveBeenCalledWith(
+      "user@example.com",
+      "hashed-password",
+    );
   });
 
   it("sends the verification email with the raw (unhashed) token", async () => {
@@ -135,6 +141,9 @@ describe("createUser (signup controller)", () => {
 
     await createUser({ email: "user@example.com", password: "password123" });
 
-    expect(sendVerificationEmail).toHaveBeenCalledWith("user@example.com", "raw-verification-token");
+    expect(sendVerificationEmail).toHaveBeenCalledWith(
+      "user@example.com",
+      "raw-verification-token",
+    );
   });
 });

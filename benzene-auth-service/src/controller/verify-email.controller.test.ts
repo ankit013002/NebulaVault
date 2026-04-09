@@ -18,7 +18,10 @@ vi.mock("../lib/tokens", () => ({
 
 // --- Imports after mocks ---
 
-import { getVerificationTokenEntryByTokenHash, deleteVerificationTokenByTokenHash } from "../services/email-verification-token";
+import {
+  getVerificationTokenEntryByTokenHash,
+  deleteVerificationTokenByTokenHash,
+} from "../services/email-verification-token";
 import { updateCredentialsTable } from "../services/credentials.service";
 import { hashToken } from "../lib/tokens";
 
@@ -62,19 +65,25 @@ describe("handleVerifyEmail", () => {
 
   it("marks the email as verified and deletes the token on success", async () => {
     vi.mocked(hashToken).mockReturnValue("hashed-token");
-    vi.mocked(getVerificationTokenEntryByTokenHash).mockResolvedValue(mockVerificationTokenEntry);
+    vi.mocked(getVerificationTokenEntryByTokenHash).mockResolvedValue(
+      mockVerificationTokenEntry,
+    );
     vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
     vi.mocked(deleteVerificationTokenByTokenHash).mockResolvedValue(undefined);
 
     await handleVerifyEmail("raw-token");
 
     expect(updateCredentialsTable).toHaveBeenCalledWith("cred-uuid-123", true);
-    expect(deleteVerificationTokenByTokenHash).toHaveBeenCalledWith("hashed-token");
+    expect(deleteVerificationTokenByTokenHash).toHaveBeenCalledWith(
+      "hashed-token",
+    );
   });
 
   it("deletes the token after verifying so it cannot be reused", async () => {
     vi.mocked(hashToken).mockReturnValue("hashed-token");
-    vi.mocked(getVerificationTokenEntryByTokenHash).mockResolvedValue(mockVerificationTokenEntry);
+    vi.mocked(getVerificationTokenEntryByTokenHash).mockResolvedValue(
+      mockVerificationTokenEntry,
+    );
     vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
     vi.mocked(deleteVerificationTokenByTokenHash).mockResolvedValue(undefined);
 

@@ -25,7 +25,10 @@ vi.mock("../lib/tokens", () => ({
 // --- Imports after mocks ---
 
 import { retrieveCredentialsByCredentialId } from "../services/credentials.service";
-import { createVerificationToken, deleteEmailVerificationTokensByCredentialId } from "../services/email-verification-token";
+import {
+  createVerificationToken,
+  deleteEmailVerificationTokensByCredentialId,
+} from "../services/email-verification-token";
 import { sendVerificationEmail } from "../lib/mailer";
 import { verifyAccessToken, makeOpaqueToken, hashToken } from "../lib/tokens";
 
@@ -94,8 +97,12 @@ describe("resendVerification", () => {
 
   it("deletes old tokens, creates a new one, and sends the verification email", async () => {
     vi.mocked(verifyAccessToken).mockReturnValue({ sub: "cred-uuid-123" });
-    vi.mocked(retrieveCredentialsByCredentialId).mockResolvedValue(mockCredential);
-    vi.mocked(deleteEmailVerificationTokensByCredentialId).mockResolvedValue(undefined);
+    vi.mocked(retrieveCredentialsByCredentialId).mockResolvedValue(
+      mockCredential,
+    );
+    vi.mocked(deleteEmailVerificationTokensByCredentialId).mockResolvedValue(
+      undefined,
+    );
     vi.mocked(makeOpaqueToken).mockReturnValue("raw-verification-token");
     vi.mocked(hashToken).mockReturnValue("hashed-verification-token");
     vi.mocked(createVerificationToken).mockResolvedValue(undefined);
@@ -103,8 +110,16 @@ describe("resendVerification", () => {
 
     await resendVerification({ session: "valid-token" });
 
-    expect(deleteEmailVerificationTokensByCredentialId).toHaveBeenCalledWith("cred-uuid-123");
-    expect(createVerificationToken).toHaveBeenCalledWith("cred-uuid-123", "hashed-verification-token");
-    expect(sendVerificationEmail).toHaveBeenCalledWith("user@example.com", "raw-verification-token");
+    expect(deleteEmailVerificationTokensByCredentialId).toHaveBeenCalledWith(
+      "cred-uuid-123",
+    );
+    expect(createVerificationToken).toHaveBeenCalledWith(
+      "cred-uuid-123",
+      "hashed-verification-token",
+    );
+    expect(sendVerificationEmail).toHaveBeenCalledWith(
+      "user@example.com",
+      "raw-verification-token",
+    );
   });
 });

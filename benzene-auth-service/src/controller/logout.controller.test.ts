@@ -30,7 +30,9 @@ describe("handleLogout", () => {
     await handleLogout({ refreshToken: "raw-refresh-token" });
 
     expect(hashToken).toHaveBeenCalledWith("raw-refresh-token");
-    expect(deleteRefreshTokenWithHash).toHaveBeenCalledWith("hashed-refresh-token");
+    expect(deleteRefreshTokenWithHash).toHaveBeenCalledWith(
+      "hashed-refresh-token",
+    );
   });
 
   it("does nothing when no refresh token is provided", async () => {

@@ -24,7 +24,10 @@ vi.mock("../lib/tokens", () => ({
 // --- Imports after mocks ---
 
 import { retrieveCredentialsByEmail } from "../services/credentials.service";
-import { deletePasswordResetToken, createPasswordResetToken } from "../services/password-reset-token.service";
+import {
+  deletePasswordResetToken,
+  createPasswordResetToken,
+} from "../services/password-reset-token.service";
 import { sendPasswordResetEmail } from "../lib/mailer";
 import { makeOpaqueToken, hashToken } from "../lib/tokens";
 
@@ -69,7 +72,10 @@ describe("forgotPassword", () => {
     await forgotPassword({ email: "user@example.com" });
 
     expect(deletePasswordResetToken).toHaveBeenCalledWith(mockCredential.id);
-    expect(createPasswordResetToken).toHaveBeenCalledWith(mockCredential.id, "hashed-reset-token");
+    expect(createPasswordResetToken).toHaveBeenCalledWith(
+      mockCredential.id,
+      "hashed-reset-token",
+    );
   });
 
   it("sends the reset email with the raw (unhashed) token", async () => {
@@ -82,7 +88,10 @@ describe("forgotPassword", () => {
 
     await forgotPassword({ email: "user@example.com" });
 
-    expect(sendPasswordResetEmail).toHaveBeenCalledWith("user@example.com", "raw-reset-token");
+    expect(sendPasswordResetEmail).toHaveBeenCalledWith(
+      "user@example.com",
+      "raw-reset-token",
+    );
   });
 
   it("returns without throwing when the mailer fails (anti-enumeration)", async () => {
@@ -91,8 +100,12 @@ describe("forgotPassword", () => {
     vi.mocked(hashToken).mockReturnValue("hashed-reset-token");
     vi.mocked(deletePasswordResetToken).mockResolvedValue(undefined);
     vi.mocked(createPasswordResetToken).mockResolvedValue(undefined);
-    vi.mocked(sendPasswordResetEmail).mockRejectedValue(new Error("SMTP error"));
+    vi.mocked(sendPasswordResetEmail).mockRejectedValue(
+      new Error("SMTP error"),
+    );
 
-    await expect(forgotPassword({ email: "user@example.com" })).resolves.toBeUndefined();
+    await expect(
+      forgotPassword({ email: "user@example.com" }),
+    ).resolves.toBeUndefined();
   });
 });

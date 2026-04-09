@@ -1,5 +1,10 @@
 import { describe, it, expect, vi } from "vitest";
-import { signAccessToken, makeOpaqueToken, hashToken, verifyAccessToken } from "./tokens";
+import {
+  signAccessToken,
+  makeOpaqueToken,
+  hashToken,
+  verifyAccessToken,
+} from "./tokens";
 import jwt from "jsonwebtoken";
 
 describe("hashToken", () => {

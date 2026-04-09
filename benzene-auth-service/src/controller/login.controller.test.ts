@@ -61,7 +61,10 @@ describe("loginController", () => {
     vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
 
     await expect(
-      loginController({ email: "user@example.com", password: "wrong-password" }),
+      loginController({
+        email: "user@example.com",
+        password: "wrong-password",
+      }),
     ).rejects.toMatchObject({ name: "InvalidCredentialsError" });
   });
 
@@ -73,7 +76,10 @@ describe("loginController", () => {
     vi.mocked(hashToken).mockReturnValue("hashed-refresh-token");
     vi.mocked(createRefreshToken).mockResolvedValue(null);
 
-    const result = await loginController({ email: "user@example.com", password: "correct-password" });
+    const result = await loginController({
+      email: "user@example.com",
+      password: "correct-password",
+    });
 
     expect(result).toEqual({
       accessToken: "access-token",
@@ -84,14 +90,19 @@ describe("loginController", () => {
 
   it("returns emailVerified as false when the user has not verified their email", async () => {
     const unverifiedCredential = { ...mockCredential, email_verified: false };
-    vi.mocked(retrieveCredentialsByEmail).mockResolvedValue(unverifiedCredential);
+    vi.mocked(retrieveCredentialsByEmail).mockResolvedValue(
+      unverifiedCredential,
+    );
     vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
     vi.mocked(signAccessToken).mockReturnValue("access-token");
     vi.mocked(makeOpaqueToken).mockReturnValue("raw-refresh-token");
     vi.mocked(hashToken).mockReturnValue("hashed-refresh-token");
     vi.mocked(createRefreshToken).mockResolvedValue(null);
 
-    const result = await loginController({ email: "user@example.com", password: "correct-password" });
+    const result = await loginController({
+      email: "user@example.com",
+      password: "correct-password",
+    });
 
     expect(result.emailVerified).toBe(false);
   });
@@ -104,7 +115,10 @@ describe("loginController", () => {
     vi.mocked(hashToken).mockReturnValue("hashed-refresh-token");
     vi.mocked(createRefreshToken).mockResolvedValue(null);
 
-    await loginController({ email: "user@example.com", password: "correct-password" });
+    await loginController({
+      email: "user@example.com",
+      password: "correct-password",
+    });
 
     expect(createRefreshToken).toHaveBeenCalledWith(
       mockCredential.id,
