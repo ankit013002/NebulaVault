@@ -38,7 +38,7 @@ export default function DashboardContentSection() {
       const data = await res.json();
       console.log("DATA:", data);
 
-      const folders: FolderType[] = data.data.folders.map((folder) => {
+      const folders: FolderType[] = data.data.folders.map((folder: { name: string; path: string; bytes: number }) => {
         return {
           name: folder.name,
           path: folder.path,
@@ -46,7 +46,7 @@ export default function DashboardContentSection() {
         };
       });
 
-      const files: FolderType[] = data.data.files.map((file) => {
+      const files: FolderType[] = data.data.files.map((file: { name: string; path: string; bytes: number }) => {
         return {
           name: file.name,
           size: getNormalizedSize(file.bytes),
