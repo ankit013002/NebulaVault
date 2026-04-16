@@ -5,8 +5,7 @@ import React, { useEffect, useState } from "react";
 import pfp from "/public/pfp.jpg";
 import { logout } from "@/utils/auth/handlers/LogoutHandler";
 import { useRouter } from "next/navigation";
-import { useSelector } from "react-redux";
-import { UserState } from "@/app/features/user/userSlice";
+import { useAppSelector } from "@/app/store/hooks";
 import {
   getNormalizedSize,
   sizeConversion,
@@ -22,7 +21,7 @@ type Props = {
 
 const SideBarAccountSection: React.FC<Props> = () => {
   const router = useRouter();
-  const user = useSelector((state: UserState) => state.user);
+  const user = useAppSelector((state) => state.user);
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
