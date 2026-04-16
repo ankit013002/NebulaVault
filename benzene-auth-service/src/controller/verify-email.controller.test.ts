@@ -9,7 +9,7 @@ vi.mock("../services/email-verification-token", () => ({
 }));
 
 vi.mock("../services/credentials.service", () => ({
-  updateCredentialsTable: vi.fn(),
+  markEmailVerified: vi.fn(),
 }));
 
 vi.mock("../lib/tokens", () => ({
@@ -22,7 +22,7 @@ import {
   getVerificationTokenEntryByTokenHash,
   deleteVerificationTokenByTokenHash,
 } from "../services/email-verification-token";
-import { updateCredentialsTable } from "../services/credentials.service";
+import { markEmailVerified } from "../services/credentials.service";
 import { hashToken } from "../lib/tokens";
 
 // --- Fixtures ---
@@ -68,12 +68,12 @@ describe("handleVerifyEmail", () => {
     vi.mocked(getVerificationTokenEntryByTokenHash).mockResolvedValue(
       mockVerificationTokenEntry,
     );
-    vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
+    vi.mocked(markEmailVerified).mockResolvedValue(undefined);
     vi.mocked(deleteVerificationTokenByTokenHash).mockResolvedValue(undefined);
 
     await handleVerifyEmail("raw-token");
 
-    expect(updateCredentialsTable).toHaveBeenCalledWith("cred-uuid-123", true);
+    expect(markEmailVerified).toHaveBeenCalledWith("cred-uuid-123");
     expect(deleteVerificationTokenByTokenHash).toHaveBeenCalledWith(
       "hashed-token",
     );
@@ -84,7 +84,7 @@ describe("handleVerifyEmail", () => {
     vi.mocked(getVerificationTokenEntryByTokenHash).mockResolvedValue(
       mockVerificationTokenEntry,
     );
-    vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
+    vi.mocked(markEmailVerified).mockResolvedValue(undefined);
     vi.mocked(deleteVerificationTokenByTokenHash).mockResolvedValue(undefined);
 
     await handleVerifyEmail("raw-token");

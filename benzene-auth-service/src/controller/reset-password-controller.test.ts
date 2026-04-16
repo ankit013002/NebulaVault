@@ -4,7 +4,7 @@ import resetPassword from "./reset-password-controller";
 // --- Mocks ---
 
 vi.mock("../services/credentials.service", () => ({
-  updateCredentialsTable: vi.fn(),
+  updatePassword: vi.fn(),
 }));
 
 vi.mock("../services/password-reset-token.service", () => ({
@@ -28,7 +28,7 @@ vi.mock("bcrypt", () => ({
 
 // --- Imports after mocks ---
 
-import { updateCredentialsTable } from "../services/credentials.service";
+import { updatePassword } from "../services/credentials.service";
 import {
   getPasswordResetTokenByHashToken,
   updatePasswordResetToken,
@@ -70,15 +70,14 @@ describe("resetPassword", () => {
       mockPasswordResetToken,
     );
     vi.mocked(bcrypt.hash).mockResolvedValue("new-hashed-password" as never);
-    vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
+    vi.mocked(updatePassword).mockResolvedValue(undefined);
     vi.mocked(updatePasswordResetToken).mockResolvedValue(undefined);
     vi.mocked(deleteRefreshTokenWithCredentialId).mockResolvedValue(undefined);
 
     await resetPassword({ token: "raw-token", newPassword: "newpassword123" });
 
-    expect(updateCredentialsTable).toHaveBeenCalledWith(
+    expect(updatePassword).toHaveBeenCalledWith(
       mockPasswordResetToken.credential_id,
-      undefined,
       "new-hashed-password",
     );
   });
@@ -89,7 +88,7 @@ describe("resetPassword", () => {
       mockPasswordResetToken,
     );
     vi.mocked(bcrypt.hash).mockResolvedValue("new-hashed-password" as never);
-    vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
+    vi.mocked(updatePassword).mockResolvedValue(undefined);
     vi.mocked(updatePasswordResetToken).mockResolvedValue(undefined);
     vi.mocked(deleteRefreshTokenWithCredentialId).mockResolvedValue(undefined);
 
@@ -104,7 +103,7 @@ describe("resetPassword", () => {
       mockPasswordResetToken,
     );
     vi.mocked(bcrypt.hash).mockResolvedValue("new-hashed-password" as never);
-    vi.mocked(updateCredentialsTable).mockResolvedValue(undefined);
+    vi.mocked(updatePassword).mockResolvedValue(undefined);
     vi.mocked(updatePasswordResetToken).mockResolvedValue(undefined);
     vi.mocked(deleteRefreshTokenWithCredentialId).mockResolvedValue(undefined);
 

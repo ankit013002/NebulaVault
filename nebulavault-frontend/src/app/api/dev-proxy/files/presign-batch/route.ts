@@ -39,6 +39,6 @@ export async function GET(req: NextRequest) {
   console.log("DATA: ", upstreamJson);
 
   return NextResponse.json(upstreamJson, {
-    status: 200,
+    status: upstream.status,
   });
 }

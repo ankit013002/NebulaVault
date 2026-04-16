@@ -14,7 +14,7 @@ export async function retrieveCredentialsByEmail(
     `
       SELECT * FROM credentials
       WHERE email = $1`,
-    [email],
+    [email.toLowerCase().trim()],
   );
 
   return result.rows[0] || null;
@@ -44,28 +44,33 @@ export async function retrieveCredentialsByCredentialId(
  * @param credentialsId - The ID of the credential to update.
  * @param emailVerified - A boolean indicating whether the email is verified or not.
  */
-export async function updateCredentialsTable(
-  credentialsId: string,
-  emailVerified?: boolean,
-  hashedPassword?: string,
-): Promise<void> {
-  if (emailVerified) {
-    await pool.query(
-      `
-            UPDATE credentials
-            SET email_verified = $1, updated_at = now()
-            WHERE id = $2
-        `,
-      [emailVerified, credentialsId],
-    );
-  } else if (hashedPassword) {
-    await pool.query(
-      `
-        UPDATE credentials
-        SET password_hash = $1, updated_at = now()
-        WHERE id = $2
+export async function markEmailVerified(credentialsId: string): Promise<void> {
+  await pool.query(
+    `
+          UPDATE credentials
+          SET email_verified = true, updated_at = now()
+          WHERE id = $1
       `,
-      [hashedPassword, credentialsId],
-    );
-  }
+    [credentialsId],
+  );
+}
+
+export async function updatePassword(
+  credentialsId: string,
+  hashedPassword: string,
+): Promise<void> {
+  await pool.query(
+    `
+      UPDATE credentials
+      SET password_hash = $1, updated_at = now()
+      WHERE id = $2
+    `,
+    [hashedPassword, credentialsId],
+  );
+}
+
+export async function deleteCredentialsById(
+  credentialsId: string,
+): Promise<void> {
+  await pool.query(`DELETE FROM credentials WHERE id = $1`, [credentialsId]);
 }

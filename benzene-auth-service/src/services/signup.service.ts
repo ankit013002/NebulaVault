@@ -18,7 +18,7 @@ export async function createCredentials(
       VALUES ($1, $2)
       RETURNING id
       `,
-    [email, passwordHash],
+    [email.toLowerCase().trim(), passwordHash],
   );
 
   return result.rows[0];

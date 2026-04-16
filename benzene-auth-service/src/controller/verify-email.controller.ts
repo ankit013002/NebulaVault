@@ -3,7 +3,7 @@ import {
   deleteVerificationTokenByTokenHash,
   getVerificationTokenEntryByTokenHash,
 } from "../services/email-verification-token";
-import { updateCredentialsTable } from "../services/credentials.service";
+import { markEmailVerified } from "../services/credentials.service";
 
 /**
  * Handles email verification by validating the provided token, updating the user's email verification status,
@@ -36,7 +36,7 @@ export async function handleVerifyEmail(
 
   const credentialId = emailVerificationsToken.credential_id;
 
-  await updateCredentialsTable(credentialId, true);
+  await markEmailVerified(credentialId);
 
   await deleteVerificationTokenByTokenHash(hashedToken);
 }

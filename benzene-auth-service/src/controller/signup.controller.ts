@@ -1,6 +1,9 @@
 import { sendVerificationEmail } from "../lib/mailer";
 import { hashToken, makeOpaqueToken, signAccessToken } from "../lib/tokens";
-import { retrieveCredentialsByEmail } from "../services/credentials.service";
+import {
+  deleteCredentialsById,
+  retrieveCredentialsByEmail,
+} from "../services/credentials.service";
 import { createVerificationToken } from "../services/email-verification-token";
 import { createRefreshToken } from "../services/refresh.service";
 import { createCredentials } from "../services/signup.service";
@@ -15,7 +18,8 @@ import bcrypt from "bcrypt";
  * @throws {Error} If there is an issue during user creation, token generation, or email sending.
  */
 async function createUser(data: { email: string; password: string }) {
-  const { email, password } = data;
+  const { email: rawEmail, password } = data;
+  const email = rawEmail.toLowerCase().trim();
 
   const credentialsExist = await retrieveCredentialsByEmail(email);
 
@@ -36,29 +40,33 @@ async function createUser(data: { email: string; password: string }) {
     throw error;
   }
 
-  const rawToken = makeOpaqueToken();
+  try {
+    const rawToken = makeOpaqueToken();
+    const hashedToken = hashToken(rawToken);
 
-  const hashedToken = hashToken(rawToken);
+    await createVerificationToken(credentials.id, hashedToken);
 
-  await createVerificationToken(credentials.id, hashedToken);
+    const rawRefreshToken = makeOpaqueToken();
+    const hashedRefreshToken = hashToken(rawRefreshToken);
 
-  await sendVerificationEmail(email, rawToken);
+    await createRefreshToken(
+      credentials.id,
+      hashedRefreshToken,
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+    );
 
-  const accessToken = signAccessToken(credentials.id, email);
+    const accessToken = signAccessToken(credentials.id, email);
 
-  const rawRefreshToken = makeOpaqueToken();
-  const hashedRefreshToken = hashToken(rawRefreshToken);
+    await sendVerificationEmail(email, rawToken);
 
-  await createRefreshToken(
-    credentials.id,
-    hashedRefreshToken,
-    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-  );
-
-  return {
-    accessToken,
-    refreshToken: rawRefreshToken,
-  };
+    return {
+      accessToken,
+      refreshToken: rawRefreshToken,
+    };
+  } catch (err) {
+    await deleteCredentialsById(credentials.id);
+    throw err;
+  }
 }
 
 export default createUser;

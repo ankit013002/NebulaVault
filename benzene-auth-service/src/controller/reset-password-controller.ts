@@ -1,6 +1,6 @@
 import { resetPasswordSchema } from "../lib/schema";
 import { hashToken } from "../lib/tokens";
-import { updateCredentialsTable } from "../services/credentials.service";
+import { updatePassword } from "../services/credentials.service";
 import {
   getPasswordResetTokenByHashToken,
   updatePasswordResetToken,
@@ -26,7 +26,7 @@ async function resetPassword(data: { token: string; newPassword: string }) {
 
   const hashedPassword = await bcrypt.hash(newPassword, 12);
 
-  await updateCredentialsTable(credentialId, undefined, hashedPassword);
+  await updatePassword(credentialId, hashedPassword);
 
   await updatePasswordResetToken(hashedParsedToken);
 

@@ -5,7 +5,12 @@ import crypto from "crypto";
  * Utility functions for token generation and hashing. This includes functions to sign JWT access tokens, create opaque refresh tokens, and hash tokens for secure storage. The signing secret is derived from the AUTH_SECRET environment variable, which can be a hex string or a UTF-8 string. The access tokens are signed with the HS256 algorithm and have a short expiration time for security.
  */
 const SIGNING_SECRET = (() => {
-  const RAW = (process.env.AUTH_SECRET || "dev-secret").trim();
+  const RAW = process.env.AUTH_SECRET?.trim();
+  if (!RAW || RAW.length < 32) {
+    throw new Error(
+      "AUTH_SECRET environment variable is missing or too short (minimum 32 characters required)",
+    );
+  }
   return /^[0-9a-f]{64}$/i.test(RAW)
     ? Buffer.from(RAW, "hex")
     : Buffer.from(RAW, "utf8");

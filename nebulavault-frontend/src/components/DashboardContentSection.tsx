@@ -62,7 +62,7 @@ export default function DashboardContentSection() {
       };
 
       setExistingDirectoryItems(existingDirectory);
-      updateTotalStorageOccupied(data.data);
+      updateTotalStorageOccupied(existingDirectory);
     } catch (e) {
       console.log("Error: ", e);
     } finally {
