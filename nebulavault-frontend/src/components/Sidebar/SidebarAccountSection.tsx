@@ -6,10 +6,7 @@ import pfp from "/public/pfp.jpg";
 import { logout } from "@/utils/auth/handlers/LogoutHandler";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/app/store/hooks";
-import {
-  getNormalizedSize,
-  sizeConversion,
-} from "@/utils/file-system/NormalizedSize";
+import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
 import LoadingSpinner from "../LoadingSpinner";
 
 type Props = {
@@ -34,7 +31,7 @@ const SideBarAccountSection: React.FC<Props> = () => {
     if (user.id && user.id.length > 0) {
       setIsLoading(false);
     }
-    setName(user.name);
+    setName(user.name ?? "");
     setEmail(user.email);
     setUsedGb(getNormalizedSize(user.usedBytes).value);
     setQuotaGb(getNormalizedSize(user.quotaBytes).value);
