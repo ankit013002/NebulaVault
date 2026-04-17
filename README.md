@@ -1,357 +1,327 @@
-# Nebula Vault
+# NebulaVault
 
-> Local‑first Drive UI built in **Next.js (App Router) + TypeScript + Redux Toolkit**. Actively evolving toward a cloud‑ready, microservices architecture (Gateway + presigned S3 uploads + evented backend).
-
----
-
-## TL;DR
-
-- **Today (dev mode):** drag‑and‑drop folders/files into a local `uploads/` root; list, breadcrumb, and size/modified metadata via API route handlers.
-- **Tomorrow (cloud mode):** Spring Cloud Gateway in front of services (Auth, Drive/Metadata, File Service for presign, Billing, Notifier/Audit). Direct‑to‑S3 uploads with presigned URLs, Drive service attaches metadata, events on **SNS/SQS** (or Kafka), observability with **OpenTelemetry**.
-
-> The web app already points to a gateway origin via `NEXT_PUBLIC_GATEWAY_ORIGIN` and stubs OIDC start URLs.
+> Polyglot microservices cloud-storage platform. Self-contained email/password auth, recursive folder drag-and-drop, direct-to-S3 uploads, and a local-first dev mode — actively evolving toward full cloud deployment with AI-assisted file interaction and built-in version control.
 
 ---
 
-## ✨ Features
+## Architecture
 
-- **Recursive folder & multi‑file drag‑and‑drop** (preserves nested structure).
-- **Empty folder support** via `.folder` marker (keeps trees intact).
-- **Safe path handling** on server (`safeResolve`/`safeJoin`) to prevent traversal.
-- **Breadcrumb navigation** and global path state with **Redux Toolkit** (`currentPath` slice).
-- **Directory listing API** aggregates folder **size** (descendants) + **lastModified**.
-- **Storage usage** bar with human‑readable units.
-- **Auth flow placeholders**: login/register pages, middleware redirect to `/login` when session is missing, and OIDC start links (via Gateway).
-- **Modern UI**: **Tailwind CSS + DaisyUI** theme, shadcn‑style buttons, **Framer Motion** bits (Animated Storage bar, starfield hero on marketing page).
+```mermaid
+flowchart LR
+  %% ===== Clients =====
+  subgraph Clients
+    direction TB
+    NX["Next.js 15\nReact 19 · TypeScript"]
+    EL["Electron\n« planned »"]
+  end
 
----
+  %% ===== Edge =====
+  subgraph Edge
+    direction TB
+    GW["Spring Cloud Gateway\nJWT HS256 verify\nRate limit · Routing · 302 passthrough"]
+    CF[("CloudFront CDN\n« planned »")]
+  end
 
-## 🧩 Tech Stack
+  NX --> GW
+  EL --> GW
 
-- **Next.js** (App Router, Route Handlers, `runtime: "nodejs"`)
-- **TypeScript**
-- **Redux Toolkit** (typed hooks, `currentPath` slice)
-- **Tailwind CSS** + **DaisyUI** (custom theme in `globals.css`)
-- **React Icons** / shadcn‑style button utility
-- **Framer Motion** (select components/marketing)
+  %% ===== Services =====
+  subgraph Services
+    direction TB
+    AUTH["benzene-auth-service\nNode.js · Express · TypeScript\nsignup · login · refresh\npassword-reset · email-verify\nHS256 JWT + opaque refresh"]
+    FILE["File Service\nNode.js · Express\nfile metadata · presigned S3\n« S3 planned »"]
+    USER["User Service\nJava 21 · Spring Boot\nprofiles · quotas · plans"]
+    BILL["Billing Service\nC# · ASP.NET Core · Stripe\n« planned »"]
+    AI["AI Chat Service\nRAG · privacy-gated embeddings\n« planned »"]
+    VCS["Version Control Service\nbranches · commits · diffs\n« planned »"]
+    NOTIFY["Notifier / Audit Worker\n« planned »"]
+  end
 
-**Platform (planned/in flight):**
+  GW -->|"/auth/*"| AUTH
+  GW -->|"/files/*"| FILE
+  GW -->|"/user/*"| USER
+  GW -->|"/billing/*"| BILL
+  GW -->|"/ai/*"| AI
+  GW -->|"/vcs/*"| VCS
 
-- **Spring Cloud Gateway** (JWT verification via OIDC/JWK, routing/rate‑limits, 302 to presigned URLs; optional CloudFront)
-- **Auth Service** (Node.js + Express, OIDC start endpoints)
-- **File Service** (Python + Flask) → issues presigned S3 URLs (upload/download)
-- **Drive/User Profile** (Java + Spring Boot + Neon Postgres) → stores file/folder metadata
-- **Billing** (C# + ASP.NET Core + Firestore)
-- **Notifier/Audit worker** (Python) → reacts to file events
-- **Event bus** via **SNS/SQS** (or Kafka) and **outbox pattern** per service
-- **OpenTelemetry** for traces/logs/metrics; AWS SSM/Secrets Manager for secrets
+  %% ===== Data Stores =====
+  subgraph Data_Stores["Data Stores"]
+    direction TB
+    PG_AUTH[("PostgreSQL\nAuth credentials")]
+    PG_USER[("PostgreSQL\nUser profiles")]
+    MDB[("MongoDB\nFile metadata\nversions · permissions")]
+    S3[("Amazon S3\nobjects + versioning\n« planned »")]
+    FSTORE[("Firestore · Billing\n« planned »")]
+    VCS_DB[("PostgreSQL\nVCS metadata\n« planned »")]
+    AI_VDB[("Vector DB\nPinecone / pgvector\n« planned »")]
+  end
 
----
+  AUTH --- PG_AUTH
+  USER --- PG_USER
+  FILE --- MDB
+  FILE -. "« planned »" .-> S3
+  BILL --- FSTORE
+  VCS --- VCS_DB
+  AI --- AI_VDB
+  AI -. "file content for RAG" .-> S3
 
-## 🚀 Getting Started (Local Dev)
+  %% ===== Events =====
+  subgraph Events["Events « planned »"]
+    direction TB
+    BUS[("SNS / SQS or Kafka")]
+    OUTBOX[["Outbox pattern\nidempotent publish · retries"]]
+  end
 
-### 1) Prerequisites
+  S3 -- "ObjectCreated" --> BUS
+  FILE -- "FileUploaded / FileDeleted" --> BUS
+  BUS --> USER & NOTIFY
+  FILE & USER & BILL --- OUTBOX
 
-- Node.js **18+**
+  %% ===== Platform =====
+  subgraph Platform["Platform « planned »"]
+    direction TB
+    OTEL["OpenTelemetry\ntraces · logs · metrics"]
+    SECRETS["AWS Secrets Manager / SSM"]
+  end
 
-### 2) Install deps
+  GW & AUTH & FILE & USER & BILL & NOTIFY --> OTEL
+  AUTH & FILE & USER & BILL --- SECRETS
 
-```bash
-npm install
+  %% ===== Direct Upload / Download Flow =====
+  NX -. "« planned »\ndirect upload\npresigned POST / PUT" .-> S3
+  EL -. "« planned »\ndirect upload\npresigned POST / PUT" .-> S3
+  GW -. "« planned »\n302 → presigned S3 / CloudFront" .-> CF
+  CF --- S3
 ```
 
-### 3) Create local folders & mock DB
+---
+
+## Services
+
+| Service                    | Tech                                            | Port | Status  |
+| -------------------------- | ----------------------------------------------- | ---- | ------- |
+| `nebulavault-frontend`     | Next.js 15, React 19, TypeScript, Redux Toolkit | 3000 | Active  |
+| `nebula-gateway`           | Java 21, Spring Cloud Gateway                   | 8080 | Active  |
+| `benzene-auth-service`     | Node.js, Express 5, TypeScript, PostgreSQL      | 4000 | Active  |
+| `nebulavault-file-service` | Node.js, Express 5, MongoDB (Mongoose)          | 5000 | Active  |
+| `nebulavault-user-service` | Java 21, Spring Boot 3, PostgreSQL              | 8082 | Active  |
+| Billing Service            | C#, ASP.NET Core, Firestore                     | —    | Planned |
+| AI Chat Service            | TBD — RAG, Vector DB                            | —    | Planned |
+| Version Control Service    | TBD                                             | —    | Planned |
+| Notifier / Audit Worker    | Python                                          | —    | Planned |
+
+---
+
+## What Works Today
+
+- Recursive folder & multi-file drag-and-drop (preserves nested structure, supports empty folders)
+- Breadcrumb navigation with Redux path state
+- Directory listing with size aggregation and `lastModified` metadata
+- Storage usage bar
+- Self-contained email/password auth: signup, login, logout, refresh, email verification, password reset
+- Spring Cloud Gateway bootstrap (JWT HS256 verify, CORS config, routing scaffolding)
+- User service: profile bootstrap on first login, quota fields
+- File metadata service: MongoDB models (nodes, versions, permissions), listing endpoint
+- Marketing page with starfield hero (Framer Motion)
+- GitHub Actions CI/CD pipeline
+
+---
+
+## Auth Design
+
+NebulaVault uses **self-contained email/password authentication** via `benzene-auth-service` — no external OAuth provider required.
+
+| Property             | Value                                                                                                        |
+| -------------------- | ------------------------------------------------------------------------------------------------------------ |
+| Access token         | HS256 JWT, 15 min TTL                                                                                        |
+| Refresh token        | Opaque (SHA-256 hashed in DB), 7-day TTL                                                                     |
+| Transport            | `httpOnly` cookies (`session` for access token, `refresh_token` for refresh token)                           |
+| JWT signing key      | `AUTH_SECRET` (>= 32 chars; 64 hex chars recommended) — shared between auth service and Gateway              |
+| Gateway verification | Validates HS256 JWT; injects `X-User-AuthSub`, `X-User-Email`, `X-User-Name` headers for downstream services |
+
+---
+
+## Dev Mode vs Cloud Mode
+
+|               | Dev Mode (today)                    | Cloud Mode (planned)                     |
+| ------------- | ----------------------------------- | ---------------------------------------- |
+| Storage       | Local `uploads/` dir                | Amazon S3 + presigned URLs               |
+| File listing  | `/api/files` Next.js route handler  | Gateway → File Service → MongoDB         |
+| Uploads       | `/api/dev-proxy/files/presign-batch` Next.js dev proxy | Browser → S3 direct (presigned POST/PUT) |
+| Auth          | benzene-auth-service cookie         | Same                                     |
+| File metadata | `data/mockDb.json`                  | MongoDB via File Service                 |
+| Events        | None                                | SNS/SQS or Kafka + outbox pattern        |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 20+
+- Java 21 + Maven (or `./mvnw`)
+- Docker (for PostgreSQL + MongoDB)
+
+### Frontend — `nebulavault-frontend`
 
 ```bash
-mkdir -p uploads
-mkdir -p data
-# initialize database file
+cd nebulavault-frontend
+npm install
+mkdir -p uploads data
 echo "[]" > data/mockDb.json
 ```
 
-> Optional: set a custom upload root via `UPLOAD_DIR=/absolute/path/to/uploads`.
-
-### 4) Environment
-
-Create `.env.local` in the project root:
+`.env.local`:
 
 ```ini
-# Web app → where to start OIDC and where the API gateway will live (dev/prod)
 NEXT_PUBLIC_GATEWAY_ORIGIN=http://localhost:8080
-
-# Local dev storage root (defaults to ./uploads if not set)
 UPLOAD_DIR=./uploads
-
-# Session/JWT secret used by Next.js middleware (hex or raw). For hex, use 64 hex chars.
-# Example (PowerShell): [Guid]::NewGuid().ToString("N") + [Guid]::NewGuid().ToString("N")
-AUTH_SECRET=CHANGE_ME
-
-# (optional) telemetry
-# OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4317
+AUTH_SECRET=<min 32 chars; 64 hex chars recommended>
 ```
-
-### 5) Run
 
 ```bash
-npm run dev
+npm run dev   # → http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
+### Auth Service — `benzene-auth-service`
 
----
-
-## 🗂️ How It Works (Dev Mode)
-
-### Client flow (drag & drop)
-
-- `RecentFiles.tsx` handles file/folder drops using the File System API (`webkitGetAsEntry`).
-- `utils/FileSystemUtils.ts` provides:
-
-  - `walkEntry(entry, parentPath, into)` → converts dropped items to a tree of `FileFolderBuffer`.
-  - `splitBuffers(nodes)` → flattens that tree into:
-
-    - `files: { file: File; relPath: string }[]`
-    - `emptyFolders: string[]` (so empty dirs can be created server‑side)
-
-- A `FormData` is POSTed to **`/api/upload`**:
-
-  - Each **file** is appended with a **filename that includes its relative path** (e.g. `photos/2024/trip/a.jpg`).
-  - **Empty folders** are sent as JSON under the `folders` key.
-
-- After upload, the UI re‑fetches the current directory.
-
-### Navigation state (Redux)
-
-- `features/currentPath/currentPathSlice.ts`:
-
-  - State: `{ path: string }` (`""` represents the root)
-  - Actions: `setPath`, `enterFolder`, `upDir`, `resetPath`
-  - Selector: `selectCurrentPath`
-
-- Registered in `store/store.ts`; provider in `app/layout.tsx`.
-
-### Directory listing & metadata
-
-- **`GET /api/files?path=<rel>`**
-
-  - Normalizes and verifies path stays **inside `UPLOAD_ROOT`**.
-  - Returns **files** for the folder and **immediate subfolders** discovered via disk + DB.
-  - For each folder, aggregates **total size** (descendants) and **lastModified`**.
-
----
-
-## 🔌 API (Dev Mode)
-
-### `GET /api/files?path=<relPath>`
-
-**Response shape**
-
-```ts
-export type FileSize = {
-  raw: number;
-  value: number;
-  unit: "B" | "KB" | "MB" | "GB" | "TB";
-};
-
-export type FileType = {
-  name: string;
-  owner: string;
-  size: FileSize;
-  type: string;
-  lastModified: number; // epoch ms
-  path: string; // folder prefix ending with "/" or ""
-};
-
-export type FolderType = {
-  name: string; // e.g. "Pictures/"
-  path: string; // parent path prefix
-  owner: string;
-  size: FileSize;
-  lastModified: number; // epoch ms
-};
-
-export type ExistingDirectoryType = {
-  ok: boolean;
-  path: string; // normalized request path ('' = root)
-  folders: FolderType[];
-  files: FileType[];
-};
+```bash
+cd benzene-auth-service
+npm install
 ```
 
-**Notes**
+`.env`:
 
-- Request `path` is normalized (no leading slash; trailing slash included when non‑empty).
-- Immediate subfolders come from disk (`readdir`) **and** DB scan, then merged/uniqued.
-
-### `POST /api/upload`
-
-**FormData keys**
-
-- `files`: multiple file parts; **filename embeds the relative path** (e.g. `docs/readme.txt`).
-- `folders`: JSON array of empty folders to create.
-
-**Response**
-
-```json
-{
-  "ok": true,
-  "createdFolders": ["photos/2024/empty/"],
-  "saved": ["photos/2024/trip/a.jpg"]
-}
+```ini
+PORT=4000
+DATABASE_URL=postgresql://postgres:password@localhost:5432/nebulavault_auth
+AUTH_SECRET=<same secret as frontend>
+APP_ORIGIN=http://localhost:3000
+SMTP_HOST=localhost
+SMTP_PORT=1025
+SMTP_FROM=noreply@nebulavault.local
 ```
 
-**Server details**
-
-- `safeJoin()` keeps writes **inside** `UPLOAD_ROOT`.
-- Empty folders touch a `.folder` sentinel for timestamps.
-- File metadata normalized via `getNormalizedSize()` and merged into `data/mockDb.json`.
-
-> **Heads‑up:** These routes are **temporary** for local dev. Cloud mode will switch to Gateway + presigned S3.
-
----
-
-## 🌐 API (Planned Gateway Routes)
-
-- `GET /drive/list?p=<path>` – list directory contents from Drive service
-- `POST /files/presign-batch` – obtain S3 form fields/URLs for direct uploads
-- `POST https://<bucket>.s3.amazonaws.com` – **browser uploads directly to S3**
-- `POST /drive/attach-batch` – commit metadata (checksums, sizes, owners, paths)
-- `GET /files/presign-download?id=...` – time‑limited download URL
-- `GET /auth/oidc/start?screen_hint=login|signup` – begin OIDC flow via Gateway
-
-**Pattern**: presign → client uploads to S3 → client calls Drive to attach metadata → events emitted (`FileUploaded`, `FileDeleted`, ...).
-
----
-
-## 🧠 Key Modules
-
-- `utils/FileSystemUtils.ts` — drop traversal & flattening (`walkEntry`, `readAllEntries`, `splitBuffers`)
-- `utils/NormalizedSize.ts` — bytes → `{ raw, value, unit }`
-- `utils/FileDb.ts` — JSON DB (`data/mockDb.json`)
-- `app/api/files/route.ts` — safe read + folder aggregation
-- `app/api/upload/route.ts` — safe write + `.folder` markers + DB merge
-- `middleware.ts` — public route allow‑list, session check, redirect to `/login`
-- `components/*` — `DashboardContentSection`, `RecentFiles`, `Breadcrumbs`, `StorageUsage`, sidebar pieces, marketing pages, auth forms
-
----
-
-## 🧭 UI Notes
-
-- **Dashboard** shows total storage used (default max **100 MB** → tweak in `StorageUsage`).
-- **Breadcrumbs** allow quick jumps and reset to root.
-- **Marketing** page includes starfield hero + CTA.
-- **Auth pages** (login/register) live under `/login` and `/register` and link to Gateway OIDC start URLs.
-
----
-
-## 🛡️ Security & Safety
-
-- **Path traversal protection** on read/write (`safeResolve`, `safeJoin`).
-- All operations constrained to `UPLOAD_ROOT` (defaults to `./uploads`).
-- Route handlers use **`runtime: "nodejs"`**; middleware enforces session presence on private paths.
-- Client keeps raw `File`/`Blob` out of Redux — global state holds only metadata and path.
-
----
-
-## ⚠️ Limitations (Current Prototype)
-
-- No auth or per‑user namespaces in local mode.
-- No delete/rename/move endpoints yet.
-- Folder drag‑and‑drop relies on `webkitGetAsEntry` (best in Chromium).
-- Not optimized for very large directories (pagination/virtualization TBD).
-
----
-
-## 🔮 Roadmap
-
-- RTK Query for directory caching & background refetch
-- Delete / rename / move APIs + optimistic UI
-- URL ↔︎ state sync (`?p=...`) for shareable deep links
-- Chunked uploads with progress, pause/resume, cancellation
-- Auth + per‑user `UPLOAD_ROOT` namespaces
-- Trash + restore flow; starred items, tags, filters
-- File previews (images, PDFs, text) in side panel; drag‑select + keyboard shortcuts
-- Server‑side checksums & optional deduplication
-- Shareable time‑limited links; audit trail & notifications
-- Unit tests (Vitest/Jest) + Playwright E2E
-- Observability: OpenTelemetry traces/logs; structured logging everywhere
-
----
-
-## 🏗️ CI/CD & Containers (WIP)
-
-- **Branch:** `GitHubActionsAndDockerizing` contains Dockerfiles and initial GitHub Actions workflow.
-- CI will run typecheck/lint/build on push/PR; image builds are planned.
-- Production target: Next.js build → static + server output; deploy behind Gateway/CloudFront.
-
----
-
-## 🧱 Project Structure (excerpt)
-
+```bash
+npm run dev   # → http://localhost:4000
 ```
-app/
-  api/
-    files/route.ts       # GET listing (dev)
-    upload/route.ts      # POST upload (dev)
-  layout.tsx             # wraps with <StoreProvider/>
-  page.tsx               # home/marketing entry
-  (auth)/
-    login/page.tsx
-    register/page.tsx
-components/
-  Breadcrumbs.tsx
-  DashboardContentSection.tsx
-  RecentFiles.tsx
-  ReplaceModal.tsx
-  StorageUsage.tsx
-  MainSidebar.tsx
-  marketing/*            # Navbar, Hero (starfield), FeatureCards, etc.
-features/
-  currentPath/currentPathSlice.ts
-store/
-  store.ts
-  StoreProvider.tsx
-utils/
-  FileSystemUtils.ts
-  NormalizedSize.ts
-  FileDb.ts
-  FileSizes.ts
-  utils.ts
-middleware.ts
-types/
-  ExistingDirectory.ts
-  File.ts
-  FileFolderBuffer.ts
-  Folder.ts
-uploads/                # created at runtime
-data/
-  mockDb.json
+
+See [`benzene-auth-service/README.md`](benzene-auth-service/README.md) for full setup, DB schema, and endpoint reference.
+
+### User Service — `nebulavault-user-service`
+
+```bash
+cd nebulavault-user-service
+DB_URL=jdbc:postgresql://localhost:5432/nebulavault_users ./mvnw spring-boot:run
+# → http://localhost:8082
+```
+
+### File Service — `nebulavault-file-service`
+
+```bash
+cd nebulavault-file-service
+npm install
+MONGOOSE_URI=mongodb://localhost:27017/nebulavault npm run dev
+# → http://localhost:5000
+```
+
+### Gateway — `nebula-gateway`
+
+```bash
+cd nebula-gateway
+./mvnw spring-boot:run   # → http://localhost:8080
 ```
 
 ---
 
-## 🏁 Scripts
+## Upload Flow (Dev → Cloud)
 
-```json
-{
-  "scripts": {
-    "dev": "next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "next lint"
-  }
-}
+**Dev mode:**
+
 ```
+Browser drag-drop → POST /api/dev-proxy/files/presign-batch (Next.js dev proxy → File Service)
+                 → File Service returns mock presign response
+                 → Writes to local file system
+```
+
+**Cloud mode (planned — route names not yet implemented in Gateway/File Service):**
+
+```
+Browser → POST /files/presign-batch (Gateway → File Service)
+       → File Service returns presigned S3 POST fields
+       → Browser uploads directly to S3
+       → Browser calls POST /drive-nodes (Gateway → File Service) to record metadata in MongoDB
+       → S3 ObjectCreated event → SNS/SQS → File Service / Notifier
+```
+
+---
+
+## Roadmap
+
+### Near-term
+
+- [ ] Gateway: HS256 JWT verification + `X-User-*` header injection wired up end-to-end
+- [ ] File Service: S3 presigned upload and download endpoints
+- [ ] Frontend: switch listing and upload to Gateway routes; RTK Query caching
+- [ ] Delete / rename / move APIs + optimistic UI
+- [ ] URL ↔ state sync (`?p=...`) for shareable deep links
+
+### Mid-term
+
+- [ ] Chunked uploads with progress, pause/resume, cancellation
+- [ ] File previews: images, PDFs, text (side panel)
+- [ ] Trash + restore; starred items; tags; filters
+- [ ] Sharing and time-limited links; ACL / permissions UI
+- [ ] Per-user quota enforcement across upload paths
+- [ ] Event bus (SNS/SQS or Kafka) + outbox pattern per service
+- [ ] Notifier / Audit Worker
+- [ ] Billing Service (Stripe, plan gating)
+
+### Long-term
+
+- [ ] **AI Chat Service** — RAG over user files; users opt-in per file/folder; privacy-gated embeddings stored in a Vector DB (Pinecone or pgvector)
+- [ ] **Version Control Service** — branching, commits, diffs for arbitrary file trees (think Git without the CLI friction)
+- [ ] Electron desktop client (offline sync, native drag-and-drop)
+- [ ] OpenTelemetry: traces, structured logs, metrics across all services
+- [ ] Full-text search; server-side checksums + optional deduplication
+- [ ] Unit tests (Vitest) + Playwright E2E
+- [ ] AWS Secrets Manager / SSM integration
+
+---
+
+## Project Structure
+
+```
+NebulaVault/
+├── nebulavault-frontend/          # Next.js 15 + React 19 (App Router, Redux Toolkit)
+├── nebula-gateway/                # Spring Cloud Gateway (Java 21)
+├── benzene-auth-service/          # Auth service (Node.js + Express + TypeScript)
+├── nebulavault-file-service/      # File metadata (Node.js + Express + MongoDB)
+├── nebulavault-user-service/      # User profiles (Java 21 + Spring Boot)
+├── simple-flask-server/           # Debug sandbox — not production code
+└── .github/workflows/             # CI/CD (lint, typecheck, build)
+```
+
+---
+
+## Security Notes
+
+- `AUTH_SECRET` must be present and at least **32 characters** long. A 64-character hex string (32 bytes) is supported and recommended, but not required. The auth service throws at startup if it's missing or shorter.
+- Signup is **atomic**: if any step after credential creation fails, the credential row is rolled back so the user can retry cleanly.
+- Path traversal protection on all local read/write ops (`safeResolve`, `safeJoin`); all writes are constrained to `UPLOAD_ROOT`.
+- `httpOnly` cookies prevent JS access to auth tokens (`session` cookie carries the access token; `refresh_token` carries the refresh token).
+- Planned: presign redirect responses should propagate the upstream HTTP status rather than hardcoding 200.
 
 ---
 
 ## Contributing
 
-Trunk‑based with short‑lived feature branches works well here. Branch, commit small, open a PR, let CI run, merge.
+Trunk-based with short-lived feature branches. Open a PR, let CI run, merge.
 
----
-
-## Notes
-
-- If your browser doesn’t support folder drag‑and‑drop APIs, uploads may degrade to single files.
-- If `AUTH_SECRET` is hex, ensure it’s **64 hex chars** (32 bytes). For non‑hex, any reasonably long random string works.
+| Prefix      | Use for             |
+| ----------- | ------------------- |
+| `feature/`  | New features        |
+| `fix/`      | Bug fixes           |
+| `refactor/` | Refactoring         |
+| `chore/`    | Maintenance / setup |
+| `docs/`     | Documentation       |

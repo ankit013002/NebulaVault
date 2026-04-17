@@ -10,6 +10,7 @@ import { splitBuffers } from "@/utils/file-system/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";
 import { useRouter, useParams } from "next/navigation";
 import { useAppSelector } from "@/app/store/hooks";
+import { FolderType } from "@/types/Folder";
 
 export default function DashboardContentSection() {
   const [isLoading, setIsLoading] = useState(true);
@@ -28,12 +29,39 @@ export default function DashboardContentSection() {
     try {
       setIsLoading(true);
       const res = await fetch(
-        `/api/files?path=${encodeURIComponent(currPath)}`,
-        { method: "GET" }
+        `/api/dev-proxy/files/presign-batch?path=${encodeURIComponent(currPath)}`,
+        {
+          method: "GET",
+        }
       );
-      const data: ExistingDirectoryType = await res.json();
-      setExistingDirectoryItems(data);
-      updateTotalStorageOccupied(data);
+      const data = await res.json();
+      console.log("DATA:", data);
+
+      const folders: FolderType[] = data.data.folders.map((folder: { name: string; path: string; bytes: number }) => {
+        return {
+          name: folder.name,
+          path: folder.path,
+          size: getNormalizedSize(folder.bytes),
+        };
+      });
+
+      const files: FolderType[] = data.data.files.map((file: { name: string; path: string; bytes: number }) => {
+        return {
+          name: file.name,
+          size: getNormalizedSize(file.bytes),
+          path: file.path,
+        };
+      });
+
+      const existingDirectory: ExistingDirectoryType = {
+        ok: true,
+        path: currPath,
+        files: files,
+        folders: folders,
+      };
+
+      setExistingDirectoryItems(existingDirectory);
+      updateTotalStorageOccupied(existingDirectory);
     } catch (e) {
       console.log("Error: ", e);
     } finally {
@@ -53,18 +81,23 @@ export default function DashboardContentSection() {
   };
 
   const uploadDirItems = async (items: FileFolderBuffer[]) => {
-    const { files, emptyFolders } = splitBuffers(items);
+    const { files, emptyFolders, folders } = splitBuffers(items);
+
+    console.log("Folders: ", folders);
 
     const nodes = {
-      files: files.map(({ file, relPath }) => ({
+      files: files.map(({ file, path }) => ({
         name: file.name,
-        path: relPath,
+        path: path,
         size: file.size,
         type: file.type,
         lastModified: file.lastModified,
       })),
       emptyFolders,
+      folders,
     };
+
+    console.log(nodes);
 
     const res = await fetch("/api/dev-proxy/files/presign-batch", {
       method: "POST",

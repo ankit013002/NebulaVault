@@ -41,7 +41,7 @@ const FileRow = ({ file }: FileRowProps) => {
     <>
       <div>{file.name}</div>
       <div>Owner</div>
-      <div>{new Date(file.lastModified).toLocaleString()}</div>
+      <div>{file.lastModified ? new Date(file.lastModified).toLocaleString() : "—"}</div>
       <div className="text-center">
         <span>{file.size.value + " " + file.size.unit}</span>
       </div>

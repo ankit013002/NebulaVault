@@ -30,7 +30,7 @@ jobs:
             web:
               - 'nebulavault-frontend/**'
             auth:
-              - 'nebulavault-auth-service/**'
+              - 'benzene-auth-service/**'
             gateway:
               - 'nebula-gateway/**'
             files:
@@ -88,17 +88,16 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: nebulavault-auth-service
+        working-directory: benzene-auth-service
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: nebulavault-auth-service/package-lock.json
+          cache-dependency-path: benzene-auth-service/package-lock.json
       - name: Install
-        run: |
-          if [ -f package-lock.json ]; then npm ci; else npm i; fi
+        run: npm install
       - name: Build (with fallback)
         run: |
           if npm run -s | grep -qE '(^| )build( |$)'; then
