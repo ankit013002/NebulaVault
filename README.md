@@ -135,8 +135,8 @@ NebulaVault uses **self-contained email/password authentication** via `benzene-a
 | -------------------- | ------------------------------------------------------------------------------------------------------------ |
 | Access token         | HS256 JWT, 15 min TTL                                                                                        |
 | Refresh token        | Opaque (SHA-256 hashed in DB), 7-day TTL                                                                     |
-| Transport            | `httpOnly` cookies (`access_token`, `refresh_token`)                                                         |
-| JWT signing key      | `AUTH_SECRET` (must be 64 hex chars / 32 bytes) — shared between auth service and Gateway                    |
+| Transport            | `httpOnly` cookies (`session` for access token, `refresh_token` for refresh token)                           |
+| JWT signing key      | `AUTH_SECRET` (>= 32 chars; 64 hex chars recommended) — shared between auth service and Gateway              |
 | Gateway verification | Validates HS256 JWT; injects `X-User-AuthSub`, `X-User-Email`, `X-User-Name` headers for downstream services |
 
 ---
@@ -147,7 +147,7 @@ NebulaVault uses **self-contained email/password authentication** via `benzene-a
 | ------------- | ----------------------------------- | ---------------------------------------- |
 | Storage       | Local `uploads/` dir                | Amazon S3 + presigned URLs               |
 | File listing  | `/api/files` Next.js route handler  | Gateway → File Service → MongoDB         |
-| Uploads       | `/api/upload` Next.js route handler | Browser → S3 direct (presigned POST/PUT) |
+| Uploads       | `/api/dev-proxy/files/presign-batch` Next.js dev proxy | Browser → S3 direct (presigned POST/PUT) |
 | Auth          | benzene-auth-service cookie         | Same                                     |
 | File metadata | `data/mockDb.json`                  | MongoDB via File Service                 |
 | Events        | None                                | SNS/SQS or Kafka + outbox pattern        |
@@ -176,7 +176,7 @@ echo "[]" > data/mockDb.json
 ```ini
 NEXT_PUBLIC_GATEWAY_ORIGIN=http://localhost:8080
 UPLOAD_DIR=./uploads
-AUTH_SECRET=<64 hex chars>
+AUTH_SECRET=<min 32 chars; 64 hex chars recommended>
 ```
 
 ```bash
@@ -195,7 +195,7 @@ npm install
 ```ini
 PORT=4000
 DATABASE_URL=postgresql://postgres:password@localhost:5432/nebulavault_auth
-AUTH_SECRET=<same 64 hex chars as frontend>
+AUTH_SECRET=<same secret as frontend>
 APP_ORIGIN=http://localhost:3000
 SMTP_HOST=localhost
 SMTP_PORT=1025
@@ -239,16 +239,18 @@ cd nebula-gateway
 **Dev mode:**
 
 ```
-Browser drag-drop → POST /api/upload (Next.js handler) → writes to local uploads/
+Browser drag-drop → POST /api/dev-proxy/files/presign-batch (Next.js dev proxy → File Service)
+                 → File Service returns mock presign response
+                 → Writes to local file system
 ```
 
-**Cloud mode (planned):**
+**Cloud mode (planned — route names not yet implemented in Gateway/File Service):**
 
 ```
 Browser → POST /files/presign-batch (Gateway → File Service)
        → File Service returns presigned S3 POST fields
        → Browser uploads directly to S3
-       → Browser calls /files/attach-batch to record metadata in MongoDB
+       → Browser calls POST /drive-nodes (Gateway → File Service) to record metadata in MongoDB
        → S3 ObjectCreated event → SNS/SQS → File Service / Notifier
 ```
 
@@ -304,11 +306,11 @@ NebulaVault/
 
 ## Security Notes
 
-- `AUTH_SECRET` must be **64 hex chars** (32 bytes). The auth service throws at startup if it's missing or shorter.
+- `AUTH_SECRET` must be present and at least **32 characters** long. A 64-character hex string (32 bytes) is supported and recommended, but not required. The auth service throws at startup if it's missing or shorter.
 - Signup is **atomic**: if any step after credential creation fails, the credential row is rolled back so the user can retry cleanly.
 - Path traversal protection on all local read/write ops (`safeResolve`, `safeJoin`); all writes are constrained to `UPLOAD_ROOT`.
-- `httpOnly` cookies prevent JS access to auth tokens.
-- `GET /drive/*` presign redirects propagate the upstream HTTP status rather than hardcoding 200.
+- `httpOnly` cookies prevent JS access to auth tokens (`session` cookie carries the access token; `refresh_token` carries the refresh token).
+- Planned: presign redirect responses should propagate the upstream HTTP status rather than hardcoding 200.
 
 ---
 
