@@ -1,12 +1,7 @@
 const DriveNode = require("../models/driveNode.model");
-const mongoose = require("mongoose");
 
 async function createDriveNodes(ownerId, nodes) {
-  console.log(ownerId);
-  console.log(nodes);
-
-  // Need to handle empty folders
-  const { files, emptyFolders, folders } = nodes;
+  const { files, folders } = nodes;
 
   const driveNodes = [];
 
@@ -34,12 +29,9 @@ async function createDriveNodes(ownerId, nodes) {
       nameLower: folder.name.toLowerCase(),
       path: folder.path.toLowerCase(),
     });
-    console.log(driveNode);
 
     driveNodes.push(driveNode);
   }
-
-  console.log(driveNodes.length);
 
   await Promise.all([...driveNodes.map((driveNode) => driveNode.save())]);
 
@@ -52,8 +44,6 @@ async function retrieveDriveNodesFromPath(ownerId, path) {
   if (path) {
     path = path.toLowerCase() + "/";
   }
-
-  console.log(path);
 
   const driveNodes = await DriveNode.aggregate([
     { $match: { ownerId: ownerId, path: path } },
@@ -82,9 +72,6 @@ async function retrieveDriveNodesFromPath(ownerId, path) {
 
   const files = driveNodes.find((node) => node._id === "file")?.data || [];
   const folders = driveNodes.find((node) => node._id === "folder")?.data || [];
-
-  console.log(files);
-  console.log(folders);
 
   return {
     files,

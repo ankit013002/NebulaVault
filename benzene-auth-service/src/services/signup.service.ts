@@ -16,8 +16,8 @@ export async function createCredentials(
     `
       INSERT INTO credentials (email, password_hash)
       VALUES ($1, $2)
-      RETURNING id
-      `,
+      RETURNING *
+`,
     [email.toLowerCase().trim(), passwordHash],
   );
 

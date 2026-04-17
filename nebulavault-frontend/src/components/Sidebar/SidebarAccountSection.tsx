@@ -35,7 +35,7 @@ const SideBarAccountSection: React.FC<Props> = () => {
     setEmail(user.email);
     setUsedGb(getNormalizedSize(user.usedBytes).value);
     setQuotaGb(getNormalizedSize(user.quotaBytes).value);
-    setPct(Math.min(100, Math.round((user.usedBytes / user.quotaBytes) * 100)));
+    setPct(user.quotaBytes > 0 ? Math.min(100, Math.round((user.usedBytes / user.quotaBytes) * 100)) : 0);
   }, [user]);
 
   useEffect(() => {}, []);

@@ -28,9 +28,8 @@ export default function DashboardContentSection() {
   const fetchDir = useCallback(async () => {
     try {
       setIsLoading(true);
-      console.log(currPath);
       const res = await fetch(
-        `/api/dev-proxy/files/presign-batch?path=${currPath}`,
+        `/api/dev-proxy/files/presign-batch?path=${encodeURIComponent(currPath)}`,
         {
           method: "GET",
         }
