@@ -8,9 +8,9 @@ export type FileSize = {
 
 export type FileType = {
   name: string;
-  owner: string;
+  owner?: string;
   size: FileSize;
-  type: string;
-  lastModified: number;
+  type?: string;
+  lastModified?: number;
   path: string;
 };

@@ -13,7 +13,7 @@
 
 ---
 
-## ✨ Features
+## Features
 
 - **Recursive folder & multi‑file drag‑and‑drop** (preserves nested structure).
 - **Empty folder support** via `.folder` marker (keeps trees intact).
@@ -26,7 +26,7 @@
 
 ---
 
-## 🧩 Tech Stack
+## Tech Stack
 
 - **Next.js** (App Router, Route Handlers, `runtime: "nodejs"`)
 - **TypeScript**
@@ -48,7 +48,7 @@
 
 ---
 
-## 🚀 Getting Started (Local Dev)
+## Getting Started (Local Dev)
 
 ### 1) Prerequisites
 
@@ -100,7 +100,7 @@ Open [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 🗂️ How It Works (Dev Mode)
+##  How It Works (Dev Mode)
 
 ### Client flow (drag & drop)
 
@@ -210,7 +210,7 @@ export type ExistingDirectoryType = {
 
 ---
 
-## 🌐 API (Planned Gateway Routes)
+## API (Planned Gateway Routes)
 
 - `GET /drive/list?p=<path>` – list directory contents from Drive service
 - `POST /files/presign-batch` – obtain S3 form fields/URLs for direct uploads
@@ -223,7 +223,7 @@ export type ExistingDirectoryType = {
 
 ---
 
-## 🧠 Key Modules
+## Key Modules
 
 - `utils/FileSystemUtils.ts` — drop traversal & flattening (`walkEntry`, `readAllEntries`, `splitBuffers`)
 - `utils/NormalizedSize.ts` — bytes → `{ raw, value, unit }`
@@ -235,7 +235,7 @@ export type ExistingDirectoryType = {
 
 ---
 
-## 🧭 UI Notes
+## UI Notes
 
 - **Dashboard** shows total storage used (default max **100 MB** → tweak in `StorageUsage`).
 - **Breadcrumbs** allow quick jumps and reset to root.
@@ -244,7 +244,7 @@ export type ExistingDirectoryType = {
 
 ---
 
-## 🛡️ Security & Safety
+## Security & Safety
 
 - **Path traversal protection** on read/write (`safeResolve`, `safeJoin`).
 - All operations constrained to `UPLOAD_ROOT` (defaults to `./uploads`).
@@ -253,7 +253,7 @@ export type ExistingDirectoryType = {
 
 ---
 
-## ⚠️ Limitations (Current Prototype)
+## Limitations (Current Prototype)
 
 - No auth or per‑user namespaces in local mode.
 - No delete/rename/move endpoints yet.
@@ -262,7 +262,7 @@ export type ExistingDirectoryType = {
 
 ---
 
-## 🔮 Roadmap
+## Roadmap
 
 - RTK Query for directory caching & background refetch
 - Delete / rename / move APIs + optimistic UI
@@ -278,7 +278,7 @@ export type ExistingDirectoryType = {
 
 ---
 
-## 🏗️ CI/CD & Containers (WIP)
+## CI/CD & Containers (WIP)
 
 - **Branch:** `GitHubActionsAndDockerizing` contains Dockerfiles and initial GitHub Actions workflow.
 - CI will run typecheck/lint/build on push/PR; image builds are planned.
@@ -286,7 +286,7 @@ export type ExistingDirectoryType = {
 
 ---
 
-## 🧱 Project Structure (excerpt)
+## Project Structure (excerpt)
 
 ```
 app/
@@ -330,7 +330,7 @@ data/
 
 ---
 
-## 🏁 Scripts
+## Scripts
 
 ```json
 {
@@ -355,3 +355,11 @@ Trunk‑based with short‑lived feature branches works well here. Branch, commi
 
 - If your browser doesn’t support folder drag‑and‑drop APIs, uploads may degrade to single files.
 - If `AUTH_SECRET` is hex, ensure it’s **64 hex chars** (32 bytes). For non‑hex, any reasonably long random string works.
+
+## Conventions
+
+ - feature/ - new features
+ - fix/ - bug fixes
+ - refactor/ - refactoring
+ - chore/ - maintenance/setup
+ - docs/ - documentation

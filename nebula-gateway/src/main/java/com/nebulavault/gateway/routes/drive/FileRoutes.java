@@ -13,7 +13,6 @@ public class FileRoutes {
     @Bean
     public RouteLocator customRouteLocator(RouteLocatorBuilder builder, @Value("${routes.files.uri}") String filesUri, SessionToHeadersFilter sessionFilter) {
         return builder.routes()
-                // Upload / write
                 .route("drive-write", r -> r
                         .path("/drive-nodes/**")
                         .filters(f -> f
@@ -21,7 +20,6 @@ public class FileRoutes {
                                 .addResponseHeader("Nebula-Gateway", "Nebula Vault"))
                         .uri(filesUri)
                 )
-                // List / read
                 .route("files-read", r -> r
                         .path("/files/**", "/folders/**")
                         .filters(f -> f

@@ -13,7 +13,7 @@ const FolderRow = ({ folder }: FolderRowProps) => {
     <>
       <div>{folder.name.replace("/", "")}</div>
       <div>Owner</div>
-      <div>{new Date(folder.lastModified).toLocaleString()}</div>
+      <div>{folder.lastModified ? new Date(folder.lastModified).toLocaleString() : "—"}</div>
       <div className="text-center">
         <span>{folder.size.value + " " + folder.size.unit}</span>
       </div>

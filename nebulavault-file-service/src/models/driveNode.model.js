@@ -28,7 +28,7 @@ const driveNodeSchema = new mongoose.Schema(
     },
     path: {
       type: String,
-      required: [true, "path required"],
+      default: "",
       trim: true,
     },
     parentId: {
