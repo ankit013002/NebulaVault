@@ -7,7 +7,7 @@ import { logout } from "@/utils/auth/handlers/LogoutHandler";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/app/store/hooks";
 import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
-import LoadingSpinner from "../LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type Props = {
   name?: string;

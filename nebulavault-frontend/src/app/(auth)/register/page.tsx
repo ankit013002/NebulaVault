@@ -1,5 +1,5 @@
-import AuthShell from "@/components/auth/AuthShell";
-import RegisterForm from "@/components/auth/RegisterForm";
+import AuthShell from "../_components/AuthShell";
+import RegisterForm from "../_components/RegisterForm";
 import Link from "next/link";
 
 export const metadata = {

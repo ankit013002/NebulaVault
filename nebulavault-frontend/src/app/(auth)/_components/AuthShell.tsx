@@ -1,8 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Startfield from "@/components/marketing/Startfield";
-import GlowOrb from "@/components/marketing/Gloworb";
+import Startfield from "@/components/Startfield";
+import GlowOrb from "@/components/Gloworb";
 import { Shield, UploadCloud, GitBranch } from "lucide-react";
 
 type AuthShellProps = {

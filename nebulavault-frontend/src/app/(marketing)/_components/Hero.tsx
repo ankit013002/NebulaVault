@@ -2,7 +2,7 @@
 
 import { motion, useScroll } from "framer-motion";
 import AnimatedStorageBar from "./AnimatedStorageBar";
-import Starfield from "./Startfield";
+import Starfield from "@/components/Startfield";
 import { useEffect, useState } from "react";
 
 export default function Hero() {

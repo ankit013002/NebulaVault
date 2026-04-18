@@ -1,5 +1,5 @@
-import DashboardContentSection from "@/components/DashboardContentSection";
-import DashboardTitleSection from "@/components/DashboardTitleSection";
+import DashboardContentSection from "../../_components/DashboardContentSection";
+import DashboardTitleSection from "../../_components/DashboardTitleSection";
 import React from "react";
 
 const page = () => {

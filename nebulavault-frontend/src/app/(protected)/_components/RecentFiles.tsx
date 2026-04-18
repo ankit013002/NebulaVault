@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { FaPlus } from "react-icons/fa";
-import LoadingSpinner from "./LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSpinner";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { walkEntry } from "@/utils/file-system/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";

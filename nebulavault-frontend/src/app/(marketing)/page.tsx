@@ -1,14 +1,14 @@
-import Navbar from "@/components/marketing/Navbar";
-import Hero from "@/components/marketing/Hero";
-import BentoFeatures from "@/components/marketing/BentoFeatures";
-import FeatureCards from "@/components/marketing/FeatureCard";
-import TrustSection from "@/components/marketing/TrustSection";
-import Showcase from "@/components/marketing/Showcase";
-import Steps from "@/components/marketing/Steps";
-import Pricing from "@/components/marketing/Pricing";
-import FAQ from "@/components/marketing/FAQ";
-import CTASection from "@/components/marketing/CTASection";
-import Footer from "@/components/marketing/Footer";
+import Navbar from "./_components/Navbar";
+import Hero from "./_components/Hero";
+import BentoFeatures from "./_components/BentoFeatures";
+import FeatureCards from "./_components/FeatureCard";
+import TrustSection from "./_components/TrustSection";
+import Showcase from "./_components/Showcase";
+import Steps from "./_components/Steps";
+import Pricing from "./_components/Pricing";
+import FAQ from "./_components/FAQ";
+import CTASection from "./_components/CTASection";
+import Footer from "./_components/Footer";
 
 export const metadata = {
   title: "NebulaVault — Your personal cloud, reimagined",
