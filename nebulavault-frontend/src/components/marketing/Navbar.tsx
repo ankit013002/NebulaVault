@@ -9,8 +9,9 @@ import { useTheme } from "next-themes";
 
 const navLinks = [
   { href: "#features", label: "Features" },
+  { href: "#security", label: "Security" },
   { href: "#pricing", label: "Pricing" },
-  { href: "#faq", label: "FAQ" },
+  { href: "#faq", label: "Support" },
 ];
 
 export default function Navbar() {

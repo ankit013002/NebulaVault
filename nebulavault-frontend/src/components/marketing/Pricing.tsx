@@ -44,7 +44,7 @@ const plans: Plan[] = [
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(false);
-  const signup = `${process.env.NEXT_PUBLIC_GATEWAY_ORIGIN}/auth/oidc/start?screen_hint=signup`;
+  const signup = "/register";
 
   return (
     <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8">

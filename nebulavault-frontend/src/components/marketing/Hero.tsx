@@ -15,8 +15,8 @@ export default function Hero() {
     });
   }, [scrollY]);
 
-  const signUpUrl = `${process.env.NEXT_PUBLIC_GATEWAY_ORIGIN}/auth/oidc/start?screen_hint=signup`;
-  const signInUrl = `${process.env.NEXT_PUBLIC_GATEWAY_ORIGIN}/auth/oidc/start?screen_hint=login`;
+  const signUpUrl = "/register";
+  const signInUrl = "/login";
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
@@ -29,10 +29,23 @@ export default function Hero() {
       </div>
 
       <div className="flex flex-col gap-4 z-10 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center pt-20">
+        {/* Enterprise Ready badge */}
+        <motion.div
+          className="flex justify-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-bz-surface/80 border border-bz-border text-xs font-semibold uppercase tracking-widest text-bz-muted backdrop-blur-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            Enterprise Ready
+          </span>
+        </motion.div>
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
+          transition={{ duration: 0.8, delay: 0.1, ease: "easeOut" }}
         >
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-bz-text leading-tight mb-6">
             Your personal cloud,{" "}

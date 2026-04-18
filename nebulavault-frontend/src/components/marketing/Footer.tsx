@@ -1,28 +1,42 @@
 export default function Footer() {
+  const year = new Date().getFullYear();
+
+  const links = [
+    { href: "#features", label: "Features" },
+    { href: "#security", label: "Security" },
+    { href: "#pricing", label: "Pricing" },
+    { href: "#faq", label: "Support" },
+    { href: "#", label: "Privacy Policy" },
+    { href: "#", label: "Terms of Service" },
+    { href: "#", label: "Security Whitepaper" },
+  ];
+
   return (
-    <footer className="border-t border-bz-border/70 bg-bz-surface/60">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 grid gap-6 md:grid-cols-2 items-center">
-        <div className="text-sm text-bz-muted">
-          © {new Date().getFullYear()} Nebula Vault
+    <footer className="border-t border-bz-border/60 bg-bz-surface/50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+          {/* Brand + copyright */}
+          <div className="space-y-1.5">
+            <p className="font-bold text-bz-text text-lg">Benzene</p>
+            <p className="text-xs text-bz-muted uppercase tracking-widest">
+              © {year} Benzene Cloud Storage. Secure by Design.
+            </p>
+          </div>
+
+          {/* Nav links */}
+          <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm">
+            {links.map((l) => (
+              <a
+                key={l.label}
+                href={l.href}
+                className="relative text-bz-muted hover:text-bz-text transition-colors duration-200"
+              >
+                {l.label}
+                <span className="absolute -bottom-0.5 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bz-primary/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-200" />
+              </a>
+            ))}
+          </nav>
         </div>
-        <nav className="flex justify-start md:justify-end gap-6 text-sm">
-          {[
-            { href: "#features", label: "Features" },
-            { href: "#pricing", label: "Pricing" },
-            { href: "#faq", label: "FAQ" },
-            { href: "#", label: "Privacy" },
-            { href: "#", label: "Terms" },
-          ].map((l) => (
-            <a
-              key={l.label}
-              href={l.href}
-              className="text-bz-muted hover:text-bz-text transition relative"
-            >
-              {l.label}
-              <span className="absolute -bottom-1 left-0 right-0 h-px bg-gradient-to-r from-transparent via-bz-primary/40 to-transparent opacity-0 hover:opacity-100 transition" />
-            </a>
-          ))}
-        </nav>
       </div>
     </footer>
   );
