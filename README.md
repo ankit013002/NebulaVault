@@ -1,4 +1,4 @@
-# NebulaVault
+# Benzene
 
 > Polyglot microservices cloud-storage platform. Self-contained email/password auth, recursive folder drag-and-drop, direct-to-S3 uploads, and a local-first dev mode — actively evolving toward full cloud deployment with AI-assisted file interaction and built-in version control.
 
