@@ -20,7 +20,7 @@ jobs:
       web: ${{ steps.filter.outputs.web }}
       auth: ${{ steps.filter.outputs.auth }}
       gateway: ${{ steps.filter.outputs.gateway }}
-      files: ${{ steps.filter.outputs.files }}
+      control_plane: ${{ steps.filter.outputs.control_plane }}
       infra: ${{ steps.filter.outputs.infra }}
     steps:
       - uses: actions/checkout@v4
@@ -34,8 +34,8 @@ jobs:
               - 'benzene-auth-service/**'
             gateway:
               - 'nebula-gateway/**'
-            files:
-              - 'nebulavault-file-service/**'
+            control_plane:
+              - 'benzene-control-plane/**'
             infra:
               - 'infrastructure/**'
 
@@ -136,21 +136,21 @@ jobs:
           name: gateway-jar
           path: nebula-gateway/target/*.jar
 
-  files:
-    name: File service (Node/TS) — build & test
+  control-plane:
+    name: Control plane (Node/TS) — build & test
     needs: detect-changes
-    if: needs.detect-changes.outputs.files == 'true'
+    if: needs.detect-changes.outputs.control_plane == 'true'
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: nebulavault-file-service
+        working-directory: benzene-control-plane
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-          cache-dependency-path: nebulavault-file-service/package-lock.json
+          cache-dependency-path: benzene-control-plane/package-lock.json
       - name: Install
         run: npm install
       - name: Typecheck

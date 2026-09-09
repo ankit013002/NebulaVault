@@ -1,5 +1,5 @@
 {
-  "name": "nebulavault-file-service",
+  "name": "benzene-control-plane",
   "version": "1.0.0",
   "main": "built/server.js",
   "scripts": {
@@ -14,7 +14,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "Benzene control plane: vaults, devices, files and placement",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1128.0",
     "@aws-sdk/s3-request-presigner": "^3.1128.0",

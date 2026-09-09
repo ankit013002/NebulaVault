@@ -103,7 +103,7 @@ flowchart LR
 | `nebulavault-frontend`     | Next.js 15, React 19, TypeScript, Redux Toolkit | 3000 | Active  |
 | `nebula-gateway`           | Java 21, Spring Cloud Gateway                   | 8080 | Active  |
 | `benzene-auth-service`     | Node.js, Express 5, TypeScript, PostgreSQL      | 4000 | Active  |
-| `nebulavault-file-service` | Node.js, Express 5, TypeScript, MongoDB (Mongoose) | 5000 | Active  |
+| `benzene-control-plane` | Node.js, Express 5, TypeScript, MongoDB (Mongoose) | 5000 | Active  |
 | `nebulavault-user-service` | Java 21, Spring Boot 3, PostgreSQL              | 8082 | Active  |
 | Billing Service            | C#, ASP.NET Core, Firestore                     | —    | Planned |
 | AI Chat Service            | TBD — RAG, Vector DB                            | —    | Planned |
@@ -223,10 +223,10 @@ DB_URL=jdbc:postgresql://localhost:5432/nebulavault_users ./mvnw spring-boot:run
 # → http://localhost:8082
 ```
 
-### File Service — `nebulavault-file-service`
+### Control Plane — `benzene-control-plane`
 
 ```bash
-cd nebulavault-file-service
+cd benzene-control-plane
 npm install
 MONGOOSE_URI=mongodb://localhost:27017/nebulavault npm run dev
 # → http://localhost:5000
@@ -358,7 +358,7 @@ NebulaVault/
 ├── nebulavault-frontend/          # Next.js 15 + React 19 (App Router, Redux Toolkit)
 ├── nebula-gateway/                # Spring Cloud Gateway (Java 21)
 ├── benzene-auth-service/          # Auth service (Node.js + Express + TypeScript)
-├── nebulavault-file-service/      # File metadata (Node.js + Express + TypeScript + MongoDB)
+├── benzene-control-plane/      # File metadata (Node.js + Express + TypeScript + MongoDB)
 ├── nebulavault-user-service/      # User profiles (Java 21 + Spring Boot)
 ├── infrastructure/terraform/      # S3 bucket + least-privilege IAM
 ├── simple-flask-server/           # Debug sandbox — not production code

@@ -40,7 +40,7 @@ jobs:
             gateway:
               - 'nebula-gateway/**'
             files:
-              - 'nebulavault-file-service/**'
+              - 'benzene-control-plane/**'
 
   login:
     runs-on: ubuntu-latest
@@ -144,7 +144,7 @@ jobs:
       - uses: actions/checkout@v4
       - id: hasdf
         run: |
-          if [ -f nebulavault-file-service/Dockerfile ]; then echo "path=nebulavault-file-service" >> $GITHUB_OUTPUT; fi
+          if [ -f benzene-control-plane/Dockerfile ]; then echo "path=benzene-control-plane" >> $GITHUB_OUTPUT; fi
       - id: meta
         if: steps.hasdf.outputs.path != ''
         uses: docker/metadata-action@v5
