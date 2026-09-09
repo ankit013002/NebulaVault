@@ -3,14 +3,38 @@
 import React, { useCallback, useEffect, useState } from "react";
 import StorageUsage from "./StorageUsage";
 import RecentFiles from "./RecentFiles";
-import { FileSize } from "@/types/File";
+import { FileSize, FileType } from "@/types/File";
 import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { splitBuffers } from "@/utils/file-system/FileSystemUtils";
 import { ExistingDirectoryType } from "@/types/ExistingDirectory";
 import { useRouter, useParams } from "next/navigation";
-import { useAppSelector } from "@/app/store/hooks";
 import { FolderType } from "@/types/Folder";
+import {
+  UploadProgress,
+  deleteNode,
+  downloadFile,
+  uploadFiles,
+} from "@/utils/file-system/uploadFiles";
+
+interface ListedFile {
+  id: string;
+  name: string;
+  path: string;
+  bytes: number;
+  contentType?: string;
+  ext?: string;
+  lastModified: number | null;
+  hasContent: boolean;
+}
+
+interface ListedFolder {
+  id: string;
+  name: string;
+  path: string;
+  bytes: number;
+  lastModified: number | null;
+}
 
 export default function DashboardContentSection() {
   const [isLoading, setIsLoading] = useState(true);
@@ -18,52 +42,57 @@ export default function DashboardContentSection() {
     useState<FileSize | null>(null);
   const [existingDirectoryItems, setExistingDirectoryItems] =
     useState<ExistingDirectoryType | null>(null);
+  const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const router = useRouter();
   const params = useParams() as { path?: string[] };
   const currPath = (params?.path ?? []).join("/");
 
-  const me = useAppSelector((s) => s.user);
-
   const fetchDir = useCallback(async () => {
     try {
       setIsLoading(true);
-      const res = await fetch(
-        `/api/dev-proxy/files/presign-batch?path=${encodeURIComponent(currPath)}`,
-        {
-          method: "GET",
-        }
-      );
-      const data = await res.json();
-      console.log("DATA:", data);
+      setError(null);
 
-      const folders: FolderType[] = data.data.folders.map((folder: { name: string; path: string; bytes: number }) => {
-        return {
-          name: folder.name,
-          path: folder.path,
-          size: getNormalizedSize(folder.bytes),
-        };
-      });
+      const res = await fetch(`/api/files?path=${encodeURIComponent(currPath)}`);
+      if (!res.ok) {
+        throw new Error(`Could not load this folder (${res.status})`);
+      }
 
-      const files: FolderType[] = data.data.files.map((file: { name: string; path: string; bytes: number }) => {
-        return {
-          name: file.name,
-          size: getNormalizedSize(file.bytes),
-          path: file.path,
-        };
-      });
+      const payload = (await res.json()) as {
+        data?: { files?: ListedFile[]; folders?: ListedFolder[] };
+      };
+
+      const files: FileType[] = (payload.data?.files ?? []).map((file) => ({
+        id: file.id,
+        name: file.name,
+        path: file.path,
+        size: getNormalizedSize(file.bytes),
+        type: file.contentType,
+        lastModified: file.lastModified ?? undefined,
+        hasContent: file.hasContent,
+      }));
+
+      const folders: FolderType[] = (payload.data?.folders ?? []).map((folder) => ({
+        id: folder.id,
+        name: folder.name,
+        path: folder.path,
+        size: getNormalizedSize(folder.bytes),
+        lastModified: folder.lastModified ?? undefined,
+      }));
 
       const existingDirectory: ExistingDirectoryType = {
         ok: true,
         path: currPath,
-        files: files,
-        folders: folders,
+        files,
+        folders,
       };
 
       setExistingDirectoryItems(existingDirectory);
       updateTotalStorageOccupied(existingDirectory);
     } catch (e) {
-      console.log("Error: ", e);
+      setError(e instanceof Error ? e.message : "Something went wrong");
+      setExistingDirectoryItems({ ok: false, path: currPath, files: [], folders: [] });
     } finally {
       setIsLoading(false);
     }
@@ -83,32 +112,41 @@ export default function DashboardContentSection() {
   const uploadDirItems = async (items: FileFolderBuffer[]) => {
     const { files, emptyFolders, folders } = splitBuffers(items);
 
-    console.log("Folders: ", folders);
+    // splitBuffers reports folders as {name, path} and empty ones as full
+    // paths; the API takes absolute paths for both.
+    const folderPaths = [
+      ...folders.map((folder) => `${folder.path}${folder.name}`),
+      ...emptyFolders,
+    ];
 
-    const nodes = {
-      files: files.map(({ file, path }) => ({
-        name: file.name,
-        path: path,
-        size: file.size,
-        type: file.type,
-        lastModified: file.lastModified,
-      })),
-      emptyFolders,
-      folders,
-    };
+    setError(null);
+    try {
+      await uploadFiles(currPath, files, folderPaths, setUploadProgress);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploadProgress(null);
+      await fetchDir();
+    }
+  };
 
-    console.log(nodes);
+  const handleDownload = async (file: FileType) => {
+    setError(null);
+    try {
+      await downloadFile(file.id, file.name);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Download failed");
+    }
+  };
 
-    const res = await fetch("/api/dev-proxy/files/presign-batch", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(nodes),
-    });
-
-    console.log("GOT RESPONSE");
-
-    if (!res.ok) throw new Error("Upload failed");
-    await fetchDir();
+  const handleDelete = async (nodeId: string) => {
+    setError(null);
+    try {
+      await deleteNode(nodeId);
+      await fetchDir();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Delete failed");
+    }
   };
 
   const updatePath = (child: string) => {
@@ -121,12 +159,35 @@ export default function DashboardContentSection() {
       <div>
         <StorageUsage totalStorageOccupied={totalStorageOccupied} />
       </div>
+
+      {uploadProgress && (
+        <div className="px-4 py-2">
+          <progress
+            className="progress progress-primary w-full"
+            value={uploadProgress.completed}
+            max={uploadProgress.total}
+          />
+          <p className="text-sm opacity-70">
+            Uploading {uploadProgress.completed} of {uploadProgress.total}
+            {uploadProgress.currentFile ? ` — ${uploadProgress.currentFile}` : ""}
+          </p>
+        </div>
+      )}
+
+      {error && (
+        <div role="alert" className="alert alert-error mx-4 my-2">
+          <span>{error}</span>
+        </div>
+      )}
+
       <div className="h-full">
         <RecentFiles
           isLoading={isLoading}
           existingDirItems={existingDirectoryItems}
           uploadDirItems={(f: FileFolderBuffer[]) => uploadDirItems(f)}
           updatePath={(p: string) => updatePath(p)}
+          onDownload={handleDownload}
+          onDelete={handleDelete}
         />
       </div>
     </>

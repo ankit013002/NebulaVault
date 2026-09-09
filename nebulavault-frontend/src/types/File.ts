@@ -7,10 +7,14 @@ export type FileSize = {
 };
 
 export type FileType = {
+  /** DriveNode id, used to address the file for download and delete. */
+  id: string;
   name: string;
   owner?: string;
   size: FileSize;
   type?: string;
   lastModified?: number;
   path: string;
+  /** False while an upload is reserved but its bytes have not landed yet. */
+  hasContent?: boolean;
 };

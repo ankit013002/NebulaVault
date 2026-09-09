@@ -21,6 +21,7 @@ jobs:
       auth: ${{ steps.filter.outputs.auth }}
       gateway: ${{ steps.filter.outputs.gateway }}
       files: ${{ steps.filter.outputs.files }}
+      infra: ${{ steps.filter.outputs.infra }}
     steps:
       - uses: actions/checkout@v4
       - id: filter
@@ -35,6 +36,8 @@ jobs:
               - 'nebula-gateway/**'
             files:
               - 'nebulavault-file-service/**'
+            infra:
+              - 'infrastructure/**'
 
   web:
     name: Frontend (Next.js) — build
@@ -122,10 +125,12 @@ jobs:
           distribution: temurin
           java-version: "21"
           cache: maven
-      - name: Build with Maven (wrapper or system)
+      - name: Test
         run: |
           chmod +x mvnw || true
-          ./mvnw -B -ntp -DskipTests package || mvn -B -ntp -DskipTests package
+          ./mvnw -B -ntp test
+      - name: Package
+        run: ./mvnw -B -ntp -DskipTests package
       - uses: actions/upload-artifact@v4
         with:
           name: gateway-jar
@@ -154,3 +159,23 @@ jobs:
         run: npm run build
       - name: Test (if present)
         run: npm test --if-present
+
+  infra:
+    name: Terraform — format & validate
+    needs: detect-changes
+    if: needs.detect-changes.outputs.infra == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: infrastructure/terraform
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.9.8
+      - name: Format check
+        run: terraform fmt -check -recursive
+      - name: Init (no backend, no credentials needed)
+        run: terraform init -backend=false
+      - name: Validate
+        run: terraform validate

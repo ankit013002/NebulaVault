@@ -1,20 +1,33 @@
-const app = require("./app");
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
-require("dotenv").config();
+import { createApp } from "./app.js";
+import { config } from "./config/env.js";
 
-const PORT = process.env.PORT || 5000;
+async function main(): Promise<void> {
+  const cfg = config();
 
-async function connectToDB() {
-  try {
-    await mongoose.connect(process.env.MONGOOSE_URI);
-    console.log("Connected to File Metadata DB");
-  } catch (err) {
-    console.error(`Error connecting to DB: ${err}`);
-    process.exit(1);
-  }
+  await mongoose.connect(cfg.mongooseUri);
+  console.log("[file-service] connected to file metadata DB");
+
+  const app = createApp();
+  const server = app.listen(cfg.port, () => {
+    console.log(
+      `[file-service] listening on :${cfg.port} (storage: ${cfg.storageDriver})`
+    );
+  });
+
+  const shutdown = async (signal: string): Promise<void> => {
+    console.log(`[file-service] ${signal} received, shutting down`);
+    server.close();
+    await mongoose.disconnect();
+    process.exit(0);
+  };
+
+  process.on("SIGTERM", () => void shutdown("SIGTERM"));
+  process.on("SIGINT", () => void shutdown("SIGINT"));
 }
 
-connectToDB();
-
-app.listen(PORT, () => console.log(`File service listening on PORT:${PORT}`));
+main().catch((err: unknown) => {
+  console.error("[file-service] failed to start:", err);
+  process.exit(1);
+});

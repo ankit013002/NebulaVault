@@ -1,0 +1,14 @@
+# Test-only configuration. The gateway now refuses to start without a strong
+# AUTH_SECRET, so the context-load test needs one supplied here.
+auth:
+  hmacSecret: "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+
+routes:
+  files:
+    uri: http://localhost:5000
+  auth:
+    uri: http://localhost:4000
+  user:
+    uri: http://localhost:8082
+  billing:
+    uri: http://localhost:8083

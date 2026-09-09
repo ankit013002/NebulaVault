@@ -1,10 +1,17 @@
-const express = require("express");
-const router = express.Router();
+import { Router } from "express";
 
-router.get("/", (req, res) => {
-  return res.status(200).json({
-    message: "Made it folders router",
-  });
-});
+import {
+  createFoldersHandler,
+  listDirectoryHandler,
+} from "../controllers/files.controller.js";
+import { requireUser } from "../middleware/requireUser.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
-module.exports = router;
+const router = Router();
+
+router.use(requireUser);
+
+router.get("/", asyncHandler(listDirectoryHandler));
+router.post("/", asyncHandler(createFoldersHandler));
+
+export default router;
