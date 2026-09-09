@@ -29,7 +29,7 @@ flowchart LR
   subgraph Services
     direction TB
     AUTH["benzene-auth-service\nNode.js · Express · TypeScript\nsignup · login · refresh\npassword-reset · email-verify\nHS256 JWT + opaque refresh"]
-    FILE["File Service\nNode.js · Express\nfile metadata · presigned S3\n« S3 planned »"]
+    FILE["File Service\nNode.js · Express · TypeScript\nfile metadata · presigned S3\n« S3 planned »"]
     USER["User Service\nJava 21 · Spring Boot\nprofiles · quotas · plans"]
     BILL["Billing Service\nC# · ASP.NET Core · Stripe\n« planned »"]
     AI["AI Chat Service\nRAG · privacy-gated embeddings\n« planned »"]
@@ -103,7 +103,7 @@ flowchart LR
 | `nebulavault-frontend`     | Next.js 15, React 19, TypeScript, Redux Toolkit | 3000 | Active  |
 | `nebula-gateway`           | Java 21, Spring Cloud Gateway                   | 8080 | Active  |
 | `benzene-auth-service`     | Node.js, Express 5, TypeScript, PostgreSQL      | 4000 | Active  |
-| `nebulavault-file-service` | Node.js, Express 5, MongoDB (Mongoose)          | 5000 | Active  |
+| `nebulavault-file-service` | Node.js, Express 5, TypeScript, MongoDB (Mongoose) | 5000 | Active  |
 | `nebulavault-user-service` | Java 21, Spring Boot 3, PostgreSQL              | 8082 | Active  |
 | Billing Service            | C#, ASP.NET Core, Firestore                     | —    | Planned |
 | AI Chat Service            | TBD — RAG, Vector DB                            | —    | Planned |
@@ -296,7 +296,7 @@ NebulaVault/
 ├── nebulavault-frontend/          # Next.js 15 + React 19 (App Router, Redux Toolkit)
 ├── nebula-gateway/                # Spring Cloud Gateway (Java 21)
 ├── benzene-auth-service/          # Auth service (Node.js + Express + TypeScript)
-├── nebulavault-file-service/      # File metadata (Node.js + Express + MongoDB)
+├── nebulavault-file-service/      # File metadata (Node.js + Express + TypeScript + MongoDB)
 ├── nebulavault-user-service/      # User profiles (Java 21 + Spring Boot)
 ├── simple-flask-server/           # Debug sandbox — not production code
 └── .github/workflows/             # CI/CD (lint, typecheck, build)
