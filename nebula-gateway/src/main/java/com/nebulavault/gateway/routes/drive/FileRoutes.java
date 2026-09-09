@@ -27,6 +27,26 @@ public class FileRoutes {
                                 .addResponseHeader("Nebula-Gateway", "Nebula Vault"))
                         .uri(filesUri)
                 )
+                // Vault and device management are user-facing, so they carry
+                // the same session verification as the file routes.
+                .route("vault-and-devices", r -> r
+                        .path("/vaults/**", "/devices/**")
+                        .filters(f -> f
+                                .filter(sessionFilter)
+                                .addResponseHeader("Nebula-Gateway", "Benzene"))
+                        .uri(filesUri)
+                )
+                // The node agent API deliberately skips the session filter: a
+                // machine mid-enrollment holds no session, and an enrolled one
+                // authenticates by Ed25519 request signature instead, which the
+                // control plane verifies itself. Applying the session filter
+                // here would make device enrollment impossible.
+                .route("node-agent", r -> r
+                        .path("/agent/**")
+                        .filters(f -> f
+                                .addResponseHeader("Nebula-Gateway", "Benzene"))
+                        .uri(filesUri)
+                )
                 .build();
     }
 }
