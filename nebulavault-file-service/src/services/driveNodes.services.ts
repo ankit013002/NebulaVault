@@ -127,15 +127,20 @@ async function rollUpFolderSizes(
   return result;
 }
 
-/** Creates empty folders — the drag-and-drop flow needs these even with no files. */
+/**
+ * Creates folders from absolute drive paths.
+ *
+ * Uploading files implies their ancestors, but an empty folder has no file to
+ * imply it, so drag-and-drop sends those paths explicitly.
+ */
 export async function createFolders(
   ownerId: string,
-  folders: Array<{ name: string; path: string }>
+  paths: string[]
 ): Promise<number> {
   let created = 0;
-  for (const folder of folders) {
-    const full = `${normalizePath(folder.path)}${folder.name}`;
-    await ensureFolderChain(ownerId, full);
+  for (const path of paths) {
+    if (normalizePath(path) === "") continue;
+    await ensureFolderChain(ownerId, path);
     created += 1;
   }
   return created;

@@ -1,19 +1,23 @@
 import React from "react";
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
-import { IoMdDownload } from "react-icons/io";
 import { FaRegTrashAlt } from "react-icons/fa";
 import { FolderType } from "@/types/Folder";
 
 interface FolderRowProps {
   folder: FolderType;
+  onDelete: (nodeId: string) => void;
 }
 
-const FolderRow = ({ folder }: FolderRowProps) => {
+const FolderRow = ({ folder, onDelete }: FolderRowProps) => {
   return (
     <>
       <div>{folder.name.replace("/", "")}</div>
       <div>Owner</div>
-      <div>{folder.lastModified ? new Date(folder.lastModified).toLocaleString() : "—"}</div>
+      <div>
+        {folder.lastModified
+          ? new Date(folder.lastModified).toLocaleString()
+          : "—"}
+      </div>
       <div className="text-center">
         <span>{folder.size.value + " " + folder.size.unit}</span>
       </div>
@@ -29,13 +33,13 @@ const FolderRow = ({ folder }: FolderRowProps) => {
             tabIndex={0}
             className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box "
           >
-            <li className="tooltip" data-tip="Download">
-              <button>
-                <IoMdDownload />
-              </button>
-            </li>
+            {/* Downloading a folder would mean zipping a subtree server-side,
+                which the file service does not do yet. */}
             <li className="tooltip" data-tip="Delete">
-              <button>
+              <button
+                onClick={() => onDelete(folder.id)}
+                aria-label={`Delete ${folder.name}`}
+              >
                 <FaRegTrashAlt />
               </button>
             </li>

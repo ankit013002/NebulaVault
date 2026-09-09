@@ -39,14 +39,14 @@ const presignSchema = z.object({
         name: safeName,
         size: z.number().int().nonnegative(),
         contentType: z.string().max(255).optional(),
+        // Absolute from the drive root; falls back to the batch path.
+        path: relativePath.optional(),
       })
     )
     .min(1, "at least one file is required")
     .max(500, "at most 500 files per batch"),
-  folders: z
-    .array(z.object({ name: safeName, path: relativePath }))
-    .max(500)
-    .optional(),
+  // Absolute paths of folders to create, for ones that contain no files.
+  folderPaths: z.array(relativePath).max(500).optional(),
 });
 
 const completeSchema = z.object({
@@ -57,7 +57,7 @@ const completeSchema = z.object({
 });
 
 const foldersSchema = z.object({
-  folders: z.array(z.object({ name: safeName, path: relativePath })).min(1).max(500),
+  paths: z.array(relativePath).min(1).max(500),
 });
 
 const objectId = z.string().regex(/^[a-f0-9]{24}$/i, "must be a 24-character ObjectId");
@@ -86,8 +86,8 @@ export async function presignUploadsHandler(req: Request, res: Response): Promis
   const ownerId = ownerOf(req);
   const body = parse(presignSchema, req.body);
 
-  if (body.folders?.length) {
-    await createFolders(ownerId, body.folders);
+  if (body.folderPaths?.length) {
+    await createFolders(ownerId, body.folderPaths);
   }
 
   const uploads = await presignUploads(ownerId, { path: body.path, files: body.files });
@@ -102,7 +102,7 @@ export async function completeUploadsHandler(req: Request, res: Response): Promi
 
 export async function createFoldersHandler(req: Request, res: Response): Promise<void> {
   const body = parse(foldersSchema, req.body);
-  const created = await createFolders(ownerOf(req), body.folders);
+  const created = await createFolders(ownerOf(req), body.paths);
   res.status(201).json({ data: { created } });
 }
 

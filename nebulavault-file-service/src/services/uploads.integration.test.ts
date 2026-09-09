@@ -11,7 +11,12 @@ import DriveNodeModel from "../models/driveNode.model.js";
 import FileVersionModel from "../models/fileVersion.model.js";
 import { LocalStorageDriver } from "../storage/local.driver.js";
 import { setStorageDriver } from "../storage/index.js";
-import { deleteNode, getUsage, listDirectory } from "./driveNodes.services.js";
+import {
+  createFolders,
+  deleteNode,
+  getUsage,
+  listDirectory,
+} from "./driveNodes.services.js";
 import { completeUploads, presignUploads } from "./uploads.services.js";
 
 const OWNER = "user-alpha";
@@ -229,6 +234,40 @@ describe("folder handling", () => {
     const listing = await listDirectory(OWNER, "a/b");
     expect(listing.files.map((f) => f.name).sort()).toEqual(["x.txt", "y.txt"]);
     expect(await DriveNodeModel.countDocuments({ type: "folder" })).toBe(2);
+  });
+
+  it("keeps a dropped folder tree in shape using each file's own path", async () => {
+    // What a folder drag-and-drop sends: one batch, files at differing depths.
+    const presigned = await presignUploads(OWNER, {
+      path: "",
+      files: [
+        { name: "root.txt", size: 1, path: "tree" },
+        { name: "nested.txt", size: 1, path: "tree/inner" },
+        { name: "deep.txt", size: 1, path: "tree/inner/deeper" },
+      ],
+    });
+
+    expect(presigned.map((p) => p.path)).toEqual([
+      "tree/",
+      "tree/inner/",
+      "tree/inner/deeper/",
+    ]);
+
+    expect((await listDirectory(OWNER, "tree")).files.map((f) => f.name)).toEqual([
+      "root.txt",
+    ]);
+    expect(
+      (await listDirectory(OWNER, "tree/inner/deeper")).files.map((f) => f.name)
+    ).toEqual(["deep.txt"]);
+  });
+
+  it("creates an empty folder that no file implies", async () => {
+    await createFolders(OWNER, ["blank/inner"]);
+
+    expect((await listDirectory(OWNER, "")).folders.map((f) => f.name)).toEqual(["blank"]);
+    expect((await listDirectory(OWNER, "blank")).folders.map((f) => f.name)).toEqual([
+      "inner",
+    ]);
   });
 
   it("does not duplicate folders when two uploads target the same new directory", async () => {

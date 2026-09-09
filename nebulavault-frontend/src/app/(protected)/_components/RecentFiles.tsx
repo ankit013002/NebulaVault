@@ -11,12 +11,15 @@ import Breadcrumbs from "./Breadcrumbs";
 import FileRow from "./FileRow";
 import FolderRow from "./FolderRow";
 import { useParams } from "next/navigation";
+import { FileType } from "@/types/File";
 
 interface RecentFilesProps {
   isLoading: boolean;
   existingDirItems: ExistingDirectoryType | null;
   uploadDirItems: (f: FileFolderBuffer[]) => Promise<void>;
   updatePath: (path: string) => void;
+  onDownload: (file: FileType) => void;
+  onDelete: (nodeId: string) => void;
 }
 
 const RecentFiles = ({
@@ -24,6 +27,8 @@ const RecentFiles = ({
   existingDirItems,
   uploadDirItems,
   updatePath,
+  onDownload,
+  onDelete,
 }: RecentFilesProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [replaceFiles, setReplaceFiles] = useState<string[]>([]);
@@ -170,7 +175,7 @@ const RecentFiles = ({
                     key={index}
                     className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-1 border-[#1d1d25] p-2 items-center hover:cursor-pointer hover:bg-[#2a2b3a]"
                   >
-                    <FolderRow folder={dirItem} />
+                    <FolderRow folder={dirItem} onDelete={onDelete} />
                   </div>
                 );
               })}
@@ -181,7 +186,11 @@ const RecentFiles = ({
                     key={index}
                     className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-1 border-[#1d1d25] p-2 items-center"
                   >
-                    <FileRow file={dirItem} />
+                    <FileRow
+                      file={dirItem}
+                      onDownload={onDownload}
+                      onDelete={onDelete}
+                    />
                   </div>
                 );
               })}

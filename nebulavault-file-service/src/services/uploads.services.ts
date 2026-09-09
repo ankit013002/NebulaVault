@@ -12,6 +12,12 @@ export interface PresignFileInput {
   name: string;
   size: number;
   contentType?: string;
+  /**
+   * Directory this file belongs in, absolute from the drive root. Folder
+   * drag-and-drop sends one per file, so a nested tree keeps its shape instead
+   * of collapsing into the directory the drop started in.
+   */
+  path?: string;
 }
 
 export interface PresignedUpload {
@@ -104,21 +110,28 @@ export async function presignUploads(
     }
   }
 
-  const parent = await ensureFolderChain(ownerId, path);
   const results: PresignedUpload[] = [];
+  // Cache the chain per directory so a 200-file drop does not re-walk it.
+  const parents = new Map<string, DriveNodeDocument | null>();
 
   for (const file of input.files) {
     const contentType = file.contentType?.trim() || DEFAULT_CONTENT_TYPE;
+    const filePath = normalizePath(file.path ?? path);
+
+    if (!parents.has(filePath)) {
+      parents.set(filePath, await ensureFolderChain(ownerId, filePath));
+    }
+    const parent = parents.get(filePath) ?? null;
 
     const node = await DriveNodeModel.findOneAndUpdate(
-      { ownerId, path, nameLower: file.name.toLowerCase(), isDeleted: false },
+      { ownerId, path: filePath, nameLower: file.name.toLowerCase(), isDeleted: false },
       {
         $setOnInsert: {
           ownerId,
           type: "file",
           name: file.name,
           nameLower: file.name.toLowerCase(),
-          path,
+          path: filePath,
           parentId: parent?._id ?? null,
           ancestors: parent ? [...parent.ancestors, parent._id] : [],
           createdBy: ownerId,
@@ -158,7 +171,7 @@ export async function presignUploads(
       versionId: versionDoc._id.toString(),
       version,
       name: node.name,
-      path,
+      path: filePath,
       key,
       upload,
     });

@@ -8,40 +8,26 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 
 interface FileRowProps {
   file: FileType;
+  onDownload: (file: FileType) => void;
+  onDelete: (nodeId: string) => void;
 }
 
-const FileRow = ({ file }: FileRowProps) => {
-  const handleFileDownload = async () => {
-    const fullPath = file.path + file.name;
-    const url = `/api/download?path=${encodeURIComponent(fullPath)}`;
-
-    const res = await fetch(url);
-    if (!res.ok) {
-      const msg = await res.text().catch(() => "");
-      console.error("Download failed:", res.status, msg);
-      return;
-    }
-
-    const blob = await res.blob();
-    const href = URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = href;
-    a.download = file.name;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-
-    URL.revokeObjectURL(href);
-  };
-
-  const handleFileDelete = () => {};
+const FileRow = ({ file, onDownload, onDelete }: FileRowProps) => {
+  // A reserved-but-unfinished upload has no bytes to fetch yet.
+  const canDownload = file.hasContent !== false;
 
   return (
     <>
-      <div>{file.name}</div>
+      <div className="flex items-center gap-2">
+        <span>{file.name}</span>
+        {!canDownload && (
+          <span className="badge badge-sm badge-warning">Uploading</span>
+        )}
+      </div>
       <div>Owner</div>
-      <div>{file.lastModified ? new Date(file.lastModified).toLocaleString() : "—"}</div>
+      <div>
+        {file.lastModified ? new Date(file.lastModified).toLocaleString() : "—"}
+      </div>
       <div className="text-center">
         <span>{file.size.value + " " + file.size.unit}</span>
       </div>
@@ -58,12 +44,19 @@ const FileRow = ({ file }: FileRowProps) => {
             className="dropdown-content z-50 menu p-2 shadow bg-base-100 rounded-box"
           >
             <li className="tooltip" data-tip="Download">
-              <button onClick={() => handleFileDownload()}>
+              <button
+                onClick={() => onDownload(file)}
+                disabled={!canDownload}
+                aria-label={`Download ${file.name}`}
+              >
                 <IoMdDownload />
               </button>
             </li>
             <li className="tooltip" data-tip="Delete">
-              <button onClick={() => handleFileDelete()}>
+              <button
+                onClick={() => onDelete(file.id)}
+                aria-label={`Delete ${file.name}`}
+              >
                 <FaRegTrashAlt />
               </button>
             </li>
