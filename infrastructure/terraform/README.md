@@ -3,9 +3,10 @@
 Terraform for the S3 bucket the file service uploads to, plus the least-privilege
 IAM that reaches it.
 
-> **Not yet applied.** These files have been syntax-checked but never run through
-> `terraform plan` or `apply` against a real account. Review the plan before
-> applying — it creates billable resources.
+> **Validated, not applied.** CI runs `terraform fmt -check` and
+> `terraform validate` against the real AWS provider schema, but no `plan` or
+> `apply` has been run against an account. Review the plan before applying —
+> it creates billable resources.
 
 ## What it creates
 

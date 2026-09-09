@@ -173,10 +173,8 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.9.8
-      # Advisory: terraform validate below is the gate. Formatting is
-      # reported so drift is visible without blocking on whitespace.
       - name: Format check
-        run: terraform fmt -check -recursive || echo "terraform fmt would reformat these files"
+        run: terraform fmt -check -recursive
       - name: Init (no backend, no credentials needed)
         run: terraform init -backend=false
       - name: Validate
