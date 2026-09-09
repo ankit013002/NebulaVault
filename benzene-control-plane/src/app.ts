@@ -9,6 +9,8 @@ import filesRouter from "./routes/files.routes.js";
 import foldersRouter from "./routes/folders.routes.js";
 import localObjectsRouter, { localObjectsEnabled } from "./routes/localObjects.routes.js";
 import permissionsRouter from "./routes/permissions.routes.js";
+import devicesRouter from "./modules/devices/devices.routes.js";
+import vaultsRouter from "./modules/vaults/vaults.routes.js";
 
 export function createApp(): express.Express {
   const app = express();
@@ -22,7 +24,16 @@ export function createApp(): express.Express {
     app.use("/local-objects", localObjectsRouter);
   }
 
-  app.use(express.json({ limit: "1mb" }));
+  // Device signatures cover the raw body, so it is captured before parsing;
+  // re-serialising the parsed object would not reproduce the signed bytes.
+  app.use(
+    express.json({
+      limit: "1mb",
+      verify: (req, _res, buf) => {
+        (req as express.Request).rawBody = buf.toString("utf8");
+      },
+    })
+  );
   app.use(express.urlencoded({ extended: true }));
 
   app.get("/health", (_req, res) => {
@@ -33,6 +44,8 @@ export function createApp(): express.Express {
     });
   });
 
+  app.use("/vaults", vaultsRouter);
+  app.use("/devices", devicesRouter);
   app.use("/drive-nodes", driveNodeRouter);
   app.use("/files", filesRouter);
   app.use("/folders", foldersRouter);

@@ -144,6 +144,25 @@ jobs:
     defaults:
       run:
         working-directory: benzene-control-plane
+    # The control-plane tests run against a real PostgreSQL rather than a fake:
+    # partial unique indexes, row locking and aggregate filters carry the
+    # behaviour under test, and no in-memory substitute reproduces them.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: benzene_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      TEST_DATABASE_URL: postgres://postgres:postgres@localhost:5432/benzene_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -157,8 +176,16 @@ jobs:
         run: npx tsc --noEmit -p tsconfig.json
       - name: Build
         run: npm run build
-      - name: Test (if present)
-        run: npm test --if-present
+      - name: Check migrations are up to date with the schema
+        run: |
+          npx drizzle-kit generate --name=ci_drift_check
+          if ! git diff --quiet -- drizzle; then
+            echo "::error::drizzle schema and migrations have drifted; run 'npm run db:generate' and commit"
+            git --no-pager diff --stat -- drizzle
+            exit 1
+          fi
+      - name: Test
+        run: npm test
 
   infra:
     name: Terraform — format & validate

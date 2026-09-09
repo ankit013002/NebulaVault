@@ -6,12 +6,21 @@ export type StorageDriverName = "s3" | "local";
 
 export interface AppConfig {
   port: number;
+  /** Postgres, holding the control-plane graph: vaults, devices, allocations. */
+  databaseUrl: string;
+  /** Mongo, still holding file metadata until it migrates to Postgres. */
   mongooseUri: string;
   storageDriver: StorageDriverName;
   /** Max bytes a single presigned upload is allowed to write. */
   maxUploadBytes: number;
   /** Seconds a presigned URL stays valid. */
   presignTtlSeconds: number;
+  /** How long a device pairing code remains usable. */
+  enrollmentCodeTtlSeconds: number;
+  /** Tolerated clock difference when verifying a device request signature. */
+  deviceClockSkewSeconds: number;
+  /** Silence after which a device is reported offline rather than online. */
+  deviceOfflineAfterSeconds: number;
   s3: {
     bucket: string;
     region: string;
@@ -63,7 +72,11 @@ export function loadConfig(): AppConfig {
 
   return {
     port: intFromEnv("PORT", 5000),
+    databaseUrl: required("DATABASE_URL"),
     mongooseUri: required("MONGOOSE_URI"),
+    enrollmentCodeTtlSeconds: intFromEnv("ENROLLMENT_CODE_TTL_SECONDS", 600),
+    deviceClockSkewSeconds: intFromEnv("DEVICE_CLOCK_SKEW_SECONDS", 300),
+    deviceOfflineAfterSeconds: intFromEnv("DEVICE_OFFLINE_AFTER_SECONDS", 120),
     storageDriver,
     maxUploadBytes: intFromEnv("MAX_UPLOAD_BYTES", 5 * 1024 * 1024 * 1024),
     presignTtlSeconds: intFromEnv("PRESIGN_TTL_SECONDS", 900),

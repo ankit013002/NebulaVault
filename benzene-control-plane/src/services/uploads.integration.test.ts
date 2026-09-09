@@ -48,6 +48,9 @@ beforeAll(async () => {
   storageRoot = await mkdtemp(path.join(tmpdir(), "nv-int-"));
 
   process.env["MONGOOSE_URI"] = mongo.getUri();
+  // Required by config(); these tests never open a Postgres connection.
+  process.env["DATABASE_URL"] ??=
+    process.env["TEST_DATABASE_URL"] ?? "postgres://localhost:5432/unused";
   process.env["STORAGE_DRIVER"] = "local";
   process.env["LOCAL_STORAGE_DIR"] = storageRoot;
   process.env["MAX_UPLOAD_BYTES"] = String(1024 * 1024);
