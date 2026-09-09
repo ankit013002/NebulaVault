@@ -69,13 +69,13 @@ export default function FeatureCards() {
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.6 }}
         >
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-nv-text mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-bz-text mb-4">
             Built for{" "}
-            <span className="bg-gradient-to-r from-nv-primary via-nv-primary2 to-sky-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-bz-primary via-bz-primary2 to-sky-400 bg-clip-text text-transparent">
               performance
             </span>
           </h2>
-          <p className="text-lg text-nv-muted max-w-2xl mx-auto">
+          <p className="text-lg text-bz-muted max-w-2xl mx-auto">
             Enterprise-grade capabilities designed for modern teams.
           </p>
         </motion.div>
@@ -101,7 +101,7 @@ export default function FeatureCards() {
                 }
                 transition={{ delay: i * 0.05 }}
                 className="
-                  group relative rounded-2xl border border-nv-border bg-nv-surface/60
+                  group relative rounded-2xl border border-bz-border bg-bz-surface/60
                   backdrop-blur-sm p-6 shadow-card
                   transform-gpu will-change-transform
                   cursor-pointer
@@ -111,22 +111,22 @@ export default function FeatureCards() {
                   className="
                     pointer-events-none absolute inset-0 rounded-2xl opacity-0
                     group-hover:opacity-100 transition-opacity duration-300
-                    bg-gradient-to-r from-nv-primary/10 via-transparent to-nv-primary2/10
+                    bg-gradient-to-r from-bz-primary/10 via-transparent to-bz-primary2/10
                   "
                   aria-hidden
                 />
 
                 <div className="relative z-10">
                   <div className="flex items-center gap-3 mb-3">
-                    <div className="rounded-xl p-2 bg-gradient-to-r from-nv-primary/15 to-nv-primary2/15 border border-nv-border">
-                      <Icon className="size-5 text-nv-primary" />
+                    <div className="rounded-xl p-2 bg-gradient-to-r from-bz-primary/15 to-bz-primary2/15 border border-bz-border">
+                      <Icon className="size-5 text-bz-primary" />
                     </div>
-                    <h3 className="text-xl font-semibold text-nv-text">
+                    <h3 className="text-xl font-semibold text-bz-text">
                       {title}
                     </h3>
                   </div>
-                  <p className="text-nv-muted">{description}</p>
-                  <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-nv-primary/20 to-transparent" />
+                  <p className="text-bz-muted">{description}</p>
+                  <div className="mt-5 h-px w-full bg-gradient-to-r from-transparent via-bz-primary/20 to-transparent" />
                 </div>
               </motion.div>
             ))}

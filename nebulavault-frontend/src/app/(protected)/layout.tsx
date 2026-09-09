@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 import StoreProvider from "@/app/store/StoreProvider";
 import { getSession } from "@/utils/auth/handlers/LoginHandler";
-import Sidebar from "@/components/Sidebar/Sidebar";
+import Sidebar from "./_components/Sidebar/Sidebar";
 import { cookies } from "next/headers";
 import ClientHydrator from "../(app)/ClientHydrator";
 

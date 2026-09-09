@@ -7,7 +7,7 @@ import { logout } from "@/utils/auth/handlers/LogoutHandler";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/app/store/hooks";
 import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
-import LoadingSpinner from "../LoadingSpinner";
+import LoadingSpinner from "@/components/LoadingSpinner";
 
 type Props = {
   name?: string;
@@ -35,7 +35,11 @@ const SideBarAccountSection: React.FC<Props> = () => {
     setEmail(user.email);
     setUsedGb(getNormalizedSize(user.usedBytes).value);
     setQuotaGb(getNormalizedSize(user.quotaBytes).value);
-    setPct(user.quotaBytes > 0 ? Math.min(100, Math.round((user.usedBytes / user.quotaBytes) * 100)) : 0);
+    setPct(
+      user.quotaBytes > 0
+        ? Math.min(100, Math.round((user.usedBytes / user.quotaBytes) * 100))
+        : 0,
+    );
   }, [user]);
 
   useEffect(() => {}, []);
@@ -79,7 +83,7 @@ const SideBarAccountSection: React.FC<Props> = () => {
                 <span
                   className="
               absolute -bottom-0.5 -right-0.5 size-2.5 rounded-full
-              bg-success ring-2 ring-nv-surface
+              bg-success ring-2 ring-bz-surface
             "
                   aria-hidden
                 />
@@ -137,8 +141,8 @@ const SideBarAccountSection: React.FC<Props> = () => {
                     tabIndex={0}
                     className="
                 dropdown-content menu menu-sm z-10 w-56 p-2
-                rounded-box bg-nv-surface/95 backdrop-blur-xl shadow-card
-                border border-nv-border
+                rounded-box bg-bz-surface/95 backdrop-blur-xl shadow-card
+                border border-bz-border
               "
                   >
                     <li className="menu-title px-2 text-nv-muted">Account</li>
@@ -175,7 +179,7 @@ const SideBarAccountSection: React.FC<Props> = () => {
               <div
                 className="
             relative h-2 w-full overflow-hidden rounded-full
-            bg-nv-surface/60 border border-nv-border
+            bg-bz-surface/60 border border-bz-border
           "
                 role="progressbar"
                 aria-valuemin={0}
@@ -186,7 +190,7 @@ const SideBarAccountSection: React.FC<Props> = () => {
                 <div
                   className="
               relative h-full rounded-full shadow-glow-sm
-              bg-gradient-to-r from-nv-primary to-nv-primary2
+              bg-gradient-to-r from-bz-primary to-bz-primary2
             "
                   style={{ width: `${pct}%` }}
                 />

@@ -1,5 +1,5 @@
-import AuthShell from "@/components/auth/AuthShell";
-import LoginForm from "@/components/auth/LoginForm";
+import AuthShell from "../_components/AuthShell";
+import LoginForm from "../_components/LoginForm";
 import Link from "next/link";
 
 export const metadata = {
@@ -13,7 +13,7 @@ export default function Page() {
       title="Welcome back"
       subtitle="Sign in to access your files, versions, and shares."
       footer={
-        <p className="text-sm text-nv-muted">
+        <p className="text-sm text-bz-muted">
           New here?{" "}
           <Link href="/register" className="link link-hover">
             Create an account

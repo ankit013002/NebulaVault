@@ -5,51 +5,51 @@
 /* === Custom Dark Variant (for DaisyUI + Shadcn sync) === */
 @custom-variant dark (&:is(.dark *));
 
-/* === Theme Variables === */
+/* === Theme Variables (Updated for Benzene Core) === */
 :root {
-  /* === Base (dark, space-like) === */
-  --background: rgba(14, 15, 23); /* deep navy / cosmic blue */
-  --foreground: oklch(0.96 0.01 280); /* soft white with slight cool tint */
+  /* === Base (Clean, High-Tech Light) === */
+  --background: #ffffff;
+  --foreground: #09090b;
 
   /* === UI Surfaces === */
-  --card: oklch(0.2 0.03 275);
+  --card: #f8fafc;
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
 
-  /* === Branding === */
-  --primary: oklch(0.35 0.1 270); /* DARK nebula blue */
-  --primary-foreground: oklch(0.97 0 0); /* white text */
+  /* === Branding (Benzene Core Blue) === */
+  --primary: #0052cc;
+  --primary-foreground: #ffffff;
 
-  --secondary: oklch(0.32 0.1 300); /* deep purple */
-  --secondary-foreground: oklch(0.97 0 0);
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
 
-  --accent: oklch(0.72 0.2 250); /* glowing electric blue */
-  --accent-glow: #6ea8ff;
-  --accent-foreground: oklch(0.98 0 0);
+  --accent: #e0e7ff;
+  --accent-glow: #0052cc;
+  --accent-foreground: #0052cc;
 
   /* === Muted / Neutral === */
-  --muted: oklch(0.26 0.02 280);
-  --muted-foreground: oklch(0.7 0.02 290);
+  --muted: #f1f5f9;
+  --muted-foreground: #64748b;
 
-  --destructive: oklch(0.6 0.25 30); /* cosmic red */
-  --destructive-foreground: oklch(0.97 0 0);
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
 
   /* === Inputs & Borders === */
-  --border: oklch(0.28 0.02 280);
+  --border: #e2e8f0;
   --input: var(--border);
-  --ring: var(--accent);
+  --ring: var(--primary);
 
-  /* === Charts (nebula-inspired) === */
-  --chart-1: oklch(0.45 0.14 270); /* dark blue */
-  --chart-2: oklch(0.5 0.15 250); /* bright cyan-blue */
-  --chart-3: oklch(0.42 0.12 300); /* purple */
-  --chart-4: oklch(0.55 0.18 200); /* teal */
-  --chart-5: oklch(0.65 0.2 90); /* golden amber */
+  /* === Charts === */
+  --chart-1: #0052cc;
+  --chart-2: #3b82f6;
+  --chart-3: #6366f1;
+  --chart-4: #8b5cf6;
+  --chart-5: #a855f7;
 
   /* === Sidebar === */
-  --sidebar: var(--background);
-  --sidebar-foreground: var(--foreground);
+  --sidebar: #f8fafc;
+  --sidebar-foreground: #64748b;
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--accent);
@@ -57,13 +57,13 @@
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
 
-  /* === Radius === */
-  --radius: 0.625rem;
+  /* === Radius (Benzene Round Four) === */
+  --radius: 0.25rem;
 
   /* === DaisyUI mapped === */
   --color-base-100: var(--background);
-  --color-base-200: oklch(0.22 0.03 270);
-  --color-base-300: oklch(0.26 0.02 270);
+  --color-base-200: #f1f5f9;
+  --color-base-300: #e2e8f0;
   --color-base-content: var(--foreground);
 
   --color-primary: var(--primary);
@@ -75,16 +75,16 @@
   --color-accent: var(--accent);
   --color-accent-content: var(--accent-foreground);
 
-  --color-neutral: oklch(0.25 0.03 280);
-  --color-neutral-content: oklch(0.96 0.01 280);
+  --color-neutral: #1e293b;
+  --color-neutral-content: #f8fafc;
 
-  --color-info: oklch(0.55 0.15 240);
+  --color-info: #0ea5e9;
   --color-info-content: white;
 
-  --color-success: oklch(0.55 0.18 160);
+  --color-success: #10b981;
   --color-success-content: white;
 
-  --color-warning: oklch(0.65 0.2 90);
+  --color-warning: #f59e0b;
   --color-warning-content: black;
 
   --color-error: var(--destructive);
@@ -128,43 +128,33 @@
   --color-sidebar-accent: var(--sidebar-accent);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
   --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-ring: var(--sidebar-ring);
+  --color-sidebar-ring: var(--ring);
 
-  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  /* Benzene Font: Manrope */
+  --font-sans: "Manrope", ui-sans-serif, system-ui;
+  --font-mono: ui-monospace, monospace;
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 4px);
+  --radius-xl: calc(var(--radius) + 8px);
 
-  /* Colors used by your components (text-nv-*, bg-nv-*, border-nv-*, from-nv-*, to-nv-*) */
-  --color-nv-bg: var(--background);
-  --color-nv-surface: var(--card);
-  --color-nv-card: var(--card);
-  --color-nv-border: var(--border);
-  --color-nv-text: var(--foreground);
-  /* use the text tone for “muted” (your --muted is a surface color) */
-  --color-nv-muted: var(--muted-foreground);
-  --color-nv-primary: var(--primary);
-  /* second stop for gradients */
-  --color-nv-primary2: var(--accent);
+  /* Design System specific additions */
+  --color-bz-bg: var(--background);
+  --color-bz-surface: var(--card);
+  --color-bz-card: var(--card);
+  --color-bz-border: var(--border);
+  --color-bz-text: var(--foreground);
+  --color-bz-muted: var(--muted-foreground);
+  --color-bz-primary: var(--primary);
+  --color-bz-primary2: #3b82f6;
 
-  /* Radius (for rounded-xl2) */
-  --radius-xl2: 1rem;
-
-  /* Shadows (for shadow-glow, shadow-glow-sm, shadow-card) */
-  --shadow-glow: 0 0 40px 8px rgba(34, 211, 238, 0.18);
-  --shadow-glow-sm: 0 0 20px 4px rgba(34, 211, 238, 0.12);
-  --shadow-card: 0 8px 32px rgba(0, 0, 0, 0.4);
-
-  /* Animations (for animate-pulse-glow, animate-shimmer, animate-float, animate-fade-in) */
-  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
-  --animate-shimmer: shimmer 2s linear infinite;
-  --animate-float: float 6s ease-in-out infinite;
-  --animate-fade-in: fade-in 0.25s ease-out both;
+  --shadow-glow: 0 0 40px 8px rgba(0, 82, 204, 0.1);
+  --shadow-glow-sm: 0 0 20px 4px rgba(0, 82, 204, 0.05);
+  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
+/* Animations preserved from original */
 @keyframes pulse-glow {
   0%,
   100% {
@@ -202,63 +192,51 @@
   }
 }
 
-/* === Dark Mode === */
+/* === Dark Mode (Updated for Benzene Core) === */
 .dark {
-  --background: oklch(0.141 0.005 285.823);
-  --foreground: oklch(0.985 0 0);
+  --background: #020617;
+  --foreground: #f8fafc;
 
-  --card: oklch(0.21 0.006 285.885);
+  --card: #0f172a;
   --card-foreground: var(--foreground);
   --popover: var(--card);
   --popover-foreground: var(--foreground);
 
-  --primary: oklch(0.92 0.004 286.32);
-  --primary-foreground: oklch(0.21 0.006 285.885);
-  --secondary: oklch(0.274 0.006 286.033);
+  --primary: #3b82f6;
+  --primary-foreground: #ffffff;
+  --secondary: #1e293b;
   --secondary-foreground: var(--foreground);
 
-  --muted: var(--secondary);
-  --muted-foreground: oklch(0.705 0.015 286.067);
-  --accent: var(--secondary);
+  --muted: #1e293b;
+  --muted-foreground: #94a3b8;
+  --accent: #1e293b;
   --accent-foreground: var(--foreground);
 
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.552 0.016 285.938);
+  --destructive: #7f1d1d;
+  --border: rgba(255, 255, 255, 0.1);
+  --input: rgba(255, 255, 255, 0.15);
+  --ring: #3b82f6;
 
-  /* Dark charts / sidebar */
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-
-  --sidebar: var(--card);
-  --sidebar-foreground: var(--foreground);
-  --sidebar-primary: var(--chart-1);
-  --sidebar-primary-foreground: var(--foreground);
-  --sidebar-accent: var(--secondary);
-  --sidebar-accent-foreground: var(--foreground);
-  --sidebar-border: var(--border);
-  --sidebar-ring: var(--ring);
+  /* Dark sidebar */
+  --sidebar: #0f172a;
+  --sidebar-foreground: #94a3b8;
 }
 
 /* === Base Layer === */
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
+  @apply border-border outline-ring/50;
+}
+body {
+  @apply bg-background text-foreground;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* === Cosmic Glow Accent === */
 .glow {
-  text-shadow: 0 0 10px var(--accent-glow), 0 0 20px var(--accent-glow);
+  text-shadow:
+    0 0 10px var(--accent-glow),
+    0 0 20px var(--accent-glow);
 }
 
 /* === Card Utility === */
@@ -282,5 +260,93 @@
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background-color: var(--accent);
+  background-color: var(--primary);
+}
+
+/* === Benzene Logo Animations === */
+@import url("https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&display=swap");
+
+@keyframes bzRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes bzCounterRotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes bzPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes bzFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes bzShimmer {
+  0% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -200;
+  }
+}
+
+.bz-outer-ring {
+  transform-origin: center;
+  animation: bzRotate 18s linear infinite;
+}
+
+.bz-inner-circle {
+  transform-origin: center;
+  animation: bzCounterRotate 22s linear infinite;
+}
+
+.bz-glow-dot {
+  animation: bzPulse 3s ease-in-out infinite;
+}
+
+.bz-wordmark {
+  animation: bzFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation-delay: 0.1s;
+}
+
+.bz-icon {
+  animation: bzFadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.bz-shimmer-ring {
+  stroke-dasharray: 40 160;
+  animation: bzShimmer 4s linear infinite;
+}
+
+.bz-root:hover .bz-outer-ring {
+  animation-play-state: paused;
+}
+
+.bz-root:hover .bz-icon-hex {
+  filter: drop-shadow(0 0 6px rgba(0, 82, 204, 0.7));
+  transition: filter 0.4s ease;
 }

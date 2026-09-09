@@ -44,25 +44,25 @@ const plans: Plan[] = [
 
 export default function Pricing() {
   const [yearly, setYearly] = useState(false);
-  const signup = `${process.env.NEXT_PUBLIC_GATEWAY_ORIGIN}/auth/oidc/start?screen_hint=signup`;
+  const signup = "/register";
 
   return (
     <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-10">
-          <h2 className="text-3xl sm:text-4xl font-bold text-nv-text">
+          <h2 className="text-3xl sm:text-4xl font-bold text-bz-text">
             Simple pricing
           </h2>
-          <p className="text-nv-muted mt-2">
+          <p className="text-bz-muted mt-2">
             Start free. Upgrade when you need more.
           </p>
 
-          <div className="mt-6 inline-flex items-center rounded-full border border-nv-border bg-nv-surface/60 p-1">
+          <div className="mt-6 inline-flex items-center rounded-full border border-bz-border bg-bz-surface/60 p-1">
             <button
               type="button"
               aria-pressed={!yearly}
               className={`relative px-4 py-2 rounded-full text-sm transition ${
-                !yearly ? "text-nv-bg" : "text-nv-muted"
+                !yearly ? "text-bz-bg" : "text-bz-muted"
               }`}
               onClick={() => setYearly(false)}
             >
@@ -70,7 +70,7 @@ export default function Pricing() {
                 layout
                 className={`absolute inset-0 rounded-full ${
                   !yearly
-                    ? "bg-gradient-to-r from-nv-primary to-nv-primary2"
+                    ? "bg-gradient-to-r from-bz-primary to-bz-primary2"
                     : ""
                 }`}
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -81,7 +81,7 @@ export default function Pricing() {
               type="button"
               aria-pressed={yearly}
               className={`relative px-4 py-2 rounded-full text-sm transition ${
-                yearly ? "text-nv-bg" : "text-nv-muted"
+                yearly ? "text-bz-bg" : "text-bz-muted"
               }`}
               onClick={() => setYearly(true)}
             >
@@ -89,7 +89,7 @@ export default function Pricing() {
                 layout
                 className={`absolute inset-0 rounded-full ${
                   yearly
-                    ? "bg-gradient-to-r from-nv-primary to-nv-primary2"
+                    ? "bg-gradient-to-r from-bz-primary to-bz-primary2"
                     : ""
                 }`}
                 transition={{ type: "spring", stiffness: 400, damping: 30 }}
@@ -106,8 +106,8 @@ export default function Pricing() {
             return (
               <motion.div
                 key={p.name}
-                className={`rounded-2xl border bg-nv-surface/60 backdrop-blur-sm p-6 shadow-card ${
-                  p.highlighted ? "border-nv-primary/40" : "border-nv-border"
+                className={`rounded-2xl border bg-bz-surface/60 backdrop-blur-sm p-6 shadow-card ${
+                  p.highlighted ? "border-bz-primary/40" : "border-bz-border"
                 }`}
                 initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -115,23 +115,23 @@ export default function Pricing() {
                 transition={{ duration: 0.5, delay: i * 0.06 }}
               >
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold text-nv-text">
+                  <h3 className="text-xl font-semibold text-bz-text">
                     {p.name}
                   </h3>
                   {p.highlighted && (
-                    <span className="text-xs px-2 py-1 rounded-full border border-nv-border bg-nv-card/60 text-nv-muted">
+                    <span className="text-xs px-2 py-1 rounded-full border border-bz-border bg-bz-card/60 text-bz-muted">
                       Popular
                     </span>
                   )}
                 </div>
-                <p className="text-nv-muted mt-1">{p.tagline}</p>
+                <p className="text-bz-muted mt-1">{p.tagline}</p>
 
                 <div className="mt-4">
-                  <span className="text-4xl font-bold text-nv-text">
+                  <span className="text-4xl font-bold text-bz-text">
                     {price === 0 ? "Free" : `$${price}`}
                   </span>
                   {price !== 0 && (
-                    <span className="text-nv-muted ml-1">{unit}</span>
+                    <span className="text-bz-muted ml-1">{unit}</span>
                   )}
                 </div>
 
@@ -139,9 +139,9 @@ export default function Pricing() {
                   {p.features.map((f) => (
                     <li
                       key={f}
-                      className="flex items-start gap-2 text-nv-muted"
+                      className="flex items-start gap-2 text-bz-muted"
                     >
-                      <Check className="size-4 mt-0.5 text-nv-primary" />
+                      <Check className="size-4 mt-0.5 text-bz-primary" />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -152,8 +152,8 @@ export default function Pricing() {
                   className={`mt-6 inline-flex w-full justify-center rounded-xl2 px-4 py-2 font-semibold transition
                     ${
                       p.highlighted
-                        ? "bg-gradient-to-r from-nv-primary to-nv-primary2 text-nv-bg hover:shadow-glow-sm"
-                        : "border border-nv-border text-nv-text hover:border-nv-primary/40"
+                        ? "bg-gradient-to-r from-bz-primary to-bz-primary2 text-bz-bg hover:shadow-glow-sm"
+                        : "border border-bz-border text-bz-text hover:border-bz-primary/40"
                     }`}
                 >
                   Get started
