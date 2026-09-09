@@ -22,14 +22,21 @@ const safeName = z
   .refine((v) => !v.includes("/") && !v.includes("\\"), "name may not contain slashes")
   .refine((v) => v !== "." && v !== "..", "name may not be '.' or '..'");
 
-const relativePath = z
+const pathString = z
   .string()
   .max(1024)
   .refine(
     (v) => !v.split(/[\\/]/).some((seg) => seg === ".." ),
     "path may not contain '..' segments"
-  )
-  .default("");
+  );
+
+/**
+ * Batch path, defaulted when omitted. Kept separate from `pathString`
+ * because `.default()` still fires under `.optional()`, which would turn an
+ * absent per-file path into "" and flatten a dropped folder tree into the
+ * root directory.
+ */
+const relativePath = pathString.default("");
 
 const presignSchema = z.object({
   path: relativePath,
@@ -40,13 +47,13 @@ const presignSchema = z.object({
         size: z.number().int().nonnegative(),
         contentType: z.string().max(255).optional(),
         // Absolute from the drive root; falls back to the batch path.
-        path: relativePath.optional(),
+        path: pathString.optional(),
       })
     )
     .min(1, "at least one file is required")
     .max(500, "at most 500 files per batch"),
   // Absolute paths of folders to create, for ones that contain no files.
-  folderPaths: z.array(relativePath).max(500).optional(),
+  folderPaths: z.array(pathString).max(500).optional(),
 });
 
 const completeSchema = z.object({
@@ -57,7 +64,7 @@ const completeSchema = z.object({
 });
 
 const foldersSchema = z.object({
-  paths: z.array(relativePath).min(1).max(500),
+  paths: z.array(pathString).min(1).max(500),
 });
 
 const objectId = z.string().regex(/^[a-f0-9]{24}$/i, "must be a 24-character ObjectId");
