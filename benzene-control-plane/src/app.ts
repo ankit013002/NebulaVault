@@ -9,6 +9,7 @@ import filesRouter from "./routes/files.routes.js";
 import foldersRouter from "./routes/folders.routes.js";
 import localObjectsRouter, { localObjectsEnabled } from "./routes/localObjects.routes.js";
 import permissionsRouter from "./routes/permissions.routes.js";
+import agentRouter from "./modules/devices/agent.routes.js";
 import devicesRouter from "./modules/devices/devices.routes.js";
 import vaultsRouter from "./modules/vaults/vaults.routes.js";
 
@@ -43,6 +44,10 @@ export function createApp(): express.Express {
       storage: config().storageDriver,
     });
   });
+
+  // Node agents: unauthenticated or device-signature authenticated. The
+  // gateway routes this prefix without its session filter.
+  app.use("/agent", agentRouter);
 
   app.use("/vaults", vaultsRouter);
   app.use("/devices", devicesRouter);

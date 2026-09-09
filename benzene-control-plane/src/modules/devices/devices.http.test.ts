@@ -87,7 +87,7 @@ describe("enrollment over HTTP", () => {
     const keys = generateDeviceKeyPair();
 
     const res = await request(app)
-      .post("/devices/enrollments")
+      .post("/agent/enrollments")
       .send({ publicKey: keys.publicKey, deviceName: "Desktop", platform: "linux" })
       .expect(201);
 
@@ -96,7 +96,7 @@ describe("enrollment over HTTP", () => {
 
   it("rejects an enrollment with a non-Ed25519 key", async () => {
     await request(app)
-      .post("/devices/enrollments")
+      .post("/agent/enrollments")
       .send({ publicKey: "bm9uc2Vuc2U=", deviceName: "Bad", platform: "linux" })
       .expect(400);
   });
@@ -107,7 +107,7 @@ describe("enrollment over HTTP", () => {
   ])("rejects an enrollment with %s", async (_label, extra) => {
     const keys = generateDeviceKeyPair();
     await request(app)
-      .post("/devices/enrollments")
+      .post("/agent/enrollments")
       .send({ publicKey: keys.publicKey, ...extra })
       .expect(400);
   });
@@ -166,8 +166,8 @@ describe("device signature authentication", () => {
     const body = { usedBytes: 1024, appVersion: "1.0.0" };
 
     const res = await request(app)
-      .post("/devices/heartbeat")
-      .set(signedHeaders({ keys, deviceId, method: "POST", path: "/devices/heartbeat", body }))
+      .post("/agent/heartbeat")
+      .set(signedHeaders({ keys, deviceId, method: "POST", path: "/agent/heartbeat", body }))
       .send(body)
       .expect(200);
 
@@ -175,7 +175,7 @@ describe("device signature authentication", () => {
   });
 
   it("rejects a heartbeat with no signature headers", async () => {
-    await request(app).post("/devices/heartbeat").send({}).expect(401);
+    await request(app).post("/agent/heartbeat").send({}).expect(401);
   });
 
   // The signature covers the body, so altering it after signing must fail.
@@ -184,13 +184,13 @@ describe("device signature authentication", () => {
     const signed = { usedBytes: 1024 };
 
     await request(app)
-      .post("/devices/heartbeat")
+      .post("/agent/heartbeat")
       .set(
         signedHeaders({
           keys,
           deviceId,
           method: "POST",
-          path: "/devices/heartbeat",
+          path: "/agent/heartbeat",
           body: signed,
         })
       )
@@ -204,13 +204,13 @@ describe("device signature authentication", () => {
     const body = { usedBytes: 1 };
 
     await request(app)
-      .post("/devices/heartbeat")
+      .post("/agent/heartbeat")
       .set(
         signedHeaders({
           keys,
           deviceId,
           method: "POST",
-          path: "/devices/something-else",
+          path: "/agent/something-else",
           body,
         })
       )
@@ -226,13 +226,13 @@ describe("device signature authentication", () => {
     const body = { usedBytes: 1 };
 
     await request(app)
-      .post("/devices/heartbeat")
+      .post("/agent/heartbeat")
       .set(
         signedHeaders({
           keys,
           deviceId,
           method: "POST",
-          path: "/devices/heartbeat",
+          path: "/agent/heartbeat",
           body,
           timestamp: Math.floor(Date.now() / 1000) + offsetSeconds,
         })
@@ -247,13 +247,13 @@ describe("device signature authentication", () => {
     const body = { usedBytes: 1 };
 
     await request(app)
-      .post("/devices/heartbeat")
+      .post("/agent/heartbeat")
       .set(
         signedHeaders({
           keys: attacker,
           deviceId,
           method: "POST",
-          path: "/devices/heartbeat",
+          path: "/agent/heartbeat",
           body,
         })
       )
@@ -266,13 +266,13 @@ describe("device signature authentication", () => {
     const body = { usedBytes: 1 };
 
     await request(app)
-      .post("/devices/heartbeat")
+      .post("/agent/heartbeat")
       .set(
         signedHeaders({
           keys,
           deviceId: "00000000-0000-0000-0000-000000000000",
           method: "POST",
-          path: "/devices/heartbeat",
+          path: "/agent/heartbeat",
           body,
         })
       )
@@ -289,9 +289,9 @@ describe("device signature authentication", () => {
 
     const body = { usedBytes: 1 };
     await request(app)
-      .post("/devices/heartbeat")
+      .post("/agent/heartbeat")
       .set(
-        signedHeaders({ keys, deviceId, method: "POST", path: "/devices/heartbeat", body })
+        signedHeaders({ keys, deviceId, method: "POST", path: "/agent/heartbeat", body })
       )
       .send(body)
       .expect(401);

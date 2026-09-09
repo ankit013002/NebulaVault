@@ -1,32 +1,23 @@
 import { Router } from "express";
 import { z } from "zod";
 
-import { requireDevice } from "../../middleware/requireDevice.js";
 import { requireUser } from "../../middleware/requireUser.js";
 import { AppError } from "../../utils/AppError.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import { PLATFORMS } from "../../db/schema.js";
 import {
   approveEnrollment,
   beginDeviceRemoval,
-  getEnrollmentStatus,
   listDevices,
   listPendingEnrollments,
-  recordHeartbeat,
   rejectEnrollment,
-  requestEnrollment,
   setAllocation,
 } from "./devices.service.js";
 
 const router = Router();
 
-const uuidParam = z.string().uuid("must be a UUID");
+router.use(requireUser);
 
-const enrollmentRequestSchema = z.object({
-  publicKey: z.string().min(1).max(1024),
-  deviceName: z.string().min(1).max(120),
-  platform: z.enum(PLATFORMS).default("other"),
-});
+const uuidParam = z.string().uuid("must be a UUID");
 
 const approveSchema = z.object({
   code: z.string().min(4).max(32),
@@ -35,12 +26,6 @@ const approveSchema = z.object({
 });
 
 const codeSchema = z.object({ code: z.string().min(4).max(32) });
-
-const heartbeatSchema = z.object({
-  usedBytes: z.number().int().nonnegative().optional(),
-  availableBytes: z.number().int().nonnegative().optional(),
-  appVersion: z.string().max(40).optional(),
-});
 
 const allocationSchema = z.object({
   allocatedBytes: z.number().int().nonnegative().max(Number.MAX_SAFE_INTEGER),
@@ -60,40 +45,11 @@ function ownerOf(req: { ownerId?: string }): string {
 }
 
 /*
- * Enrollment, device side. Unauthenticated by necessity — a machine being set
- * up holds no credentials yet — and safe because it grants nothing until an
- * authenticated user approves the code.
- */
-
-router.post(
-  "/enrollments",
-  asyncHandler(async (req, res) => {
-    const body = parse(enrollmentRequestSchema, req.body);
-    const enrollment = await requestEnrollment(body);
-    res.status(201).json({ data: enrollment });
-  })
-);
-
-router.get(
-  "/enrollments/:enrollmentId",
-  asyncHandler(async (req, res) => {
-    const enrollmentId = parse(uuidParam, req.params["enrollmentId"]);
-    const publicKey = req.query["publicKey"];
-    if (typeof publicKey !== "string" || publicKey === "") {
-      throw AppError.badRequest("publicKey query parameter is required");
-    }
-    const status = await getEnrollmentStatus(enrollmentId, publicKey);
-    res.status(200).json({ data: status });
-  })
-);
-
-/*
  * Enrollment, user side. These require the gateway-verified identity.
  */
 
 router.get(
   "/enrollments/pending/list",
-  requireUser,
   asyncHandler(async (req, res) => {
     const pending = await listPendingEnrollments(ownerOf(req));
     res.status(200).json({ data: pending });
@@ -102,7 +58,6 @@ router.get(
 
 router.post(
   "/enrollments/approve",
-  requireUser,
   asyncHandler(async (req, res) => {
     const body = parse(approveSchema, req.body);
     const device = await approveEnrollment(
@@ -118,7 +73,6 @@ router.post(
 
 router.post(
   "/enrollments/reject",
-  requireUser,
   asyncHandler(async (req, res) => {
     const body = parse(codeSchema, req.body);
     await rejectEnrollment(ownerOf(req), body.code);
@@ -132,7 +86,6 @@ router.post(
 
 router.get(
   "/",
-  requireUser,
   asyncHandler(async (req, res) => {
     const list = await listDevices(ownerOf(req));
     res.status(200).json({ data: list });
@@ -141,7 +94,6 @@ router.get(
 
 router.patch(
   "/:deviceId/allocation",
-  requireUser,
   asyncHandler(async (req, res) => {
     const deviceId = parse(uuidParam, req.params["deviceId"]);
     const body = parse(allocationSchema, req.body);
@@ -152,26 +104,10 @@ router.patch(
 
 router.post(
   "/:deviceId/removal",
-  requireUser,
   asyncHandler(async (req, res) => {
     const deviceId = parse(uuidParam, req.params["deviceId"]);
     const device = await beginDeviceRemoval(ownerOf(req), deviceId);
     res.status(202).json({ data: device });
-  })
-);
-
-/*
- * Node agent, authenticated by request signature rather than a session.
- */
-
-router.post(
-  "/heartbeat",
-  requireDevice,
-  asyncHandler(async (req, res) => {
-    const body = parse(heartbeatSchema, req.body);
-    if (!req.deviceId) throw AppError.unauthorized();
-    const result = await recordHeartbeat(req.deviceId, body);
-    res.status(200).json({ data: result });
   })
 );
 
