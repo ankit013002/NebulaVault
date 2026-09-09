@@ -1,0 +1,14 @@
+aws_region  = "us-east-1"
+environment = "dev"
+
+# Must list every origin the browser uploads from, or preflight fails.
+cors_allowed_origins = ["http://localhost:3000"]
+
+# Principals allowed to assume the file service role, e.g. an ECS task role.
+service_principal_arns = []
+
+# Prefer role assumption; enable only if the workload cannot assume a role.
+create_access_keys = false
+
+# SSE-S3 by default. KMS adds auditable key usage and per-request cost.
+use_kms = false
