@@ -21,6 +21,7 @@ jobs:
       auth: ${{ steps.filter.outputs.auth }}
       gateway: ${{ steps.filter.outputs.gateway }}
       control_plane: ${{ steps.filter.outputs.control_plane }}
+      agent: ${{ steps.filter.outputs.agent }}
       infra: ${{ steps.filter.outputs.infra }}
     steps:
       - uses: actions/checkout@v4
@@ -36,6 +37,8 @@ jobs:
               - 'nebula-gateway/**'
             control_plane:
               - 'benzene-control-plane/**'
+            agent:
+              - 'benzene-node-agent/**'
             infra:
               - 'infrastructure/**'
 
@@ -206,3 +209,33 @@ jobs:
         run: terraform init -backend=false
       - name: Validate
         run: terraform validate
+
+  agent:
+    name: Node agent (Node/TS) — build & test
+    needs: detect-changes
+    if: needs.detect-changes.outputs.agent == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: benzene-node-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: benzene-node-agent/package-lock.json
+      - name: Install
+        run: npm install
+      - name: Typecheck
+        run: npx tsc --noEmit -p tsconfig.json
+      - name: Build
+        run: npm run build
+      - name: Test
+        run: npm test
+      # The agent and the control plane are separate deployables that each hold
+      # a copy of the request-signing format. These vectors are the contract
+      # between them, so a drift here would break device authentication in a
+      # way neither package's own tests would catch.
+      - name: Protocol vectors match the control plane
+        run: diff -u ../benzene-control-plane/src/modules/devices/protocolVectors.ts src/protocolVectors.ts

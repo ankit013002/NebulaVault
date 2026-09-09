@@ -1,0 +1,30 @@
+{
+  "name": "benzene-node-agent",
+  "version": "0.1.0",
+  "description": "Benzene node agent: contributes a device's storage to a vault",
+  "main": "built/index.js",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node built/index.js",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "license": "ISC",
+  "dependencies": {
+    "express": "^5.1.0",
+    "helmet": "^8.1.0",
+    "dotenv": "^17.2.3",
+    "zod": "^4.5.4"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.6.0",
+    "@types/supertest": "^6.0.2",
+    "supertest": "^7.1.4",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.3",
+    "vitest": "^5.0.0"
+  }
+}
