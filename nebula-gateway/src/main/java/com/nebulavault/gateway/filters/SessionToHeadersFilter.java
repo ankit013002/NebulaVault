@@ -23,8 +23,15 @@ public class SessionToHeadersFilter implements GatewayFilter, Ordered {
 
     private final byte[] hmacKey;
 
-    public SessionToHeadersFilter(@Value("${auth.hmacSecret:dev-secret}") String secret) {
-        String raw = secret.trim();
+    public SessionToHeadersFilter(@Value("${auth.hmacSecret}") String secret) {
+        String raw = secret == null ? "" : secret.trim();
+        // The auth service refuses to start without a >=32 char AUTH_SECRET;
+        // the gateway must hold the same bar or it would happily verify
+        // tokens signed with a weak key.
+        if (raw.length() < 32) {
+            throw new IllegalStateException(
+                    "AUTH_SECRET must be at least 32 characters (64 hex chars recommended)");
+        }
         if (raw.matches("(?i)^[0-9a-f]{64}$")) {
             this.hmacKey = hexToBytes(raw);
         } else {
@@ -81,7 +88,7 @@ public class SessionToHeadersFilter implements GatewayFilter, Ordered {
                         h.add("X-User-Id", sub);
                         h.add("X-User-AuthSub", sub);
                         h.add("X-User-Email", email);
-                        if (name != null && !name.isBlank()) h.add("X-User-Name", name);{
+                        if (name != null && !name.isBlank()) {
                             h.add("X-User-Name", name);
                         }
                     })
