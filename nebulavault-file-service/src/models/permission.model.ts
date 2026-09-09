@@ -1,9 +1,22 @@
-const mongoose = require("mongoose");
+import mongoose, { Schema, type HydratedDocument, type Model, type Types } from "mongoose";
 
-const permissionSchema = new mongoose.Schema(
+export type PermissionRole = "editor" | "viewer";
+
+export interface Permission {
+  nodeId: Types.ObjectId;
+  principal: string;
+  role: PermissionRole;
+  grantedBy?: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type PermissionDocument = HydratedDocument<Permission>;
+
+const permissionSchema = new Schema<Permission>(
   {
     nodeId: {
-      type: mongoose.SchemaTypes.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: "DriveNode",
       required: [true, "nodeId (DriveNode reference) is required"],
       index: true,
@@ -16,24 +29,19 @@ const permissionSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: {
-        values: ["editor", "viewer"],
-        message: (props) => `${props.value} must be 'editor' or 'viewer'`,
-      },
+      enum: { values: ["editor", "viewer"], message: "{VALUE} must be 'editor' or 'viewer'" },
       required: [true, "role is required"],
     },
-    grantedBy: {
-      type: String,
-      trim: true,
-    },
+    grantedBy: { type: String, trim: true },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
 permissionSchema.index({ nodeId: 1, principal: 1 }, { unique: true });
-
 permissionSchema.index({ principal: 1, nodeId: 1 });
 
-module.exports = mongoose.model("Permission", permissionSchema);
+export const PermissionModel: Model<Permission> =
+  (mongoose.models["Permission"] as Model<Permission>) ??
+  mongoose.model<Permission>("Permission", permissionSchema);
+
+export default PermissionModel;

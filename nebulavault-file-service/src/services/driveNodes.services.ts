@@ -1,82 +1,210 @@
-const DriveNode = require("../models/driveNode.model");
+import type { Types } from "mongoose";
 
-async function createDriveNodes(ownerId, nodes) {
-  const { files, folders } = nodes;
+import DriveNodeModel, { normalizePath } from "../models/driveNode.model.js";
+import FileVersionModel from "../models/fileVersion.model.js";
+import { storage } from "../storage/index.js";
+import { AppError } from "../utils/AppError.js";
+import { ensureFolderChain } from "./uploads.services.js";
 
-  const driveNodes = [];
-
-  // TODO: What if file already exists?
-  for (const file of files) {
-    const driveNode = new DriveNode({
-      ownerId: ownerId,
-      type: "file",
-      name: file.name,
-      nameLower: file.name.toLowerCase(),
-      path: file.path.toLowerCase(),
-      bytes: file.size,
-      contentType: file.type,
-      ext: file.type.split("/")[1], // Leave in the frontend to pass back
-    });
-
-    driveNodes.push(driveNode);
-  }
-
-  for (const folder of folders) {
-    const driveNode = new DriveNode({
-      ownerId: ownerId,
-      type: "folder",
-      name: folder.name,
-      nameLower: folder.name.toLowerCase(),
-      path: folder.path.toLowerCase(),
-    });
-
-    driveNodes.push(driveNode);
-  }
-
-  await Promise.all([...driveNodes.map((driveNode) => driveNode.save())]);
-
-  return true;
+export interface ListedFile {
+  id: string;
+  name: string;
+  path: string;
+  bytes: number;
+  contentType: string | undefined;
+  ext: string | undefined;
+  lastModified: number | null;
+  hasContent: boolean;
 }
 
-async function retrieveDriveNodesFromPath(ownerId, path) {
-  // for files, pass back the ext
+export interface ListedFolder {
+  id: string;
+  name: string;
+  path: string;
+  bytes: number;
+  lastModified: number | null;
+}
 
-  if (path) {
-    path = path.toLowerCase() + "/";
+export interface DirectoryListing {
+  path: string;
+  files: ListedFile[];
+  folders: ListedFolder[];
+}
+
+/**
+ * Lists one directory level.
+ *
+ * Folder sizes are rolled up from every descendant in a single aggregation over
+ * the `ancestors` array, which avoids the N+1 subtree walk the old listing
+ * would have needed.
+ */
+export async function listDirectory(
+  ownerId: string,
+  rawPath: string
+): Promise<DirectoryListing> {
+  const path = normalizePath(rawPath);
+
+  const nodes = await DriveNodeModel.find({ ownerId, path, isDeleted: false })
+    .sort({ type: 1, nameLower: 1 })
+    .lean();
+
+  const folderIds = nodes.filter((n) => n.type === "folder").map((n) => n._id);
+  const rollups = await rollUpFolderSizes(ownerId, folderIds);
+
+  const files: ListedFile[] = [];
+  const folders: ListedFolder[] = [];
+
+  for (const node of nodes) {
+    if (node.type === "folder") {
+      const rollup = rollups.get(node._id.toString());
+      folders.push({
+        id: node._id.toString(),
+        name: node.name,
+        path: `${path}${node.name}/`,
+        bytes: rollup?.bytes ?? 0,
+        lastModified: rollup?.lastModified ?? node.updatedAt?.getTime() ?? null,
+      });
+    } else {
+      files.push({
+        id: node._id.toString(),
+        name: node.name,
+        path,
+        bytes: node.bytes,
+        contentType: node.contentType,
+        ext: node.ext,
+        lastModified: (node.uploadedAt ?? node.updatedAt)?.getTime() ?? null,
+        // Distinguishes a real file from one whose upload never completed.
+        hasContent: Boolean(node.uploadedAt),
+      });
+    }
   }
 
-  const driveNodes = await DriveNode.aggregate([
-    { $match: { ownerId: ownerId, path: path } },
+  return { path, files, folders };
+}
+
+interface FolderRollup {
+  bytes: number;
+  lastModified: number | null;
+}
+
+async function rollUpFolderSizes(
+  ownerId: string,
+  folderIds: Types.ObjectId[]
+): Promise<Map<string, FolderRollup>> {
+  const result = new Map<string, FolderRollup>();
+  if (folderIds.length === 0) return result;
+
+  const rows = await DriveNodeModel.aggregate<{
+    _id: unknown;
+    bytes: number;
+    lastModified: Date | null;
+  }>([
     {
-      $project: {
-        type: 1,
-        name: 1,
-        path: 1,
-        bytes: 1,
+      $match: {
+        ownerId,
+        type: "file",
+        isDeleted: false,
+        ancestors: { $in: folderIds },
       },
     },
+    { $unwind: "$ancestors" },
+    { $match: { ancestors: { $in: folderIds } } },
     {
       $group: {
-        _id: "$type",
-        data: {
-          $push: {
-            name: "$name",
-            type: "$type",
-            path: "$path",
-            bytes: "$bytes",
-          },
-        },
+        _id: "$ancestors",
+        bytes: { $sum: "$bytes" },
+        lastModified: { $max: "$updatedAt" },
       },
     },
   ]);
 
-  const files = driveNodes.find((node) => node._id === "file")?.data || [];
-  const folders = driveNodes.find((node) => node._id === "folder")?.data || [];
-
-  return {
-    files,
-    folders,
-  };
+  for (const row of rows) {
+    result.set(String(row._id), {
+      bytes: row.bytes,
+      lastModified: row.lastModified ? new Date(row.lastModified).getTime() : null,
+    });
+  }
+  return result;
 }
 
-module.exports = { createDriveNodes, retrieveDriveNodesFromPath };
+/** Creates empty folders — the drag-and-drop flow needs these even with no files. */
+export async function createFolders(
+  ownerId: string,
+  folders: Array<{ name: string; path: string }>
+): Promise<number> {
+  let created = 0;
+  for (const folder of folders) {
+    const full = `${normalizePath(folder.path)}${folder.name}`;
+    await ensureFolderChain(ownerId, full);
+    created += 1;
+  }
+  return created;
+}
+
+export interface DeleteResult {
+  deletedNodes: number;
+  purgedObjects: number;
+}
+
+/**
+ * Soft-deletes a node and everything beneath it.
+ *
+ * `purge` additionally removes the bytes from storage. It is irreversible, so
+ * it is opt-in rather than the default — a plain delete stays recoverable.
+ */
+export async function deleteNode(
+  ownerId: string,
+  nodeId: string,
+  options: { purge: boolean }
+): Promise<DeleteResult> {
+  const node = await DriveNodeModel.findOne({ _id: nodeId, ownerId, isDeleted: false });
+  if (!node) throw AppError.notFound("Node not found");
+
+  const subtreeFilter =
+    node.type === "folder"
+      ? { ownerId, isDeleted: false, $or: [{ _id: node._id }, { ancestors: node._id }] }
+      : { ownerId, isDeleted: false, _id: node._id };
+
+  const affected = await DriveNodeModel.find(subtreeFilter).select("_id type").lean();
+  const affectedIds = affected.map((n) => n._id);
+  const now = new Date();
+
+  await DriveNodeModel.updateMany(subtreeFilter, {
+    $set: {
+      isDeleted: true,
+      deletedAt: now,
+      originalPath: node.path,
+      updatedBy: ownerId,
+    },
+  });
+
+  let purgedObjects = 0;
+  if (options.purge && affectedIds.length > 0) {
+    const versions = await FileVersionModel.find({
+      nodeId: { $in: affectedIds },
+      ownerId,
+    })
+      .select("storage.key")
+      .lean();
+
+    const keys = versions.map((v) => v.storage.key).filter(Boolean);
+    if (keys.length > 0) {
+      await storage().deleteObjects(keys);
+      purgedObjects = keys.length;
+    }
+    await FileVersionModel.deleteMany({ nodeId: { $in: affectedIds }, ownerId });
+  }
+
+  return { deletedNodes: affectedIds.length, purgedObjects };
+}
+
+/** Aggregate bytes stored by an owner — the source of truth for quota display. */
+export async function getUsage(ownerId: string): Promise<{ bytes: number; files: number }> {
+  const rows = await DriveNodeModel.aggregate<{ bytes: number; files: number }>([
+    { $match: { ownerId, type: "file", isDeleted: false } },
+    { $group: { _id: null, bytes: { $sum: "$bytes" }, files: { $sum: 1 } } },
+  ]);
+
+  const row = rows[0];
+  return { bytes: row?.bytes ?? 0, files: row?.files ?? 0 };
+}

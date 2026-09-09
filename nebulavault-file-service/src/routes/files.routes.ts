@@ -1,9 +1,23 @@
-const express = require("express");
-const router = express.Router();
-const {
-  getFilesFoldersInGivenPath,
-} = require("../controllers/files.controller");
+import { Router } from "express";
 
-router.get("/", getFilesFoldersInGivenPath);
+import {
+  completeUploadsHandler,
+  downloadHandler,
+  listDirectoryHandler,
+  presignUploadsHandler,
+  usageHandler,
+} from "../controllers/files.controller.js";
+import { requireUser } from "../middleware/requireUser.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
-module.exports = router;
+const router = Router();
+
+router.use(requireUser);
+
+router.get("/", asyncHandler(listDirectoryHandler));
+router.get("/usage", asyncHandler(usageHandler));
+router.post("/uploads", asyncHandler(presignUploadsHandler));
+router.post("/uploads/complete", asyncHandler(completeUploadsHandler));
+router.get("/:nodeId/download", asyncHandler(downloadHandler));
+
+export default router;
