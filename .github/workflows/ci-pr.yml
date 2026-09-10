@@ -21,6 +21,7 @@ jobs:
       auth: ${{ steps.filter.outputs.auth }}
       gateway: ${{ steps.filter.outputs.gateway }}
       control_plane: ${{ steps.filter.outputs.control_plane }}
+      docs: ${{ steps.filter.outputs.docs }}
       agent: ${{ steps.filter.outputs.agent }}
       infra: ${{ steps.filter.outputs.infra }}
     steps:
@@ -39,6 +40,9 @@ jobs:
               - 'benzene-control-plane/**'
             agent:
               - 'benzene-node-agent/**'
+            docs:
+              - 'AGENTS.md'
+              - 'CLAUDE.md'
             infra:
               - 'infrastructure/**'
 
@@ -241,3 +245,16 @@ jobs:
         run: |
           diff -u ../benzene-control-plane/src/modules/devices/protocolVectors.ts src/protocolVectors.ts
           diff -u ../benzene-control-plane/src/modules/placement/grantVectors.ts src/grantVectors.ts
+
+  docs:
+    name: Agent guides are in sync
+    needs: detect-changes
+    if: needs.detect-changes.outputs.docs == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # CLAUDE.md and AGENTS.md serve different tools but must say the same
+      # thing; a guide that drifts is worse than no guide, because it is
+      # trusted.
+      - name: CLAUDE.md matches AGENTS.md
+        run: diff -u AGENTS.md CLAUDE.md
