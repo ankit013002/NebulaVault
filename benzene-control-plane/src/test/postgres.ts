@@ -92,6 +92,8 @@ export async function truncateAll(
 ): Promise<void> {
   await db.execute(
     sql`truncate table
+      ${schema.replicas},
+      ${schema.storagePolicies},
       ${schema.deviceEnrollments},
       ${schema.deviceStorageAllocations},
       ${schema.devices},

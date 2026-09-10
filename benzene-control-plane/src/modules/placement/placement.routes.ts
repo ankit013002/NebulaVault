@@ -1,0 +1,124 @@
+import { Router } from "express";
+import { z } from "zod";
+
+import { PROTECTION_MODES } from "../../db/schema.js";
+import { requireUser } from "../../middleware/requireUser.js";
+import { AppError } from "../../utils/AppError.js";
+import { asyncHandler } from "../../utils/asyncHandler.js";
+import {
+  confirmReplica,
+  decidePlacement,
+  getObjectProtection,
+  getPolicy,
+  getVaultProtection,
+  listUnderProtectedObjects,
+  reservePlacement,
+  setPolicy,
+} from "./placement.service.js";
+
+const router = Router();
+
+router.use(requireUser);
+
+const objectHash = z.string().regex(/^[a-f0-9]{64}$/i, "must be a SHA-256 hex digest");
+
+const policySchema = z.object({
+  mode: z.enum(PROTECTION_MODES),
+  cloudProtection: z.boolean().optional(),
+});
+
+const decideSchema = z.object({
+  objectHash,
+  sizeBytes: z.number().int().nonnegative(),
+});
+
+const reserveSchema = z.object({
+  objectHash,
+  sizeBytes: z.number().int().nonnegative(),
+  deviceIds: z.array(z.string().uuid()).min(1).max(10),
+});
+
+const confirmSchema = z.object({
+  objectHash,
+  deviceId: z.string().uuid(),
+  sizeBytes: z.number().int().nonnegative().optional(),
+});
+
+function parse<T>(schema: z.ZodType<T>, payload: unknown): T {
+  const result = schema.safeParse(payload);
+  if (!result.success) {
+    throw AppError.badRequest("Request validation failed", z.flattenError(result.error));
+  }
+  return result.data;
+}
+
+function ownerOf(req: { ownerId?: string }): string {
+  if (!req.ownerId) throw AppError.unauthorized();
+  return req.ownerId;
+}
+
+router.get(
+  "/policy",
+  asyncHandler(async (req, res) => {
+    res.status(200).json({ data: await getPolicy(ownerOf(req)) });
+  })
+);
+
+router.put(
+  "/policy",
+  asyncHandler(async (req, res) => {
+    const body = parse(policySchema, req.body);
+    res.status(200).json({ data: await setPolicy(ownerOf(req), body) });
+  })
+);
+
+/** Asks where an object should go, without committing to it. */
+router.post(
+  "/decide",
+  asyncHandler(async (req, res) => {
+    const body = parse(decideSchema, req.body);
+    res.status(200).json({ data: await decidePlacement(ownerOf(req), body) });
+  })
+);
+
+/** Reserves the chosen devices before any bytes move. */
+router.post(
+  "/reserve",
+  asyncHandler(async (req, res) => {
+    const body = parse(reserveSchema, req.body);
+    const reserved = await reservePlacement(ownerOf(req), body);
+    res.status(201).json({ data: { reserved } });
+  })
+);
+
+router.post(
+  "/confirm",
+  asyncHandler(async (req, res) => {
+    const body = parse(confirmSchema, req.body);
+    res.status(200).json({ data: await confirmReplica(ownerOf(req), body) });
+  })
+);
+
+router.get(
+  "/protection",
+  asyncHandler(async (req, res) => {
+    res.status(200).json({ data: await getVaultProtection(ownerOf(req)) });
+  })
+);
+
+router.get(
+  "/protection/under-protected",
+  asyncHandler(async (req, res) => {
+    res.status(200).json({ data: await listUnderProtectedObjects(ownerOf(req)) });
+  })
+);
+
+router.get(
+  "/protection/:objectHash",
+  asyncHandler(async (req, res) => {
+    const hash = parse(objectHash, req.params["objectHash"]);
+    res.status(200).json({ data: await getObjectProtection(ownerOf(req), hash) });
+  })
+);
+
+export default router;

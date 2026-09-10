@@ -11,6 +11,7 @@ import localObjectsRouter, { localObjectsEnabled } from "./routes/localObjects.r
 import permissionsRouter from "./routes/permissions.routes.js";
 import agentRouter from "./modules/devices/agent.routes.js";
 import devicesRouter from "./modules/devices/devices.routes.js";
+import placementRouter from "./modules/placement/placement.routes.js";
 import vaultsRouter from "./modules/vaults/vaults.routes.js";
 
 export function createApp(): express.Express {
@@ -51,6 +52,7 @@ export function createApp(): express.Express {
 
   app.use("/vaults", vaultsRouter);
   app.use("/devices", devicesRouter);
+  app.use("/placement", placementRouter);
   app.use("/drive-nodes", driveNodeRouter);
   app.use("/files", filesRouter);
   app.use("/folders", foldersRouter);
