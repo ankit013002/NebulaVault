@@ -1,3 +1,5 @@
 /node_modules
 
 .env*
+# Templates are committed; real .env files are not.
+!.env.example
