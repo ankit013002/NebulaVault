@@ -89,7 +89,7 @@ export default function Navbar() {
                       exit={{ opacity: 0, rotate: 180, scale: 0 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <Sun size={20} className="text-amber-500" />
+                      <Sun size={20} className="text-foreground" />
                     </motion.div>
                   ) : (
                     <motion.div

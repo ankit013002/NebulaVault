@@ -37,7 +37,7 @@ export default function Hero() {
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-bz-surface/80 border border-bz-border text-xs font-semibold uppercase tracking-widest text-bz-muted backdrop-blur-sm">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
             Enterprise Ready
           </span>
         </motion.div>
@@ -49,7 +49,7 @@ export default function Hero() {
         >
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-bz-text leading-tight mb-6">
             Your personal cloud,{" "}
-            <span className="bg-gradient-to-r from-bz-primary via-bz-primary2 to-sky-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-bz-primary via-bz-primary2 to-bz-muted bg-clip-text text-transparent">
               reimagined
             </span>
           </h1>

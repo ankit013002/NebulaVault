@@ -3,7 +3,7 @@
 import { motion, useInView } from "framer-motion";
 import { useRef } from "react";
 
-const LOGOS = ["QUANTUM_CO", "VOID_TECH", "NEBULA_LOGISTICS"] as const;
+const LOGOS = ["QUANTUM_CO", "VOID_TECH", "MERIDIAN_LABS"] as const;
 
 export default function CTASection() {
   const ref = useRef<HTMLDivElement>(null);
@@ -18,7 +18,7 @@ export default function CTASection() {
         transition={{ duration: 0.7, ease: "easeOut" }}
       >
         {/* Gradient-border wrapper — 1px gradient ring around the card */}
-        <div className="p-px rounded-[2rem] bg-gradient-to-br from-bz-primary via-bz-primary2 to-sky-400 shadow-2xl shadow-bz-primary/20">
+        <div className="p-px rounded-[2rem] bg-gradient-to-br from-bz-primary via-bz-primary2 to-bz-muted shadow-2xl shadow-bz-primary/20">
           <div className="bg-[#1e2a3d] text-white py-16 px-8 md:py-20 md:px-20 rounded-[1.95rem] flex flex-col items-center text-center space-y-8">
             {/* Headline */}
             <h2 className="text-4xl md:text-6xl font-extrabold tracking-tight leading-tight">
