@@ -15,6 +15,7 @@ import {
   reservePlacement,
   setPolicy,
 } from "./placement.service.js";
+import { planDownload, planUpload } from "./uploadTargets.service.js";
 
 const router = Router();
 
@@ -96,6 +97,27 @@ router.post(
   asyncHandler(async (req, res) => {
     const body = parse(confirmSchema, req.body);
     res.status(200).json({ data: await confirmReplica(ownerOf(req), body) });
+  })
+);
+
+/**
+ * Where to PUT an object, and with what authority. The browser sends the bytes
+ * to the devices named here; they never pass through the control plane.
+ */
+router.post(
+  "/upload-targets",
+  asyncHandler(async (req, res) => {
+    const body = parse(decideSchema, req.body);
+    res.status(200).json({ data: await planUpload(ownerOf(req), body) });
+  })
+);
+
+/** Devices that hold an object, with read authorisation for each. */
+router.get(
+  "/download-targets/:objectHash",
+  asyncHandler(async (req, res) => {
+    const hash = parse(objectHash, req.params["objectHash"]);
+    res.status(200).json({ data: { targets: await planDownload(ownerOf(req), hash) } });
   })
 );
 

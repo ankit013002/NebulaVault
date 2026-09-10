@@ -1,5 +1,3 @@
-import { randomBytes } from "node:crypto";
-
 import { Agent, AGENT_VERSION } from "./agent.js";
 import { loadAgentConfig } from "./config.js";
 import { ObjectStore } from "./store.js";
@@ -43,6 +41,27 @@ async function main(): Promise<void> {
     `[agent] contributing ${config.allocatedBytes} bytes, ${store.usedBytes()} used`
   );
 
+  /**
+   * The transfer server can only run once enrolled: it needs this device's id
+   * and the control plane's public key to verify grants. Serving before then
+   * would mean serving with nothing to check against.
+   */
+  let server: ReturnType<ReturnType<typeof createTransferServer>["listen"]> | undefined;
+
+  const startTransferServer = (): void => {
+    if (server) return;
+    const identity = agent.currentIdentity();
+    if (!identity?.deviceId || !identity.controlPlanePublicKey) return;
+
+    server = createTransferServer({
+      store,
+      deviceId: identity.deviceId,
+      controlPlanePublicKey: identity.controlPlanePublicKey,
+    }).listen(config.port, () => {
+      console.log(`[agent] transfer server listening on ${config.advertisedUrl}`);
+    });
+  };
+
   const { enrolled } = await agent.ensureEnrolled();
   if (!enrolled) {
     // Poll until the user approves; the code is already on screen.
@@ -53,6 +72,7 @@ async function main(): Promise<void> {
           if (done) {
             clearInterval(poll);
             agent.startHeartbeat();
+            startTransferServer();
           }
         })
         .catch((err: unknown) => console.error("[agent] enrollment check failed:", err));
@@ -60,21 +80,14 @@ async function main(): Promise<void> {
     poll.unref?.();
   } else {
     agent.startHeartbeat();
+    startTransferServer();
   }
-
-  // Ephemeral per process. Peers obtain it from the control plane; a restart
-  // invalidates outstanding grants, which is the correct behaviour while this
-  // is a single shared secret rather than per-object scoped tokens.
-  const transferToken = process.env["BENZENE_TRANSFER_TOKEN"] ?? randomBytes(32).toString("hex");
-
-  const server = createTransferServer({ store, transferToken }).listen(config.port, () => {
-    console.log(`[agent] transfer server listening on :${config.port}`);
-  });
 
   const shutdown = (signal: string): void => {
     console.log(`[agent] ${signal} received, shutting down`);
     agent.stopHeartbeat();
-    server.close(() => process.exit(0));
+    if (server) server.close(() => process.exit(0));
+    else process.exit(0);
   };
 
   process.on("SIGTERM", () => shutdown("SIGTERM"));

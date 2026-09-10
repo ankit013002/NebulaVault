@@ -118,6 +118,9 @@ export class Agent {
     if (status.status === "consumed" && status.deviceId) {
       identity.deviceId = status.deviceId;
       identity.enrollmentId = null;
+      if (status.controlPlanePublicKey) {
+        identity.controlPlanePublicKey = status.controlPlanePublicKey;
+      }
       await this.identityStore.save(identity);
       this.events.onEnrolled?.(status.deviceId);
       return true;
@@ -143,6 +146,9 @@ export class Agent {
       usedBytes,
       availableBytes: this.store.availableBytes(),
       appVersion: AGENT_VERSION,
+      // Advertised by this device rather than inferred from the request's
+      // source address, which NAT would make wrong.
+      ...(this.config.advertisedUrl ? { advertisedUrl: this.config.advertisedUrl } : {}),
     });
 
     const report = { status: result.status, usedBytes };

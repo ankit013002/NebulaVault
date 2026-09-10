@@ -21,6 +21,14 @@ export interface AppConfig {
   deviceClockSkewSeconds: number;
   /** Silence after which a device is reported offline rather than online. */
   deviceOfflineAfterSeconds: number;
+  /**
+   * Ed25519 private key (base64 PKCS8) the control plane signs transfer grants
+   * with. Read lazily: only upload paths need it, so a deployment that has not
+   * configured one still serves everything else rather than failing to boot.
+   */
+  transferSigningKey: string | undefined;
+  /** How long a transfer grant stays usable. */
+  transferGrantTtlSeconds: number;
   s3: {
     bucket: string;
     region: string;
@@ -77,6 +85,8 @@ export function loadConfig(): AppConfig {
     enrollmentCodeTtlSeconds: intFromEnv("ENROLLMENT_CODE_TTL_SECONDS", 600),
     deviceClockSkewSeconds: intFromEnv("DEVICE_CLOCK_SKEW_SECONDS", 300),
     deviceOfflineAfterSeconds: intFromEnv("DEVICE_OFFLINE_AFTER_SECONDS", 120),
+    transferSigningKey: optional("TRANSFER_SIGNING_KEY"),
+    transferGrantTtlSeconds: intFromEnv("TRANSFER_GRANT_TTL_SECONDS", 300),
     storageDriver,
     maxUploadBytes: intFromEnv("MAX_UPLOAD_BYTES", 5 * 1024 * 1024 * 1024),
     presignTtlSeconds: intFromEnv("PRESIGN_TTL_SECONDS", 900),

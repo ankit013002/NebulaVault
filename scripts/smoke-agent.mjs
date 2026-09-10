@@ -16,6 +16,7 @@ import { fileURLToPath } from "node:url";
 import { mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { Readable } from "node:stream";
+import { createHash } from "node:crypto";
 import path from "node:path";
 
 const controlPlaneRequire = createRequire(
@@ -26,6 +27,7 @@ const agentRequire = createRequire(
 );
 
 const OWNER = "auth|smoke-user";
+const AGENT_PORT = 7171;
 const ALLOCATED = 64 * 1024 * 1024;
 
 let failures = 0;
@@ -65,6 +67,12 @@ async function main() {
     process.env.DATABASE_URL = databaseUrl;
     process.env.MONGOOSE_URI = mongo.getUri();
     process.env.STORAGE_DRIVER = "local";
+    // Transfer grants are signed with this; the agent receives the public half
+    // at enrollment.
+    const { generateTransferSigningKeys } = controlPlaneRequire(
+      "./built/modules/placement/transferGrant.js"
+    );
+    process.env.TRANSFER_SIGNING_KEY = generateTransferSigningKeys().privateKey;
     process.env.LOCAL_STORAGE_DIR = path.join(storageRoot, "cp");
 
     // --- migrate ------------------------------------------------------------
@@ -103,6 +111,8 @@ async function main() {
       allocatedBytes: ALLOCATED,
       deviceName: "Smoke Test Desktop",
       platform: "linux",
+      advertisedUrl: `http://127.0.0.1:${AGENT_PORT}`,
+      port: AGENT_PORT,
     });
 
     const store = new ObjectStore({
@@ -162,6 +172,105 @@ async function main() {
     check("vault counts the device as online capacity", vault.onlineCapacityBytes === ALLOCATED);
     check("vault sees the stored bytes", vault.usedBytes === payload.length, String(vault.usedBytes));
     check("object verifies against its hash", (await store.verify(stored.hash)) === true);
+
+    console.log("\nupload lands on the device");
+    const { createTransferServer } = agentRequire("./built/transferServer.js");
+    const identity = agent.currentIdentity();
+    check(
+      "agent received the control plane public key at enrollment",
+      Boolean(identity.controlPlanePublicKey)
+    );
+
+    const transferServer = createTransferServer({
+      store,
+      deviceId: identity.deviceId,
+      controlPlanePublicKey: identity.controlPlanePublicKey,
+    }).listen(AGENT_PORT);
+
+    // Re-heartbeat so the control plane records the advertised address.
+    await agent.sendHeartbeat();
+
+    const fileBody = Buffer.from("a file the user dragged into Benzene");
+    const objectHash = createHash("sha256").update(fileBody).digest("hex");
+
+    const planRes = await fetch(`${controlPlaneUrl}/placement/upload-targets`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "X-User-Id": OWNER },
+      body: JSON.stringify({ objectHash, sizeBytes: fileBody.length }),
+    });
+    const plan = (await planRes.json()).data;
+    check(
+      "control plane returned a device target",
+      plan.targets?.length === 1,
+      JSON.stringify(plan).slice(0, 220)
+    );
+
+    const target = plan.targets[0];
+    const putRes = await fetch(target.url, {
+      method: "PUT",
+      headers: {
+        "X-Transfer-Grant": target.grant,
+        "Content-Type": "application/octet-stream",
+      },
+      body: fileBody,
+    });
+    check("device accepted the bytes", putRes.status === 201, `status ${putRes.status}`);
+    check("bytes are on disk on the device", await store.has(objectHash));
+    check("stored object verifies against its hash", (await store.verify(objectHash)) === true);
+
+    const confirmRes = await fetch(`${controlPlaneUrl}/placement/confirm`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "X-User-Id": OWNER },
+      body: JSON.stringify({
+        objectHash,
+        deviceId: target.deviceId,
+        sizeBytes: fileBody.length,
+      }),
+    });
+    check("placement confirmed", confirmRes.status === 200);
+
+    const protRes = await fetch(
+      `${controlPlaneUrl}/placement/protection/${objectHash}`,
+      { headers: { "X-User-Id": OWNER } }
+    );
+    const protection = (await protRes.json()).data;
+    check("object reports one healthy replica", protection.healthyReplicas === 1);
+    // One copy on one device: safe today, gone if that device dies.
+    check(
+      "a single remaining copy is reported as at risk",
+      protection.state === "at_risk",
+      protection.state
+    );
+
+    console.log("\ndownload comes back from the device");
+    const dlRes = await fetch(
+      `${controlPlaneUrl}/placement/download-targets/${objectHash}`,
+      { headers: { "X-User-Id": OWNER } }
+    );
+    const dlTargets = (await dlRes.json()).data.targets;
+    check("a read grant was issued", dlTargets.length === 1);
+
+    const fetched = await fetch(dlTargets[0].url, {
+      headers: { "X-Transfer-Grant": dlTargets[0].grant },
+    });
+    const roundTripped = Buffer.from(await fetched.arrayBuffer());
+    check("bytes round-trip identically", roundTripped.equals(fileBody));
+
+    console.log("\ndevice refuses unauthorised transfers");
+    const noGrant = await fetch(target.url, { method: "GET" });
+    check("device refuses a request with no grant", noGrant.status === 401);
+
+    const wrongObject = await fetch(
+      `http://127.0.0.1:${AGENT_PORT}/objects/${"c".repeat(64)}`,
+      { headers: { "X-Transfer-Grant": dlTargets[0].grant } }
+    );
+    check(
+      "device refuses a grant replayed onto another object",
+      wrongObject.status === 401,
+      `status ${wrongObject.status}`
+    );
+
+    await new Promise((r) => transferServer.close(r));
 
     console.log("\nrejects a forged signature");
     const forged = await fetch(`${controlPlaneUrl}/agent/heartbeat`, {

@@ -21,6 +21,8 @@ export interface EnrollmentStatus {
   platform: string;
   expiresAt: string;
   deviceId: string | null;
+  /** Present only once approved. */
+  controlPlanePublicKey?: string;
 }
 
 export interface HeartbeatResult {
@@ -108,12 +110,14 @@ export class ControlPlaneClient {
     usedBytes: number;
     availableBytes: number;
     appVersion: string;
+    advertisedUrl?: string;
   }): Promise<HeartbeatResult> {
     const path = "/agent/heartbeat";
     const body = JSON.stringify({
       usedBytes: input.usedBytes,
       availableBytes: input.availableBytes,
       appVersion: input.appVersion,
+      ...(input.advertisedUrl ? { advertisedUrl: input.advertisedUrl } : {}),
     });
 
     const res = await this.fetchImpl(`${this.baseUrl}${path}`, {

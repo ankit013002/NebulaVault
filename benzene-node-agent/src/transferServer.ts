@@ -1,35 +1,27 @@
-import { timingSafeEqual } from "node:crypto";
-
 import express, { type Express } from "express";
 import helmet from "helmet";
 
 import { AllocationExceededError, IntegrityError, ObjectStore } from "./store.js";
+import { verifyTransferGrant, type TransferOperation } from "./transferGrant.js";
 
 /**
  * Serves this device's objects to peers on the local network.
  *
- * Architecture §81: a node must not expose an unrestricted file server. Access
- * is gated on a transfer token rather than being open to anything that can
- * reach the port.
+ * Architecture §81: a node must not expose an unrestricted file server. Every
+ * request must carry a grant from the control plane naming this device, this
+ * object and this operation, and expiring within minutes.
  *
- * The token here is a single shared secret issued by the control plane at
- * startup — enough to keep the port from being an open door, but deliberately
- * weaker than the eventual design, which scopes a token to one object, one
- * peer and a few minutes. That upgrade belongs with remote transfers, when the
- * port stops being LAN-only; until then this is the honest limit.
+ * This replaced an earlier per-process shared secret, which authorised
+ * everything on the device for as long as the process lived — one leak exposed
+ * the whole store. A leaked grant exposes one object for a few minutes.
  */
 
 export interface TransferServerOptions {
   store: ObjectStore;
-  /** Shared secret peers must present. */
-  transferToken: string;
-}
-
-function tokensMatch(a: string, b: string): boolean {
-  const left = Buffer.from(a, "utf8");
-  const right = Buffer.from(b, "utf8");
-  if (left.length !== right.length) return false;
-  return timingSafeEqual(left, right);
+  /** This device's id, as assigned at enrollment. */
+  deviceId: string;
+  /** Control plane's Ed25519 public key, received at enrollment. */
+  controlPlanePublicKey: string;
 }
 
 const HASH_PATTERN = /^[a-f0-9]{64}$/;
@@ -48,15 +40,6 @@ export function createTransferServer(options: TransferServerOptions): Express {
     });
   });
 
-  app.use((req, res, next) => {
-    const provided = req.get("x-transfer-token") ?? "";
-    if (!tokensMatch(provided, options.transferToken)) {
-      res.status(401).json({ message: "Invalid transfer token", code: "UNAUTHORIZED" });
-      return;
-    }
-    next();
-  });
-
   /** Object keys are hashes; anything else is refused before touching disk. */
   app.param("hash", (req, res, next, value: string) => {
     if (!HASH_PATTERN.test(value)) {
@@ -66,8 +49,38 @@ export function createTransferServer(options: TransferServerOptions): Express {
     next();
   });
 
+  /**
+   * Authorises one request against the grant it carries.
+   *
+   * The expected object and operation come from the route, not the grant, so a
+   * valid grant for one object cannot be replayed to reach another.
+   */
+  function authorise(
+    req: express.Request,
+    res: express.Response,
+    op: TransferOperation
+  ): boolean {
+    const grant = req.get("x-transfer-grant") ?? "";
+    const result = verifyTransferGrant({
+      grant,
+      controlPlanePublicKey: options.controlPlanePublicKey,
+      expected: {
+        objectHash: req.params["hash"] as string,
+        deviceId: options.deviceId,
+        op,
+      },
+    });
+
+    if (!result.ok) {
+      res.status(401).json({ message: "Transfer not authorised", code: result.reason });
+      return false;
+    }
+    return true;
+  }
+
   app.head("/objects/:hash", (req, res) => {
     void (async () => {
+      if (!authorise(req, res, "get")) return;
       const hash = req.params["hash"] as string;
       const meta = await options.store.metadata(hash);
       if (!meta) {
@@ -82,6 +95,7 @@ export function createTransferServer(options: TransferServerOptions): Express {
 
   app.get("/objects/:hash", (req, res) => {
     void (async () => {
+      if (!authorise(req, res, "get")) return;
       const hash = req.params["hash"] as string;
       if (!(await options.store.has(hash))) {
         res.status(404).json({ message: "Object not held", code: "NOT_FOUND" });
@@ -95,6 +109,7 @@ export function createTransferServer(options: TransferServerOptions): Express {
 
   app.put("/objects/:hash", (req, res) => {
     void (async () => {
+      if (!authorise(req, res, "put")) return;
       const hash = req.params["hash"] as string;
       const declared = Number(req.get("content-length"));
 
@@ -122,6 +137,7 @@ export function createTransferServer(options: TransferServerOptions): Express {
 
   app.delete("/objects/:hash", (req, res) => {
     void (async () => {
+      if (!authorise(req, res, "delete")) return;
       await options.store.delete(req.params["hash"] as string);
       res.status(204).end();
     })();

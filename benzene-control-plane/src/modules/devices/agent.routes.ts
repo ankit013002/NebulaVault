@@ -5,6 +5,7 @@ import { PLATFORMS } from "../../db/schema.js";
 import { requireDevice } from "../../middleware/requireDevice.js";
 import { AppError } from "../../utils/AppError.js";
 import { asyncHandler } from "../../utils/asyncHandler.js";
+import { transferPublicKey } from "../placement/uploadTargets.service.js";
 import {
   getEnrollmentStatus,
   recordHeartbeat,
@@ -33,6 +34,7 @@ const heartbeatSchema = z.object({
   usedBytes: z.number().int().nonnegative().optional(),
   availableBytes: z.number().int().nonnegative().optional(),
   appVersion: z.string().max(40).optional(),
+  advertisedUrl: z.string().url().max(512).optional(),
 });
 
 function parse<T>(schema: z.ZodType<T>, payload: unknown): T {
@@ -59,7 +61,17 @@ router.get(
     if (typeof publicKey !== "string" || publicKey === "") {
       throw AppError.badRequest("publicKey query parameter is required");
     }
-    res.status(200).json({ data: await getEnrollmentStatus(enrollmentId, publicKey) });
+    const status = await getEnrollmentStatus(enrollmentId, publicKey);
+
+    // Once approved, the device needs the control plane's public key so it can
+    // verify the transfer grants it will be handed. Sent only on success, so a
+    // pending or rejected enrollment reveals nothing.
+    const controlPlanePublicKey =
+      status.status === "consumed" ? safeTransferPublicKey() : undefined;
+
+    res.status(200).json({
+      data: { ...status, ...(controlPlanePublicKey ? { controlPlanePublicKey } : {}) },
+    });
   })
 );
 
@@ -72,5 +84,17 @@ router.post(
     res.status(200).json({ data: await recordHeartbeat(req.deviceId, body) });
   })
 );
+
+/**
+ * A deployment without a signing key configured can still enroll devices; they
+ * simply cannot be given transfer authority until one exists.
+ */
+function safeTransferPublicKey(): string | undefined {
+  try {
+    return transferPublicKey();
+  } catch {
+    return undefined;
+  }
+}
 
 export default router;

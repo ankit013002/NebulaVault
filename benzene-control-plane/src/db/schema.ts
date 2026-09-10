@@ -89,6 +89,12 @@ export const devices = pgTable(
     publicKey: text("public_key").notNull(),
     status: text("status").notNull().default("pending"),
     appVersion: text("app_version"),
+    /**
+     * Where peers can reach this device's transfer server, as the agent
+     * reports it. Advertised by the device rather than inferred from the
+     * request's source address, which NAT would make wrong.
+     */
+    advertisedUrl: text("advertised_url"),
     lastSeenAt: timestamp("last_seen_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
