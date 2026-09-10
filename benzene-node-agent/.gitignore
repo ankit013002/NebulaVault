@@ -2,3 +2,6 @@
 /built
 .env*
 /storage
+
+# Templates are committed; real .env files are not.
+!.env.example

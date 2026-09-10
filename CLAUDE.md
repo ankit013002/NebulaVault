@@ -96,6 +96,54 @@ npm install && npm run dev
 cd nebula-gateway && ./mvnw test
 ```
 
+### Cloning onto a new machine
+
+Nothing secret needs copying between machines. Every connection string is
+local, and every secret is regenerable — a fresh clone means fresh databases,
+so old signing keys have nothing to be consistent with.
+
+```bash
+# macOS prerequisites
+brew install node@20 postgresql@16 mongodb-community
+brew install --cask temurin@21          # gateway and user service need Java 21
+brew services start postgresql@16
+brew services start mongodb-community
+
+createdb benzene && createdb benzene_auth
+
+# One .env per service, from the committed templates
+for d in benzene-control-plane benzene-node-agent benzene-auth-service; do
+  cp $d/.env.example $d/.env
+done
+cp nebulavault-frontend/.env.example nebulavault-frontend/.env.local
+
+# Two secrets to generate
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+# -> AUTH_SECRET, identical in the frontend, gateway and auth service
+
+node -e "console.log(require('crypto').generateKeyPairSync('ed25519').privateKey.export({type:'pkcs8',format:'der'}).toString('base64'))"
+# -> TRANSFER_SIGNING_KEY in the control plane
+
+cd benzene-control-plane && npm install && npm run db:migrate
+```
+
+The gateway reads `AUTH_SECRET` from the environment, not a file:
+
+```bash
+cd nebula-gateway && AUTH_SECRET=<same value> ./mvnw spring-boot:run
+```
+
+Notes:
+
+- **First `npm test` in the control plane downloads a ~780 MB MongoDB binary**
+  for `mongodb-memory-server`. One time, per machine.
+- On macOS `JAVA_HOME` usually resolves correctly via `/usr/libexec/java_home`,
+  so the JDK override above is Windows-specific — but check `java -version`
+  reports 21 before blaming Maven.
+- The agent's `advertisedUrl` defaults to the machine's LAN address. On a Mac
+  that is generally right; override `BENZENE_ADVERTISED_URL` if it picks a
+  VPN or virtual interface.
+
 ### The JDK trap
 
 `JAVA_HOME` on the primary dev machine points at **JDK 11**, but the gateway and
