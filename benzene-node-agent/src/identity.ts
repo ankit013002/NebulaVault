@@ -15,6 +15,11 @@ export interface DeviceIdentity extends DeviceKeyPair {
   /** Assigned by the control plane once enrollment is approved. */
   deviceId: string | null;
   enrollmentId: string | null;
+  /**
+   * Control plane's Ed25519 public key, received when enrollment is approved.
+   * Without it the device cannot verify transfer grants, so it serves nothing.
+   */
+  controlPlanePublicKey: string | null;
   createdAt: string;
 }
 
@@ -46,6 +51,7 @@ export class IdentityStore {
       ...generateDeviceKeyPair(),
       deviceId: null,
       enrollmentId: null,
+      controlPlanePublicKey: null,
       createdAt: new Date().toISOString(),
     };
     await this.save(identity);

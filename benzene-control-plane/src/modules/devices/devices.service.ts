@@ -320,6 +320,12 @@ export interface HeartbeatInput {
   usedBytes?: number;
   availableBytes?: number;
   appVersion?: string;
+  /**
+   * Where peers can reach this device's transfer server. Advertised by the
+   * device rather than inferred from the request's source address, which NAT
+   * would make wrong.
+   */
+  advertisedUrl?: string;
 }
 
 /**
@@ -340,6 +346,7 @@ export async function recordHeartbeat(
       lastSeenAt: now,
       updatedAt: now,
       ...(input.appVersion ? { appVersion: input.appVersion } : {}),
+      ...(input.advertisedUrl ? { advertisedUrl: input.advertisedUrl } : {}),
       status: sql`case when ${devices.status} in ('draining','removed')
                        then ${devices.status} else 'online' end`,
     })

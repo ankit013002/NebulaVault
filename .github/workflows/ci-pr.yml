@@ -238,4 +238,6 @@ jobs:
       # between them, so a drift here would break device authentication in a
       # way neither package's own tests would catch.
       - name: Protocol vectors match the control plane
-        run: diff -u ../benzene-control-plane/src/modules/devices/protocolVectors.ts src/protocolVectors.ts
+        run: |
+          diff -u ../benzene-control-plane/src/modules/devices/protocolVectors.ts src/protocolVectors.ts
+          diff -u ../benzene-control-plane/src/modules/placement/grantVectors.ts src/grantVectors.ts

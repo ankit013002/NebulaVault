@@ -16,6 +16,10 @@ import {
   downloadFile,
   uploadFiles,
 } from "@/utils/file-system/uploadFiles";
+import {
+  SHORTFALL_MESSAGE,
+  uploadToDevices,
+} from "@/utils/file-system/deviceUpload";
 
 interface ListedFile {
   id: string;
@@ -42,6 +46,7 @@ export default function DashboardContentSection() {
     useState<ExistingDirectoryType | null>(null);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
 
   const router = useRouter();
   const params = useParams() as { path?: string[] };
@@ -110,10 +115,59 @@ export default function DashboardContentSection() {
     ];
 
     setError(null);
+    setNotice(null);
+
     try {
+      // Metadata first: the drive tree, folders and names live in the control
+      // plane regardless of which device ends up holding the bytes.
       await uploadFiles(currPath, files, folderPaths, setUploadProgress);
+
+      // Then the bytes themselves, browser straight to the user's devices.
+      const problems: string[] = [];
+      let stored = 0;
+
+      for (const [index, { file }] of files.entries()) {
+        setUploadProgress({
+          completed: index,
+          total: files.length,
+          currentFile: file.name,
+        });
+
+        const result = await uploadToDevices(file, (message) =>
+          setUploadProgress({
+            completed: index,
+            total: files.length,
+            currentFile: message,
+          })
+        );
+
+        if (result.storedOn.length === 0) {
+          problems.push(`${file.name} could not be stored on any device`);
+          continue;
+        }
+        stored += 1;
+
+        // A partial success is still a success — the file exists, just with
+        // less redundancy than the policy wants.
+        if (result.shortfall) {
+          problems.push(
+            `${file.name} is stored on ${result.storedOn.length} of ` +
+              `${result.desiredReplicas} devices`
+          );
+        }
+        for (const failure of result.failed) {
+          problems.push(`${failure.deviceName}: ${failure.reason}`);
+        }
+      }
+
+      if (problems.length > 0) {
+        setNotice(
+          `${stored} of ${files.length} file(s) stored. ${problems.join(". ")}.`
+        );
+      }
     } catch (e) {
-      setError(e instanceof Error ? e.message : "Upload failed");
+      const message = e instanceof Error ? e.message : "Upload failed";
+      setError(SHORTFALL_MESSAGE[message] ?? message);
     } finally {
       setUploadProgress(null);
       await fetchDir();
@@ -167,6 +221,12 @@ export default function DashboardContentSection() {
       {error && (
         <div role="alert" className="alert alert-error mx-4 my-2">
           <span>{error}</span>
+        </div>
+      )}
+
+      {notice && (
+        <div role="status" className="mx-4 my-2 rounded-lg border border-border bg-card px-4 py-2 text-sm text-muted-foreground">
+          {notice}
         </div>
       )}
 

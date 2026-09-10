@@ -1,4 +1,4 @@
-import { homedir, hostname } from "node:os";
+import { homedir, hostname, networkInterfaces } from "node:os";
 import path from "node:path";
 
 import dotenv from "dotenv";
@@ -16,6 +16,11 @@ export interface AgentConfig {
   allocatedBytes: number;
   /** Port the transfer server listens on for LAN peers. */
   port: number;
+  /**
+   * Absolute URL peers should use to reach this device. Defaults to the LAN
+   * address, which is what makes browser-to-device transfer work at home.
+   */
+  advertisedUrl: string;
   heartbeatIntervalMs: number;
   deviceName: string;
   platform: "macos" | "windows" | "linux" | "other";
@@ -61,12 +66,29 @@ export function loadAgentConfig(overrides: Partial<AgentConfig> = {}): AgentConf
     // the source of truth once the user has chosen an amount.
     allocatedBytes: overrides.allocatedBytes ?? intFromEnv("BENZENE_ALLOCATED_BYTES", 0),
     port: overrides.port ?? intFromEnv("BENZENE_AGENT_PORT", 7070),
+    advertisedUrl:
+      overrides.advertisedUrl ??
+      process.env["BENZENE_ADVERTISED_URL"] ??
+      `http://${lanAddress()}:${overrides.port ?? intFromEnv("BENZENE_AGENT_PORT", 7070)}`,
     heartbeatIntervalMs:
       overrides.heartbeatIntervalMs ?? intFromEnv("BENZENE_HEARTBEAT_MS", 30_000),
     deviceName:
       overrides.deviceName ?? process.env["BENZENE_DEVICE_NAME"] ?? defaultDeviceName(),
     platform: overrides.platform ?? detectPlatform(),
   };
+}
+
+/**
+ * First non-internal IPv4 address. Good enough for a home LAN; a device behind
+ * NAT that needs to be reachable remotely will need the relay path instead.
+ */
+function lanAddress(): string {
+  for (const entries of Object.values(networkInterfaces())) {
+    for (const entry of entries ?? []) {
+      if (entry.family === "IPv4" && !entry.internal) return entry.address;
+    }
+  }
+  return "127.0.0.1";
 }
 
 function defaultDeviceName(): string {
