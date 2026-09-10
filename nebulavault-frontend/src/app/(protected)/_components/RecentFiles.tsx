@@ -159,8 +159,8 @@ const RecentFiles = ({
           <div>
             <Breadcrumbs />
           </div>
-          <div className="bg-[#181922] rounded-2xl flex flex-col p-0">
-            <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-1 border-[#1d1d25] rounded-t-2xl p-2 text-lg font-medium">
+          <div className="bg-card border border-border rounded-2xl flex flex-col p-0">
+            <div className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-b border-border rounded-t-2xl p-2 text-lg font-medium">
               <div>Name</div>
               <div>Owner</div>
               <div>Last Modified</div>
@@ -173,7 +173,7 @@ const RecentFiles = ({
                   <div
                     onClick={() => updatePath(dirItem.name.replace("/", ""))}
                     key={index}
-                    className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-1 border-[#1d1d25] p-2 items-center hover:cursor-pointer hover:bg-[#2a2b3a]"
+                    className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-b border-border p-2 items-center hover:cursor-pointer hover:bg-muted"
                   >
                     <FolderRow folder={dirItem} onDelete={onDelete} />
                   </div>
@@ -184,7 +184,7 @@ const RecentFiles = ({
                 return (
                   <div
                     key={index}
-                    className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-1 border-[#1d1d25] p-2 items-center"
+                    className="grid grid-cols-[1fr_1fr_1fr_1fr_auto] border-b border-border p-2 items-center"
                   >
                     <FileRow
                       file={dirItem}
@@ -194,7 +194,7 @@ const RecentFiles = ({
                   </div>
                 );
               })}
-            <div className="border-2 border-[#1d1d25] rounded-b-2xl p-2">
+            <div className="rounded-b-2xl p-2">
               <div className="flex gap-2 text-sm">
                 <div>
                   <span>{existingDirItems?.folders.length}</span>

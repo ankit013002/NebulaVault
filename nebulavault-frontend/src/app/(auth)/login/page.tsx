@@ -3,8 +3,8 @@ import LoginForm from "../_components/LoginForm";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Sign in — Nebula Vault",
-  description: "Sign in to your Nebula Vault account.",
+  title: "Sign in — Benzene",
+  description: "Sign in to your Benzene account.",
 };
 
 export default function Page() {

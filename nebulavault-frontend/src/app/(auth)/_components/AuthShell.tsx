@@ -87,7 +87,7 @@ export default function AuthShell({
               <div className="flex items-center gap-3">
                 <GlowOrb size="md" />
                 <div className="text-lg font-bold text-bz-text">
-                  Nebula Vault
+                  Benzene
                 </div>
               </div>
               <h1 className="mt-4 text-3xl font-bold text-bz-text">{title}</h1>

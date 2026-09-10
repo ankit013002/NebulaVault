@@ -7,49 +7,64 @@
 
 /* === Theme Variables (Updated for Benzene Core) === */
 :root {
-  /* === Base (Clean, High-Tech Light) === */
-  --background: #ffffff;
-  --foreground: #09090b;
+  /*
+   * Benzene is monochrome. Colour is spent only on state — an error, a
+   * warning, a healthy vault — so that when something *is* coloured it
+   * carries meaning instead of decoration.
+   */
 
-  /* === UI Surfaces === */
-  --card: #f8fafc;
+  /* === Paper === */
+  --background: #ffffff;
+  --foreground: #0a0a0a;
+
+  /* === Surfaces === */
+  --card: #fafafa;
   --card-foreground: var(--foreground);
-  --popover: var(--card);
+  --popover: #ffffff;
   --popover-foreground: var(--foreground);
 
-  /* === Branding (Benzene Core Blue) === */
-  --primary: #0052cc;
+  /* === Ink. Primary actions are near-black, not a brand hue. === */
+  --primary: #171717;
   --primary-foreground: #ffffff;
 
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
+  --secondary: #f5f5f5;
+  --secondary-foreground: #171717;
 
-  --accent: #e0e7ff;
-  --accent-glow: #0052cc;
-  --accent-foreground: #0052cc;
+  --accent: #f5f5f5;
+  --accent-foreground: #171717;
 
-  /* === Muted / Neutral === */
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
+  /* === Muted / neutral === */
+  --muted: #f5f5f5;
+  --muted-foreground: #737373;
 
-  --destructive: #ef4444;
-  --destructive-foreground: #ffffff;
-
-  /* === Inputs & Borders === */
-  --border: #e2e8f0;
+  /* === Inputs & borders === */
+  --border: #e5e5e5;
   --input: var(--border);
-  --ring: var(--primary);
+  --ring: #0a0a0a;
 
-  /* === Charts === */
-  --chart-1: #0052cc;
-  --chart-2: #3b82f6;
-  --chart-3: #6366f1;
-  --chart-4: #8b5cf6;
-  --chart-5: #a855f7;
+  /*
+   * State colours. Deliberately desaturated: they must read as information
+   * against a greyscale page, not compete with it. Protection status is the
+   * one place a user genuinely needs hue, since "healthy" and "at risk" must
+   * not be distinguishable by shape alone.
+   */
+  --destructive: #b42318;
+  --destructive-foreground: #ffffff;
+  --success: #2f6f4f;
+  --success-foreground: #ffffff;
+  --warning: #8a6100;
+  --warning-foreground: #ffffff;
+
+  /* === Charts: a grey ramp, darkest first === */
+  --chart-1: #171717;
+  --chart-2: #404040;
+  --chart-3: #737373;
+  --chart-4: #a3a3a3;
+  --chart-5: #d4d4d4;
 
   /* === Sidebar === */
-  --sidebar: #f8fafc;
-  --sidebar-foreground: #64748b;
+  --sidebar: #fafafa;
+  --sidebar-foreground: #525252;
   --sidebar-primary: var(--primary);
   --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: var(--accent);
@@ -57,13 +72,12 @@
   --sidebar-border: var(--border);
   --sidebar-ring: var(--ring);
 
-  /* === Radius (Benzene Round Four) === */
-  --radius: 0.25rem;
+  --radius: 0.5rem;
 
   /* === DaisyUI mapped === */
   --color-base-100: var(--background);
-  --color-base-200: #f1f5f9;
-  --color-base-300: #e2e8f0;
+  --color-base-200: #f5f5f5;
+  --color-base-300: #e5e5e5;
   --color-base-content: var(--foreground);
 
   --color-primary: var(--primary);
@@ -75,17 +89,17 @@
   --color-accent: var(--accent);
   --color-accent-content: var(--accent-foreground);
 
-  --color-neutral: #1e293b;
-  --color-neutral-content: #f8fafc;
+  --color-neutral: #171717;
+  --color-neutral-content: #fafafa;
 
-  --color-info: #0ea5e9;
-  --color-info-content: white;
+  --color-info: #404040;
+  --color-info-content: #ffffff;
 
-  --color-success: #10b981;
-  --color-success-content: white;
+  --color-success: var(--success);
+  --color-success-content: var(--success-foreground);
 
-  --color-warning: #f59e0b;
-  --color-warning-content: black;
+  --color-warning: var(--warning);
+  --color-warning-content: var(--warning-foreground);
 
   --color-error: var(--destructive);
   --color-error-content: var(--destructive-foreground);
@@ -147,11 +161,15 @@
   --color-bz-text: var(--foreground);
   --color-bz-muted: var(--muted-foreground);
   --color-bz-primary: var(--primary);
-  --color-bz-primary2: #3b82f6;
+  --color-bz-primary2: var(--muted-foreground);
+  --color-bz-success: var(--success);
+  --color-bz-warning: var(--warning);
+  --color-bz-danger: var(--destructive);
 
-  --shadow-glow: 0 0 40px 8px rgba(0, 82, 204, 0.1);
-  --shadow-glow-sm: 0 0 20px 4px rgba(0, 82, 204, 0.05);
-  --shadow-card: 0 4px 12px rgba(0, 0, 0, 0.05);
+  /* Flat elevation instead of coloured bloom. */
+  --shadow-glow: 0 1px 2px rgba(10, 10, 10, 0.06), 0 8px 24px rgba(10, 10, 10, 0.06);
+  --shadow-glow-sm: 0 1px 2px rgba(10, 10, 10, 0.05);
+  --shadow-card: 0 1px 2px rgba(10, 10, 10, 0.05);
 }
 
 /* Animations preserved from original */
@@ -194,32 +212,55 @@
 
 /* === Dark Mode (Updated for Benzene Core) === */
 .dark {
-  --background: #020617;
-  --foreground: #f8fafc;
+  --background: #0a0a0a;
+  --foreground: #fafafa;
 
-  --card: #0f172a;
+  --card: #141414;
   --card-foreground: var(--foreground);
-  --popover: var(--card);
+  --popover: #141414;
   --popover-foreground: var(--foreground);
 
-  --primary: #3b82f6;
-  --primary-foreground: #ffffff;
-  --secondary: #1e293b;
+  /* Inverted: on dark, the emphatic surface is white. */
+  --primary: #fafafa;
+  --primary-foreground: #0a0a0a;
+
+  --secondary: #1f1f1f;
   --secondary-foreground: var(--foreground);
 
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
+  --muted: #1f1f1f;
+  --muted-foreground: #a3a3a3;
+  --accent: #1f1f1f;
   --accent-foreground: var(--foreground);
 
-  --destructive: #7f1d1d;
-  --border: rgba(255, 255, 255, 0.1);
-  --input: rgba(255, 255, 255, 0.15);
-  --ring: #3b82f6;
+  /* Lifted for contrast against near-black. */
+  --destructive: #f04438;
+  --destructive-foreground: #0a0a0a;
+  --success: #5bbf8c;
+  --success-foreground: #0a0a0a;
+  --warning: #e5a53a;
+  --warning-foreground: #0a0a0a;
 
-  /* Dark sidebar */
-  --sidebar: #0f172a;
-  --sidebar-foreground: #94a3b8;
+  --border: rgba(255, 255, 255, 0.12);
+  --input: rgba(255, 255, 255, 0.18);
+  --ring: #fafafa;
+
+  --chart-1: #fafafa;
+  --chart-2: #d4d4d4;
+  --chart-3: #a3a3a3;
+  --chart-4: #737373;
+  --chart-5: #404040;
+
+  --sidebar: #141414;
+  --sidebar-foreground: #a3a3a3;
+
+  --color-base-100: var(--background);
+  --color-base-200: #1f1f1f;
+  --color-base-300: #2e2e2e;
+  --color-base-content: var(--foreground);
+  --color-neutral: #fafafa;
+  --color-neutral-content: #0a0a0a;
+  --color-info: #d4d4d4;
+  --color-info-content: #0a0a0a;
 }
 
 /* === Base Layer === */
@@ -232,11 +273,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* === Cosmic Glow Accent === */
+/*
+ * Retained so existing markup keeps working, but no longer a neon bloom —
+ * emphasis now comes from weight and contrast rather than a coloured halo.
+ */
 .glow {
-  text-shadow:
-    0 0 10px var(--accent-glow),
-    0 0 20px var(--accent-glow);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 /* === Card Utility === */
@@ -347,6 +390,6 @@ body {
 }
 
 .bz-root:hover .bz-icon-hex {
-  filter: drop-shadow(0 0 6px rgba(0, 82, 204, 0.7));
-  transition: filter 0.4s ease;
+  opacity: 0.72;
+  transition: opacity 0.3s ease;
 }

@@ -28,7 +28,7 @@ export default function CTASection() {
             {/* Subtitle */}
             <p className="text-white/65 max-w-lg text-lg leading-relaxed">
               Join developers and teams who&apos;ve moved their critical files
-              to NebulaVault. Start free — no credit card required.
+              to Benzene. Start free — no credit card required.
             </p>
 
             {/* CTAs */}

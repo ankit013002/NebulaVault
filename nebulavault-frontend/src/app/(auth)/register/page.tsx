@@ -3,8 +3,8 @@ import RegisterForm from "../_components/RegisterForm";
 import Link from "next/link";
 
 export const metadata = {
-  title: "Create account — Nebula Vault",
-  description: "Create your Nebula Vault account.",
+  title: "Create account — Benzene",
+  description: "Create your Benzene account.",
 };
 
 export default function Page() {

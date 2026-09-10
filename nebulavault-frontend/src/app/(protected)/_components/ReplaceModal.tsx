@@ -15,7 +15,7 @@ const ReplaceModal = ({
 }: ReplaceModalProps) => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
-      <div className="bg-[#181922] rounded-2xl shadow-2xl w-[90%] max-w-md p-6 flex flex-col gap-4 animate-fade-in">
+      <div className="bg-card border border-border rounded-2xl shadow-2xl w-[90%] max-w-md p-6 flex flex-col gap-4 animate-fade-in">
         <div className="text-center text-xl font-semibold text-white">
           Replace Files?
         </div>
