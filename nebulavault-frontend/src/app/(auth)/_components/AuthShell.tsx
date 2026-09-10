@@ -40,10 +40,7 @@ export default function AuthShell({
               <GlowOrb size="md" />
               <div className="leading-tight">
                 <div className="text-2xl font-extrabold tracking-tight text-bz-text">
-                  NEBULA
-                </div>
-                <div className="text-2xl font-extrabold tracking-tight text-bz-text">
-                  VAULT
+                  BENZENE
                 </div>
               </div>
             </div>

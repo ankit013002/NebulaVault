@@ -7,7 +7,7 @@ const SideBarTitleSection = () => {
         
         <div className="w-5 h-5 rounded-full bg-foreground"></div>
       </div>
-      <div className="font-black text-2xl">NEBULA VAULT</div>
+      <div className="font-black text-2xl tracking-tight">BENZENE</div>
     </div>
   );
 };

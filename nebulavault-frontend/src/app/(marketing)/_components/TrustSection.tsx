@@ -50,11 +50,11 @@ export default function TrustSection() {
               {/* Server rack card */}
               <div className="absolute inset-4 bg-bz-card rounded-3xl shadow-2xl overflow-hidden border border-bz-border flex flex-col items-stretch justify-center gap-3 p-8">
                 {[
-                  { width: "78%", pulse: "bg-emerald-400", label: "NODE-01" },
+                  { width: "78%", pulse: "bg-success", label: "NODE-01" },
                   { width: "62%", pulse: "bg-bz-primary", label: "NODE-02" },
-                  { width: "91%", pulse: "bg-emerald-400", label: "NODE-03" },
+                  { width: "91%", pulse: "bg-success", label: "NODE-03" },
                   { width: "55%", pulse: "bg-bz-primary", label: "NODE-04" },
-                  { width: "83%", pulse: "bg-emerald-400", label: "NODE-05" },
+                  { width: "83%", pulse: "bg-success", label: "NODE-05" },
                 ].map((row, i) => (
                   <div
                     key={i}

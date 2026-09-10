@@ -71,7 +71,7 @@ export default function FeatureCards() {
         >
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-bz-text mb-4">
             Built for{" "}
-            <span className="bg-gradient-to-r from-bz-primary via-bz-primary2 to-sky-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-bz-primary via-bz-primary2 to-bz-muted bg-clip-text text-transparent">
               performance
             </span>
           </h2>
