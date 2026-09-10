@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import StorageUsage from "./StorageUsage";
 import RecentFiles from "./RecentFiles";
-import { FileSize, FileType } from "@/types/File";
+import { FileType } from "@/types/File";
 import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
 import { FileFolderBuffer } from "@/types/FileFolderBuffer";
 import { splitBuffers } from "@/utils/file-system/FileSystemUtils";
@@ -38,8 +38,6 @@ interface ListedFolder {
 
 export default function DashboardContentSection() {
   const [isLoading, setIsLoading] = useState(true);
-  const [totalStorageOccupied, setTotalStorageOccupied] =
-    useState<FileSize | null>(null);
   const [existingDirectoryItems, setExistingDirectoryItems] =
     useState<ExistingDirectoryType | null>(null);
   const [uploadProgress, setUploadProgress] = useState<UploadProgress | null>(null);
@@ -89,7 +87,6 @@ export default function DashboardContentSection() {
       };
 
       setExistingDirectoryItems(existingDirectory);
-      updateTotalStorageOccupied(existingDirectory);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Something went wrong");
       setExistingDirectoryItems({ ok: false, path: currPath, files: [], folders: [] });
@@ -101,13 +98,6 @@ export default function DashboardContentSection() {
   useEffect(() => {
     fetchDir();
   }, [fetchDir]);
-
-  const updateTotalStorageOccupied = (dirNode: ExistingDirectoryType) => {
-    let accumulatingSum = 0;
-    dirNode.folders.forEach((folder) => (accumulatingSum += folder.size.raw));
-    dirNode.files.forEach((file) => (accumulatingSum += file.size.raw));
-    setTotalStorageOccupied(getNormalizedSize(accumulatingSum));
-  };
 
   const uploadDirItems = async (items: FileFolderBuffer[]) => {
     const { files, emptyFolders, folders } = splitBuffers(items);
@@ -157,7 +147,7 @@ export default function DashboardContentSection() {
   return (
     <>
       <div>
-        <StorageUsage totalStorageOccupied={totalStorageOccupied} />
+        <StorageUsage />
       </div>
 
       {uploadProgress && (

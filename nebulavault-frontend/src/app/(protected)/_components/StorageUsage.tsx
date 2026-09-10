@@ -1,60 +1,159 @@
-import { FileSize } from "@/types/File";
-import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
+"use client";
+
 import React, { useEffect, useState } from "react";
 
-interface StorageUsageProps {
-  totalStorageOccupied: FileSize | null;
+import { getNormalizedSize } from "@/utils/file-system/NormalizedSize";
+
+interface VaultSummary {
+  name: string;
+  rawCapacityBytes: number;
+  onlineCapacityBytes: number;
+  usedBytes: number;
+  deviceCount: number;
+  onlineDeviceCount: number;
 }
 
-const StorageUsage = ({ totalStorageOccupied }: StorageUsageProps) => {
-  // const MAX = 1073741824; // 1GB
-  const MAX = 104857600; // 100MB
-  const [percentSpaceOccupied, setPercentSpaceOccupied] = useState<number>(0);
-  const [maxStorageSpace, setMaxStorageSpace] = useState<FileSize | null>(null);
+interface ProtectionSummary {
+  mode: string;
+  desiredReplicas: number;
+  singleCopy: boolean;
+  totalObjects: number;
+  state: "healthy" | "degraded" | "at_risk" | "unprotected" | "empty";
+}
+
+const PROTECTION_LABEL: Record<ProtectionSummary["state"], string> = {
+  healthy: "Protected",
+  degraded: "Restoring protection",
+  at_risk: "At risk",
+  unprotected: "Not protected",
+  empty: "Nothing stored yet",
+};
+
+/**
+ * Colour is spent only where it carries meaning. Everything else in Benzene is
+ * greyscale, so a coloured dot here reads as a status rather than decoration.
+ */
+const PROTECTION_TONE: Record<ProtectionSummary["state"], string> = {
+  healthy: "bg-success",
+  degraded: "bg-warning",
+  at_risk: "bg-destructive",
+  unprotected: "bg-destructive",
+  empty: "bg-muted-foreground",
+};
+
+function formatBytes(bytes: number): string {
+  const size = getNormalizedSize(bytes);
+  return `${size.value} ${size.unit}`;
+}
+
+/**
+ * The Vault header: how much storage the user's own devices contribute, how
+ * much is in use, and whether it is safe.
+ *
+ * Capacity comes from the devices themselves rather than a fixed quota — the
+ * whole premise is that the user already owns the storage.
+ */
+const StorageUsage = () => {
+  const [vault, setVault] = useState<VaultSummary | null>(null);
+  const [protection, setProtection] = useState<ProtectionSummary | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setMaxStorageSpace(getNormalizedSize(MAX));
-    if (totalStorageOccupied) {
-      setPercentSpaceOccupied((totalStorageOccupied.raw / MAX) * 100);
-    } else {
-      setPercentSpaceOccupied(0);
-    }
-  }, [totalStorageOccupied]);
+    let cancelled = false;
+
+    const load = async (): Promise<void> => {
+      try {
+        const [vaultRes, protectionRes] = await Promise.all([
+          fetch("/api/vault"),
+          fetch("/api/protection"),
+        ]);
+        if (!vaultRes.ok) throw new Error("Could not load your vault");
+
+        const vaultPayload = (await vaultRes.json()) as { data?: VaultSummary };
+        if (!cancelled) setVault(vaultPayload.data ?? null);
+
+        if (protectionRes.ok) {
+          const payload = (await protectionRes.json()) as { data?: ProtectionSummary };
+          if (!cancelled) setProtection(payload.data ?? null);
+        }
+      } catch (e) {
+        if (!cancelled) {
+          setError(e instanceof Error ? e.message : "Could not load your vault");
+        }
+      }
+    };
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const capacity = vault?.rawCapacityBytes ?? 0;
+  const used = vault?.usedBytes ?? 0;
+  const percentUsed = capacity > 0 ? Math.min(100, (used / capacity) * 100) : 0;
+  const state = protection?.state ?? "empty";
 
   return (
-    <div className="bg-[#13161c] py-5 px-2 rounded-2xl flex flex-col gap-2">
-      <div>Storage Usage</div>
-      <div className="relative h-2">
-        <div className="absolute rounded-2xl w-full h-2 bg-[#23242b]"></div>
-        <div
-          className={`absolute rounded-2xl h-2 bg-[#2161cf] transition-all duration-500`}
-          style={{ width: `${percentSpaceOccupied}%` }}
-        ></div>
-        <div
-          className={`absolute w-2 h-2 flex items-center justify-center transition-all duration-500`}
-          style={{ left: `${percentSpaceOccupied - 0.5}%` }}
-        >
-          <div className="absolute w-1 h-1 rounded-full bg-[#06b6d4] blur-xl opacity-60 animate-pulse"></div>
-          <div className="w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_15px_10px_#06b6d4]"></div>
+    <section className="rounded-2xl border border-border bg-card p-5 flex flex-col gap-4">
+      <header className="flex items-baseline justify-between gap-4">
+        <div>
+          <h2 className="text-sm font-medium tracking-tight text-foreground">
+            {vault?.name ?? "Your Vault"}
+          </h2>
+          <p className="text-xs text-muted-foreground">
+            {vault
+              ? `${vault.onlineDeviceCount} of ${vault.deviceCount} device${
+                  vault.deviceCount === 1 ? "" : "s"
+                } online`
+              : "Loading…"}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span
+            aria-hidden
+            className={`inline-block h-2 w-2 rounded-full ${PROTECTION_TONE[state]}`}
+          />
+          <span className="text-xs text-muted-foreground">
+            {PROTECTION_LABEL[state]}
+          </span>
+        </div>
+      </header>
+
+      <div>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+          <div
+            className="h-full rounded-full bg-foreground transition-all duration-500"
+            style={{ width: `${percentUsed}%` }}
+          />
+        </div>
+        <div className="mt-2 flex justify-between text-xs text-muted-foreground">
+          <span>{formatBytes(used)} used</span>
+          <span>{formatBytes(capacity)} contributed</span>
         </div>
       </div>
-      <div className="flex justify-between">
-        {totalStorageOccupied != null ? (
-          <div>
-            {totalStorageOccupied.value} {totalStorageOccupied.unit}
-          </div>
-        ) : (
-          <div>0 B</div>
-        )}
-        {maxStorageSpace != null ? (
-          <div>
-            {maxStorageSpace.value} {maxStorageSpace.unit}
-          </div>
-        ) : (
-          <div>0 B</div>
-        )}
-      </div>
-    </div>
+
+      {/*
+        Capacity on devices that are currently asleep cannot be written to, so
+        it is reported separately rather than folded into one number.
+      */}
+      {vault && vault.onlineCapacityBytes < vault.rawCapacityBytes && (
+        <p className="text-xs text-muted-foreground">
+          {formatBytes(vault.onlineCapacityBytes)} available right now — the rest is
+          on devices that are offline.
+        </p>
+      )}
+
+      {protection?.singleCopy && (
+        <p className="text-xs text-destructive">
+          Maximum Capacity keeps a single copy. If that device fails, those files
+          are gone permanently.
+        </p>
+      )}
+
+      {error && <p className="text-xs text-destructive">{error}</p>}
+    </section>
   );
 };
 

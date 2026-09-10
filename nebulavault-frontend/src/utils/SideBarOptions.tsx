@@ -5,6 +5,7 @@ import {
   FaClock,
   FaStar,
   FaTrash,
+  FaLaptop,
 } from "react-icons/fa";
 
 export type SideBarOptionType = {
@@ -38,5 +39,10 @@ export const SideBarOptions: SideBarOptionType[] = [
     id: 4,
     name: "Trash",
     icon: <FaTrash />,
+  },
+  {
+    id: 5,
+    name: "Devices",
+    icon: <FaLaptop />,
   },
 ];

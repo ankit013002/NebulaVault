@@ -18,7 +18,7 @@ export default function FAQ() {
     },
     {
       q: "Can I self-host?",
-      a: "Nebula Vault is built with a microservice mindset. A self-hosted option is on the roadmap.",
+      a: "Benzene is built with a microservice mindset. A self-hosted option is on the roadmap.",
     },
     {
       q: "How do I import existing files?",

@@ -6,7 +6,7 @@ const DashboardTitleSection = () => {
   return (
     <>
       <div className="text-5xl font-medium">Dashboard</div>
-      <button className="btn bg-[#181922] border-[#1d1d25] hover:brightness-75">
+      <button className="btn bg-card border-border text-foreground hover:bg-muted">
         New
       </button>
     </>

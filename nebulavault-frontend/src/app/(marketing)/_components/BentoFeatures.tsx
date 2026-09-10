@@ -25,7 +25,7 @@ export default function BentoFeatures() {
             </span>
           </h2>
           <p className="text-bz-muted max-w-2xl text-lg leading-relaxed">
-            We&apos;ve rebuilt storage from the atomic level up. NebulaVault isn&apos;t
+            We&apos;ve rebuilt storage from the atomic level up. Benzene isn&apos;t
             just a place to store files — it&apos;s infrastructure that outlasts you.
           </p>
         </motion.div>
@@ -112,9 +112,9 @@ export default function BentoFeatures() {
             </div>
             <div className="flex -space-x-3 pt-8">
               {[
-                "bg-blue-300",
-                "bg-indigo-300",
-                "bg-purple-300",
+                "bg-foreground/70",
+                "bg-foreground/50",
+                "bg-foreground/30",
               ].map((c, i) => (
                 <div
                   key={i}

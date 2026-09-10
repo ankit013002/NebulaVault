@@ -99,7 +99,7 @@ export default function Navbar() {
                       exit={{ opacity: 0, rotate: 180, scale: 0 }}
                       transition={{ duration: 0.3 }}
                     >
-                      <Moon size={20} className="text-blue-300" />
+                      <Moon size={20} className="text-muted-foreground" />
                     </motion.div>
                   )}
                 </AnimatePresence>

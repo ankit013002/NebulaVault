@@ -11,7 +11,7 @@ import CTASection from "./_components/CTASection";
 import Footer from "./_components/Footer";
 
 export const metadata = {
-  title: "NebulaVault — Your personal cloud, reimagined",
+  title: "Benzene — Your personal cloud, reimagined",
   description:
     "Secure, blazing-fast personal cloud with sharing, versioning, AI-powered search, and a zero-trust gateway.",
 };

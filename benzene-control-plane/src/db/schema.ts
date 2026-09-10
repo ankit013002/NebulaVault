@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import {
   bigint,
+  boolean,
   index,
   pgTable,
   text,
@@ -174,9 +175,107 @@ export const deviceEnrollments = pgTable(
   ]
 );
 
+/**
+ * How hard Benzene tries to keep data alive (product §9, architecture §16/§17).
+ *
+ * Replication factor, not erasure coding: §18 is explicit that erasure coding
+ * is a later optimisation, and replication is what a user can reason about.
+ */
+export const PROTECTION_MODES = ["maximum_capacity", "protected", "highly_protected"] as const;
+export type ProtectionMode = (typeof PROTECTION_MODES)[number];
+
+/** Replica count per mode. `maximum_capacity` keeps exactly one copy. */
+export const REPLICAS_FOR_MODE: Record<ProtectionMode, number> = {
+  maximum_capacity: 1,
+  protected: 2,
+  highly_protected: 3,
+};
+
+export const REPLICA_STATUSES = [
+  "placing",
+  "healthy",
+  "degraded",
+  "missing",
+  "corrupt",
+  "deleting",
+] as const;
+export type ReplicaStatus = (typeof REPLICA_STATUSES)[number];
+
+/**
+ * The vault's protection setting.
+ *
+ * One row per vault for now. Per-folder policy (product §9 shows different
+ * folders at different levels) will add a nullable path column rather than a
+ * separate table.
+ */
+export const storagePolicies = pgTable(
+  "storage_policies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    vaultId: uuid("vault_id")
+      .notNull()
+      .references(() => vaults.id, { onDelete: "cascade" }),
+    mode: text("mode").notNull().default("protected"),
+    cloudProtection: boolean("cloud_protection").notNull().default(false),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (table) => [uniqueIndex("storage_policies_vault_idx").on(table.vaultId)]
+);
+
+/**
+ * A physical copy of an object on one device.
+ *
+ * Objects are identified by content hash, so a replica row is the join between
+ * "these bytes" and "this machine". The unique index on (vault, hash, device)
+ * enforces architecture §22 at the database level: two replicas of the same
+ * object can never land on the same failure domain, whatever the placement
+ * engine believes.
+ */
+export const replicas = pgTable(
+  "replicas",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    vaultId: uuid("vault_id")
+      .notNull()
+      .references(() => vaults.id, { onDelete: "cascade" }),
+    /** SHA-256 of the object's bytes, lowercase hex. */
+    objectHash: text("object_hash").notNull(),
+    deviceId: uuid("device_id")
+      .notNull()
+      .references(() => devices.id, { onDelete: "cascade" }),
+    sizeBytes: bigint("size_bytes", { mode: "number" }).notNull().default(0),
+    status: text("status").notNull().default("placing"),
+    /** Last time the device confirmed the bytes still hash correctly (§48). */
+    verifiedAt: timestamp("verified_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .default(sql`now()`),
+  },
+  (table) => [
+    uniqueIndex("replicas_object_device_idx").on(
+      table.vaultId,
+      table.objectHash,
+      table.deviceId
+    ),
+    index("replicas_object_idx").on(table.vaultId, table.objectHash),
+    index("replicas_device_idx").on(table.deviceId, table.status),
+  ]
+);
+
 export type Vault = typeof vaults.$inferSelect;
 export type NewVault = typeof vaults.$inferInsert;
 export type Device = typeof devices.$inferSelect;
 export type NewDevice = typeof devices.$inferInsert;
 export type DeviceStorageAllocation = typeof deviceStorageAllocations.$inferSelect;
 export type DeviceEnrollment = typeof deviceEnrollments.$inferSelect;
+export type StoragePolicy = typeof storagePolicies.$inferSelect;
+export type Replica = typeof replicas.$inferSelect;
+export type NewReplica = typeof replicas.$inferInsert;
